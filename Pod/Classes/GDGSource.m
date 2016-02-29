@@ -6,6 +6,7 @@
 //
 //
 
+#import <objc/runtime.h>
 #import "GDGSource.h"
 
 #import "ObjectiveSugar.h"
@@ -28,10 +29,13 @@
 	
 	NSString *sourceName = [columnName substringToIndex:dotIndex];
 	NSString *columnRealName = [columnName substringFromIndex:dotIndex + 1];
-	
-	return [self.alias caseInsensitiveCompare:sourceName] == NSOrderedSame ? [self.columns detect:^BOOL(id object) {
+
+	BOOL isSameSource = [self.alias caseInsensitiveCompare:sourceName] == NSOrderedSame;
+	GDGColumn *column = [self.columns detect:^BOOL(id object) {
 		return [((GDGColumn*) object).name caseInsensitiveCompare:columnRealName] == NSOrderedSame;
-	}] : nil;
+	}];
+
+	return isSameSource ? column : nil;
 }
 
 - (NSString*)adjustColumnNamed:(NSString*)columnName
@@ -49,5 +53,20 @@
 {
 	@throw [NSException exceptionWithName:@"Unsupported exception" reason:@"Can't set a column object" userInfo:nil];
 }
+
+@end
+
+@implementation GDGColumn (Source)
+
+- (GDGSource *)source
+{
+	return objc_getAssociatedObject(self, _cmd);
+}
+
+- (void)setSource:(GDGSource *)source
+{
+	objc_setAssociatedObject(self, @selector(source), source, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
 
 @end

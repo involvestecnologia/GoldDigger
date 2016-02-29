@@ -17,11 +17,11 @@
 #import "GDGHasOneRelation.h"
 #import "GDGTableSource.h"
 #import "GDGValueAdapter.h"
-#import "CIRDatabase.h"
-#import "CIRResultSet.h"
 #import "ObjectiveSugar.h"
 #import "GDGConditionBuilder+EntityQuery.h"
 #import <objc/runtime.h>
+#import <SQLAid/CIRDatabase.h>
+#import <SQLAid/CIRResultSet.h>
 
 static CIRDatabase *Database;
 static NSMutableArray *Callbacks;

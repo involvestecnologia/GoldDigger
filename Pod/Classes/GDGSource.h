@@ -12,20 +12,21 @@
 
 @interface GDGSource : NSObject
 
-@property(strong, nonatomic) NSString *alias;
-@property(strong, readonly, nonatomic) NSArray<GDGColumn *> *columns;
+@property (strong, nonatomic) NSString *alias;
+@property (readonly, nonatomic) NSArray<GDGColumn *> *columns;
 
 - (GDGColumn *)columnNamed:(NSString *)columnName;
 
 - (NSString *)adjustColumnNamed:(NSString *)columnName;
 
 - (GDGColumn *)objectForKeyedSubscript:(NSString *)idx;
+
 - (void)setObject:(id)obj forKeyedSubscript:(NSString *)idx;
 
 @end
 
 @interface GDGColumn (Source)
 
-@property(nonatomic) GDGSource *source;
+@property (nonatomic) GDGSource *source;
 
 @end

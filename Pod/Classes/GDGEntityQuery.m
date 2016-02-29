@@ -23,7 +23,7 @@
 
 - (instancetype)initWithManager:(GDGEntityManager*)manager
 {
-	if (self = [super init])
+	if (self = [super initWithSource:manager.settings.tableSource])
 	{
 		_manager = manager;
 
