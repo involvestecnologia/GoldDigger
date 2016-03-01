@@ -16,7 +16,7 @@
 
 - (instancetype)initWithEntityQuery:(GDGEntityQuery *)entityQuery
 {
-	if (self = [super init])
+	if (self = [self init])
 	{
 		self.query = entityQuery;
 	}

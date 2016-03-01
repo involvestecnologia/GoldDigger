@@ -8,6 +8,6 @@
 
 @interface GDGSource ()
 
-@property(strong, readwrite, nonatomic) NSArray<GDGColumn *> *columns;
+@property(readwrite, nonatomic) NSArray<GDGColumn *> *columns;
 
 @end

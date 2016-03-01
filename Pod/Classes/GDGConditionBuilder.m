@@ -10,7 +10,7 @@
 
 #import "GDGColumn.h"
 #import "GDGQuery.h"
-#import "ObjectiveSugar.h"
+#import <ObjectiveSugar/ObjectiveSugar.h>
 
 @interface GDGConditionBuilder ()
 
@@ -149,6 +149,11 @@
 - (GDGConditionBuilder*)appendValue:(id)value forOperator:(NSString *)operator
 {
 	NSString *propertyName = [_strings lastObject];
+
+	NSUInteger dotIndex = [propertyName rangeOfString:@"."].location;
+
+	if (dotIndex != NSNotFound)
+		propertyName = [propertyName substringFromIndex:dotIndex + 1];
 	
 	unsigned int random = arc4random() % 100;
 	

@@ -14,10 +14,10 @@
 #import "GDGJoin.h"
 #import "GDGQuery_Protected.h"
 #import "GDGTableSource.h"
-#import "CIRDatabase.h"
-#import "CIRResultSet.h"
-#import "NSArray+ObjectiveSugar.h"
 #import "GDGConditionBuilder_Protected.h"
+#import <SQLAid/CIRDatabase.h>
+#import <SQLAid/CIRResultSet.h>
+#import <ObjectiveSugar/NSArray+ObjectiveSugar.h>
 
 @interface GDGQuery ()
 
@@ -44,7 +44,8 @@
 	{
 		_source = source;
 		_conditionBuilder = [[GDGConditionBuilder alloc] init];
-		
+		_mutableProjection = [[NSMutableArray alloc] init];
+
 		__weak __typeof(self)weakSelf = self;
 		
 		_select = ^GDGQuery* (NSArray<NSString*>* projection) {
@@ -146,7 +147,7 @@
 	
 	if (_distinctFlag) [query appendString:@" DISTINCT "];
 	
-	[query appendString:[_mutableProjection join:@", "]];
+	[query appendString:_mutableProjection.count > 0 ? @"*" : [_mutableProjection join:@", "]];
 	
 	[query appendString:@" FROM "];
 	[query appendString:_source.alias];

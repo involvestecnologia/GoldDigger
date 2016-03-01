@@ -12,7 +12,7 @@
 #import "GDGEntityQuery.h"
 #import "GDGEntitySettings.h"
 #import "GDGTableSource.h"
-#import "ObjectiveSugar.h"
+#import <ObjectiveSugar/ObjectiveSugar.h>
 
 @implementation GDGBelongsToRelation
 
