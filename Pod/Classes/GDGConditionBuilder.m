@@ -10,7 +10,7 @@
 
 #import "GDGColumn.h"
 #import "GDGQuery.h"
-#import "ObjectiveSugar.h"
+#import <ObjectiveSugar/ObjectiveSugar.h>
 
 @interface GDGConditionBuilder ()
 

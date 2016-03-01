@@ -6,10 +6,10 @@
 //
 //
 
-#import <objc/runtime.h>
 #import "GDGSource.h"
 
-#import "ObjectiveSugar.h"
+#import <objc/runtime.h>
+#import <ObjectiveSugar/ObjectiveSugar.h>
 
 @implementation GDGSource
 

@@ -9,9 +9,7 @@
 #import "GDGHasManyRelation.h"
 
 #import "GDGEntityQuery.h"
-#import "GDGEntitySettings.h"
-#import "GDGTableSource.h"
-#import "ObjectiveSugar.h"
+#import <ObjectiveSugar/ObjectiveSugar.h>
 #import "GDGConditionBuilder+EntityQuery.h"
 
 @implementation GDGHasManyRelation

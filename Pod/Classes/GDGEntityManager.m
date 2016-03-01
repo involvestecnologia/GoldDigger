@@ -17,9 +17,9 @@
 #import "GDGHasOneRelation.h"
 #import "GDGTableSource.h"
 #import "GDGValueAdapter.h"
-#import "ObjectiveSugar.h"
 #import "GDGConditionBuilder+EntityQuery.h"
 #import <objc/runtime.h>
+#import <ObjectiveSugar/ObjectiveSugar.h>
 #import <SQLAid/CIRDatabase.h>
 #import <SQLAid/CIRResultSet.h>
 

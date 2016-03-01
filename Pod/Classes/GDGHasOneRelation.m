@@ -10,7 +10,7 @@
 
 #import "GDGEntityQuery.h"
 #import "GDGConditionBuilder+EntityQuery.h"
-#import "ObjectiveSugar.h"
+#import <ObjectiveSugar/ObjectiveSugar.h>
 
 @implementation GDGHasOneRelation
 
