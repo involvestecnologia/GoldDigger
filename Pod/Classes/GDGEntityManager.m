@@ -3,7 +3,6 @@
 //  GoldDigger
 //
 //  Created by Pietro Caselani on 1/20/16.
-//  Copyright © 2016 Involves. All rights reserved.
 //
 
 #import "GDGEntityManager.h"
@@ -11,20 +10,16 @@
 #import "GDGBelongsToRelation.h"
 #import "GDGColumn.h"
 #import "GDGEntityQuery.h"
-#import "GDGEntitySettings.h"
 #import "GDGEntitySettings_Relations.h"
 #import "GDGHasManyRelation.h"
 #import "GDGHasOneRelation.h"
 #import "GDGTableSource.h"
-#import "GDGValueAdapter.h"
 #import "GDGConditionBuilder+EntityQuery.h"
+#import "CIRDatabase+GoldDigger.h"
 #import <objc/runtime.h>
 #import <ObjectiveSugar/ObjectiveSugar.h>
-#import <SQLAid/CIRDatabase.h>
 #import <SQLAid/CIRResultSet.h>
 
-static CIRDatabase *Database;
-static NSMutableArray *Callbacks;
 static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictionary;
 
 @interface GDGEntity (GDGEntityManager)
@@ -69,50 +64,7 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 	ClassSettingsDictionary = [[NSMutableDictionary alloc] init];
 }
 
-+ (GDGTableSource *)tableSourceWithName:(NSString *)tableName
-{
-	CIRResultSet *resultSet = [Database executeQuery:[NSString stringWithFormat:@"PRAGMA table_info(%@)", tableName]];
-
-	NSMutableArray<GDGColumn *> *columns = [[NSMutableArray alloc] init];
-
-	while ([resultSet next])
-	{
-		NSString *name = [resultSet textAtIndex:1];
-		GDGColumnType type = GDGColumnFindColumnTypeByName([resultSet textAtIndex:2]);
-		BOOL notNull = [resultSet boolAtIndex:3];
-		BOOL primaryKey = [resultSet boolAtIndex:5];
-
-		[columns addObject:[[GDGColumn alloc] initWithName:name type:type primaryKey:primaryKey notNull:notNull]];
-	}
-
-	return [[GDGTableSource alloc] initWithName:tableName columns:[NSArray arrayWithArray:columns]];
-}
-
-+ (void)executeOnDatabaseReady:(void (^)())callback
-{
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
-		Callbacks = [[NSMutableArray alloc] init];
-	});
-
-	[Callbacks addObject:callback];
-}
-
-+ (void)setDatabase:(CIRDatabase *)database
-{
-	Database = database;
-
-	for (void (^callback)() in Callbacks) callback();
-
-	[Callbacks removeAllObjects];
-}
-
-+ (CIRDatabase *)database
-{
-	return Database;
-}
-
-#pragma mark - Inits
+#pragma mark - Initialization
 
 - (instancetype)initWithEntity:(GDGEntity *)entity
 {
@@ -130,7 +82,8 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 {
 	if (self = [super init])
 	{
-		if (ClassSettingsDictionary == nil) ClassSettingsDictionary = [[NSMutableDictionary alloc] init];
+		if (ClassSettingsDictionary == nil)
+			ClassSettingsDictionary = [NSMutableDictionary dictionary];
 
 		NSString *className = NSStringFromClass(entityClass);
 
@@ -139,7 +92,7 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 		if (settings == nil)
 		{
 			settings = [[GDGEntitySettings alloc] initWithEntityClass:entityClass];
-			settings.tableSource = [GDGEntityManager tableSourceWithName:tableName];
+			settings.tableSource = [GDGTableSource tableSourceFromTable:tableName in:[CIRDatabase goldDigger_mainDatabase]];
 
 			ClassSettingsDictionary[className] = settings;
 		}
@@ -150,9 +103,7 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 	return self;
 }
 
-#pragma mark - Instance
-
-#pragma mark - Public
+#pragma mark - Database
 
 - (GDGEntityQuery *)query
 {
@@ -161,43 +112,34 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 
 - (NSArray<__kindof GDGEntity *> *)select:(GDGEntityQuery *)query
 {
-	return [self select:query withProjection:query.projection arguments:query.arguments];
-}
+	NSArray *projection = query.projection;
+	NSMutableArray *entities = [NSMutableArray array];
 
-- (NSArray<GDGEntity *> *)select:(GDGEntityQuery *)query withProjection:(NSArray<NSString *> *)projection arguments:(NSDictionary<NSString *, id> *)arguments
-{
-	CIRResultSet *resultSet = [Database executeQuery:query.visit withNamedParameters:arguments];
-
-	NSMutableArray *entities = [[NSMutableArray alloc] init];
+	CIRResultSet *resultSet = [[CIRDatabase goldDigger_mainDatabase] executeQuery:query.visit withNamedParameters:query.arguments];
 
 	while ([resultSet next])
-	{
 		[entities addObject:[self buildEntityWithProperties:projection resultSet:resultSet]];
-	}
 
 	return [NSArray arrayWithArray:entities];
 }
 
 - (GDGEntity *)find:(GDGEntityQuery *)query
 {
-	NSArray<GDGEntity *> *entities = [self select:query.limit(1)];
-	return entities.count > 0 ? entities.firstObject : nil;
+	return [self select:query.limit(1)].firstObject;
 }
 
-#pragma mark - Save & Delete
+#pragma mark Save & Delete
 
 - (BOOL)save
 {
 	BOOL exists = _entity.id > 0;
 
 	NSMutableArray *values = [[NSMutableArray alloc] initWithCapacity:_entity.changedProperties.count + 1];
-
 	NSMutableArray *columns = [[NSMutableArray alloc] initWithCapacity:_entity.changedProperties.count];
 
 	for (NSString *propertyName in _entity.changedProperties)
 	{
-		[values addObject:[self adaptToDatabaseValue:[_entity valueForKeyPath:propertyName] forPropertyNamed:propertyName]];
-
+		[values addObject:[self transformToDatabaseValue:[_entity valueForKeyPath:propertyName] forPropertyNamed:propertyName]];
 		[columns addObject:[self columnNameForProperty:propertyName]];
 	}
 
@@ -209,23 +151,47 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 		[values addObject:@(_entity.id)];
 	}
 	else
-	{
 		sql = [self buildInsertQueryWithColumns:columns];
-	}
 
-	BOOL saved = [Database executeUpdate:sql withParameters:values];
+	CIRDatabase *database = [CIRDatabase goldDigger_mainDatabase];
 
-	if (!exists) _entity.id = (NSUInteger) [Database lastInsertedId];
+	BOOL saved = [database executeUpdate:sql withParameters:values];
+
+	if (!exists) _entity.id = (NSUInteger) [database lastInsertedId];
 
 	return saved;
 }
 
 - (BOOL)drop
 {
-	return [Database executeUpdate:[self buildDeleteQuery] withParameters:@[@(_entity.id)]];
+	return [[CIRDatabase goldDigger_mainDatabase] executeUpdate:[self buildDeleteQuery] withParameters:@[@(_entity.id)]];
 }
 
-#pragma mark - Fills
+#pragma mark - Relations
+
+- (void)hasMany:(NSString *)relationName config:(void (^)(GDGHasManyRelation *))tap
+{
+	GDGHasManyRelation *relation = [[GDGHasManyRelation alloc] initWithName:relationName manager:self];
+	_settings.relationNameDictionary[relationName] = relation;
+	tap(relation);
+}
+
+- (void)hasOne:(NSString *)relationName config:(void (^)(GDGHasOneRelation *))tap
+{
+	GDGHasOneRelation *relation = [[GDGHasOneRelation alloc] initWithName:relationName manager:self];
+	_settings.relationNameDictionary[relationName] = relation;
+	tap(relation);
+}
+
+- (void)belongsTo:(NSString *)relationName config:(void (^)(GDGBelongsToRelation *))tap
+{
+	GDGBelongsToRelation *relation = [[GDGBelongsToRelation alloc] initWithName:relationName manager:self];
+	_settings.relationNameDictionary[relationName] = relation;
+	tap(relation);
+}
+
+#pragma mark - Entity filling
+#pragma mark API
 
 - (void)fillProperties:(NSArray<NSString *> *)properties
 {
@@ -254,23 +220,21 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 			[mutableProperties addObject:relation.foreignProperty];
 		}
 		else
-		{
 			[projection addObject:[self columnNameForProperty:property]];
-		}
 	}
 
 	NSString *visit = self.query.select([NSArray arrayWithArray:projection])
-		.where(^(GDGConditionBuilder *builder) {
-			builder.prop(@"id").inList(ids);
-		}).visit;
+			.where(^(GDGConditionBuilder *builder) {
+				builder.prop(@"id").inList(ids);
+			}).visit;
 
-	[Database executeQuery:visit each:^(CIRResultSet *resultSet) {
+	[[CIRDatabase goldDigger_mainDatabase] executeQuery:visit each:^(CIRResultSet *resultSet) {
 		GDGEntity *entity = entityIdDictionary[resultSet[0]];
 		int columnCount = [resultSet columnCount] - 1;
-		for (int i = 0; i < columnCount; i++)
+		for (NSUInteger i = 0; i < columnCount; i++)
 		{
 			NSString *key = mutableProperties[i];
-			id value = [self adaptFromDatabaseValue:resultSet[i + 1] forPropertyNamed:key];
+			id value = [self transformFromDatabaseValue:resultSet[i + 1] forPropertyNamed:key];
 			if (value && entity)
 			{
 				[entity setValue:value forKey:key];
@@ -286,34 +250,11 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 	}
 }
 
-#pragma mark - Relations
-
-- (void)hasMany:(NSString *)relationName config:(void (^)(GDGHasManyRelation *))tap
-{
-	GDGHasManyRelation *relation = [[GDGHasManyRelation alloc] initWithName:relationName manager:self];
-	_settings.relationNameDictionary[relationName] = relation;
-	tap(relation);
-}
-
-- (void)hasOne:(NSString *)relationName config:(void (^)(GDGHasOneRelation *))tap
-{
-	GDGHasOneRelation *relation = [[GDGHasOneRelation alloc] initWithName:relationName manager:self];
-	_settings.relationNameDictionary[relationName] = relation;
-	tap(relation);
-}
-
-- (void)belongsTo:(NSString *)relationName config:(void (^)(GDGBelongsToRelation *))tap
-{
-	GDGBelongsToRelation *relation = [[GDGBelongsToRelation alloc] initWithName:relationName manager:self];
-	_settings.relationNameDictionary[relationName] = relation;
-	tap(relation);
-}
-
-#pragma mark - Entity
+#pragma mark Private
 
 - (GDGEntity *)buildEntityWithProperties:(NSArray<id> *)projection resultSet:(CIRResultSet *)resultSet
 {
-	GDGEntity *entity = [[_settings.entityClass alloc] init];
+	GDGEntity *entity = [_settings.entityClass entity];
 
 	[self fillEntity:entity withProperties:projection resultSet:resultSet];
 
@@ -342,15 +283,14 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 		if (columnIndex > -1)
 		{
 			dotIndex = [name rangeOfString:@"."].location;
-			if (dotIndex != NSNotFound) name = [name substringFromIndex:dotIndex + 1];
+			if (dotIndex != NSNotFound)
+				name = [name substringFromIndex:dotIndex + 1];
 
 			NSString *propertyName = [self propertyNameForColumn:name];
 
-			id value = [self adaptFromDatabaseValue:[resultSet objectAtIndex:columnIndex] forPropertyNamed:propertyName];
+			id value = [self transformFromDatabaseValue:[resultSet objectAtIndex:columnIndex] forPropertyNamed:propertyName];
 			if ([propertyName isEqualToString:@"id"] && [value isKindOfClass:[NSNumber class]])
-			{
 				entity.id = [value unsignedIntegerValue];
-			}
 			else
 			{
 				[entity setValue:value forKeyPath:propertyName];
@@ -360,12 +300,15 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 	}
 }
 
-#pragma mark Automator
+#pragma mark - Entity fill delegate
 
 - (void)entity:(GDGEntity *)entity hasFilledPropertyNamed:(NSString *)propertyName
 {
-	if (_entity.filledProperties == nil) _entity.filledProperties = [[NSMutableSet alloc] init];
-	if (_entity.changedProperties == nil) _entity.changedProperties = [[NSMutableSet alloc] init];
+	if (_entity.filledProperties == nil)
+		_entity.filledProperties = [NSMutableSet set];
+
+	if (_entity.changedProperties == nil)
+		_entity.changedProperties = [NSMutableSet set];
 
 	[_entity.filledProperties addObject:propertyName];
 	[_entity.changedProperties addObject:propertyName];
@@ -406,29 +349,25 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 
 #pragma mark - Adapters
 
-- (void)addValueAdapterForPropertyNamed:(NSString *)propertyName fromDatabaseHandler:(id (^)(id))fromDatabaseHandler toDatabaseHandler:(id (^)(id))toDatabaseHandler
+- (void)addValueTransformer:(__kindof NSValueTransformer *)transformer forProperties:(NSArray<NSString *> *)properties
 {
-	[self addValueAdapterForPropertyNamed:propertyName valueAdapter:[[GDGValueAdapter alloc] initWithFromDatabaseHandler:fromDatabaseHandler toDatabaseHandler:toDatabaseHandler]];
+	for (NSString *property in properties)
+		_settings.valueTransformerDictionary[property] = transformer;
 }
 
-- (void)addValueAdapterForPropertyNamed:(NSString *)propertyName valueAdapter:(NSValueTransformer *)valueAdapter
+- (id)transformFromDatabaseValue:(id)value forPropertyNamed:(NSString *)propertyName
 {
-	[_settings addValueAdpter:valueAdapter forPropertyNamed:propertyName];
-}
-
-- (id)adaptFromDatabaseValue:(id)value forPropertyNamed:(NSString *)propertyName
-{
-	NSValueTransformer *adapter = _settings.valueAdapterDictionary[propertyName];
+	NSValueTransformer *adapter = _settings.valueTransformerDictionary[propertyName];
 	return adapter ? [adapter transformedValue:value] : value;
 }
 
-- (id)adaptToDatabaseValue:(id)value forPropertyNamed:(NSString *)propertyName
+- (id)transformToDatabaseValue:(id)value forPropertyNamed:(NSString *)propertyName
 {
-	NSValueTransformer *adapter = _settings.valueAdapterDictionary[propertyName];
+	NSValueTransformer *adapter = _settings.valueTransformerDictionary[propertyName];
 	return adapter ? [adapter reverseTransformedValue:value] : value;
 }
 
-#pragma mark - SQL Builders
+#pragma mark - Update/Insert/Delete string builders
 
 - (NSString *)buildUpdateQueryWithColumns:(NSArray<NSString *> *)columns
 {

@@ -1,9 +1,8 @@
 //
 //  GDGJoin.h
-//  Pods
+//  GoldDigger
 //
 //  Created by Pietro Caselani on 2/12/16.
-//
 //
 
 #import <Foundation/Foundation.h>
@@ -16,8 +15,8 @@
 @property (strong, readonly, nonatomic) NSString *condition;
 @property (strong, readonly, nonatomic) GDGSource *source;
 
-- (instancetype)initWithType:(NSString*)type condition:(NSString*)condition source:(GDGSource*)source;
+- (instancetype)initWithType:(NSString *)type condition:(NSString *)condition source:(GDGSource *)source;
 
-- (NSString*)visit;
+- (NSString *)visit;
 
 @end

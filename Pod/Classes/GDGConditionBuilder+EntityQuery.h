@@ -1,9 +1,8 @@
 //
 //  GDGConditionBuilder+EntityQuery.h
-//  Pods
+//  GoldDigger
 //
 //  Created by Pietro Caselani on 2/12/16.
-//
 //
 
 #import "GDGConditionBuilder.h"
@@ -13,8 +12,8 @@
 @interface GDGConditionBuilder (EntityQuery)
 
 @property (readonly, nonatomic) GDGEntityQuery *query;
-@property (copy, readonly, nonatomic) GDGConditionBuilder* (^prop)(NSString*);
+@property (copy, readonly, nonatomic) GDGConditionBuilder *(^prop)(NSString *);
 
-- (instancetype)initWithEntityQuery:(GDGEntityQuery *)entityQuery;
++ (instancetype)builderWithEntityQuery:(GDGEntityQuery *)entityQuery;
 
 @end

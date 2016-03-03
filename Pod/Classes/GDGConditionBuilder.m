@@ -1,9 +1,8 @@
 //
 //  GDGConditionBuilder.m
-//  Pods
+//  GoldDigger
 //
 //  Created by Pietro Caselani on 2/8/16.
-//
 //
 
 #import "GDGConditionBuilder.h"
@@ -14,8 +13,8 @@
 
 @interface GDGConditionBuilder ()
 
-@property (strong, nonatomic) NSMutableArray<NSString*> *strings;
-@property (strong, nonatomic) NSMutableDictionary<NSString*, id> *args;
+@property (strong, nonatomic) NSMutableArray<NSString *> *strings;
+@property (strong, nonatomic) NSMutableDictionary<NSString *, id> *args;
 
 @end
 
@@ -32,54 +31,54 @@
 	{
 		_strings = [[NSMutableArray alloc] init];
 		_args = [[NSMutableDictionary alloc] init];
-		
+
 		__weak __typeof(self) weakSelf = self;
-		
+
 		_col = ^GDGConditionBuilder *(GDGColumn *column) {
 			[weakSelf.strings addObject:column.fullName];
 			return weakSelf;
 		};
-		
+
 		_equals = ^GDGConditionBuilder *(id value) {
 			return [weakSelf appendValue:value forOperator:@"="];
 		};
-		
+
 		_notEquals = ^GDGConditionBuilder *(id value) {
 			return [weakSelf appendValue:value forOperator:@"<>"];
 		};
-		
-		_build = ^GDGConditionBuilder *(void (^ builderHandler)(GDGConditionBuilder *)) {
+
+		_build = ^GDGConditionBuilder *(void (^builderHandler)(GDGConditionBuilder *)) {
 			return [weakSelf build:builderHandler];
 		};
-		
-		_isNull = ^GDGConditionBuilder *{
+
+		_isNull = ^GDGConditionBuilder * {
 			return [weakSelf appendText:@"IS NULL"];
 		};
-		
-		_isNotNull = ^GDGConditionBuilder *{
+
+		_isNotNull = ^GDGConditionBuilder * {
 			return [weakSelf appendText:@"IS NOT NULL"];
 		};
-		
+
 		_equalsDate = ^GDGConditionBuilder *(NSString *dateString) {
 			NSString *columnName = [weakSelf.strings lastObject];
-			
+
 			return [weakSelf appendValue:dateString forOperator:[NSString stringWithFormat:@"DATE(%@) = ", columnName]];
 		};
-		
+
 		_equalsCol = ^GDGConditionBuilder *(GDGColumn *column) {
 			[weakSelf.strings addObject:[NSString stringWithFormat:@" = %@", column.fullName]];
 			return weakSelf;
 		};
-		
+
 		_inText = ^GDGConditionBuilder *(NSString *text) {
 			return [weakSelf appendText:[NSString stringWithFormat:@" IN (%@)", text]];
 		};
-		
-		_inList = ^GDGConditionBuilder *(NSArray<NSNumber*> *array) {
+
+		_inList = ^GDGConditionBuilder *(NSArray<NSNumber *> *array) {
 			NSString *arrayString = [[array map:^id(id object) {
 				return [NSString stringWithFormat:@"%d", [object intValue]];
 			}] join:@", "];
-			
+
 			return weakSelf.inText(arrayString);
 		};
 
@@ -87,12 +86,12 @@
 			[weakSelf.args addEntriesFromDictionary:builder.args];
 			return [[weakSelf and] appendText:builder.visit];
 		};
-		
+
 		_inQuery = ^GDGConditionBuilder *(GDGQuery *query) {
-			NSDictionary<NSString*, id> *arguments = query.arguments;
+			NSDictionary<NSString *, id> *arguments = query.arguments;
 			NSString *sql = query.visit;
 
-			NSMutableDictionary<NSString*, id> *newArguments = [[NSMutableDictionary alloc] initWithCapacity:arguments.count];
+			NSMutableDictionary<NSString *, id> *newArguments = [[NSMutableDictionary alloc] initWithCapacity:arguments.count];
 
 			for (NSString *key in arguments.allKeys)
 			{
@@ -114,11 +113,11 @@
 			return weakSelf.inText(sql);
 		};
 	}
-	
+
 	return self;
 }
 
-- (GDGConditionBuilder*)build:(void (^)(GDGConditionBuilder*))builder
+- (GDGConditionBuilder *)build:(void (^)(GDGConditionBuilder *))builder
 {
 	[self appendText:@"("];
 	builder(self);
@@ -126,27 +125,27 @@
 	return self;
 }
 
-- (GDGConditionBuilder*)and
+- (GDGConditionBuilder *)and
 {
 	return [self appendText:@"AND"];
 }
 
-- (GDGConditionBuilder*)or
+- (GDGConditionBuilder *)or
 {
 	return [self appendText:@"OR"];
 }
 
-- (GDGConditionBuilder*)openParentheses
+- (GDGConditionBuilder *)openParentheses
 {
 	return [self appendText:@"("];
 }
 
-- (GDGConditionBuilder*)closeParentheses
+- (GDGConditionBuilder *)closeParentheses
 {
 	return [self appendText:@")"];
 }
 
-- (GDGConditionBuilder*)appendValue:(id)value forOperator:(NSString *)operator
+- (GDGConditionBuilder *)appendValue:(id)value forOperator:(NSString *)operator
 {
 	NSString *propertyName = [_strings lastObject];
 
@@ -154,22 +153,22 @@
 
 	if (dotIndex != NSNotFound)
 		propertyName = [propertyName substringFromIndex:dotIndex + 1];
-	
+
 	unsigned int random = arc4random() % 100;
-	
+
 	NSString *argumentName = [NSString stringWithFormat:@"%@%u", propertyName, random];
-	
+
 	[_strings addObject:[NSString stringWithFormat:@" %@ :%@", operator, argumentName]];
 
 	_args[argumentName] = value;
-	
+
 	return self;
 }
 
-- (GDGConditionBuilder*)appendText:(NSString *)text
+- (GDGConditionBuilder *)appendText:(NSString *)text
 {
 	[_strings addObject:[NSString stringWithFormat:@" %@ ", text]];
-	
+
 	return self;
 }
 
@@ -178,9 +177,14 @@
 	return [NSDictionary dictionaryWithDictionary:_args];
 }
 
-- (NSString*)visit
+- (NSString *)visit
 {
 	return [_strings join];
+}
+
+- (BOOL)isEmpty
+{
+	return _strings.count == 0;
 }
 
 @end

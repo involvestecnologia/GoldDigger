@@ -1,18 +1,22 @@
 //
-//  GDGValueAdapter.m
-//  Pods
+//  GDGValueTransformer.m
+//  GoldDigger
 //
 //  Created by Pietro Caselani on 1/26/16.
 //
-//
 
-#import "GDGValueAdapter.h"
+#import "GDGValueTransformer.h"
 
-@implementation GDGValueAdapter
+@implementation GDGValueTransformer
 
 + (BOOL)allowsReverseTransformation
 {
 	return YES;
+}
+
++ (instancetype)transformerFrom:(id (^)(id))fromDatabaseHandler to:(id (^)(id))toDatabaseHandler
+{
+	return [[self alloc] initWithFromDatabaseHandler:fromDatabaseHandler toDatabaseHandler:toDatabaseHandler];
 }
 
 - (instancetype)initWithFromDatabaseHandler:(id (^)(id))fromDatabaseHandler toDatabaseHandler:(id (^)(id))toDatabaseHandler
@@ -22,7 +26,7 @@
 		_toDatabase = toDatabaseHandler;
 		_fromDatabase = fromDatabaseHandler;
 	}
-	
+
 	return self;
 }
 

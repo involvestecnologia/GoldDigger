@@ -1,9 +1,8 @@
 //
 //  GDGConditionBuilder+EntityQuery.m
-//  Pods
+//  GoldDigger
 //
 //  Created by Pietro Caselani on 2/12/16.
-//
 //
 
 #import "GDGConditionBuilder+EntityQuery.h"
@@ -14,19 +13,17 @@
 
 @implementation GDGConditionBuilder (EntityQuery)
 
-- (instancetype)initWithEntityQuery:(GDGEntityQuery *)entityQuery
++ (instancetype)builderWithEntityQuery:(GDGEntityQuery *)entityQuery;
 {
-	if (self = [self init])
-	{
-		self.query = entityQuery;
-	}
+	GDGConditionBuilder *builder = [[self alloc] init];
+	builder.query = entityQuery;
 
-	return self;
+	return builder;
 }
 
 - (GDGEntityQuery *)query
 {
-	return objc_getAssociatedObject(self, @selector(query));
+	return objc_getAssociatedObject(self, _cmd);
 }
 
 - (void)setQuery:(GDGEntityQuery *)query
@@ -34,24 +31,24 @@
 	objc_setAssociatedObject(self, @selector(query), query, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-
-- (GDGConditionBuilder *(^)(NSString*))prop
+- (GDGConditionBuilder *(^)(NSString *))prop
 {
-	GDGConditionBuilder *(^prop)(NSString *) = objc_getAssociatedObject(self, @selector(prop));
-	if (prop == nil) {
+	GDGConditionBuilder *(^prop)(NSString *) = objc_getAssociatedObject(self, _cmd);
+	if (prop == nil)
+	{
 		__weak typeof(self) weakSelf = self;
-		
-		prop = ^GDGConditionBuilder* (NSString *property) {
+
+		prop = ^GDGConditionBuilder *(NSString *property) {
 			GDGEntityQuery *query = weakSelf.query;
-			
+
 			NSInteger dotIndex = [property rangeOfString:@"."].location;
-			
+
 			return weakSelf.col([query.manager columnForProperty:dotIndex == NSNotFound ? property : [property substringFromIndex:(NSUInteger) (dotIndex + 1)]]);
 		};
-		
-		objc_setAssociatedObject(self, @selector(prop), prop, OBJC_ASSOCIATION_COPY_NONATOMIC);
+
+		objc_setAssociatedObject(self, _cmd, prop, OBJC_ASSOCIATION_COPY_NONATOMIC);
 	}
-	
+
 	return prop;
 }
 
