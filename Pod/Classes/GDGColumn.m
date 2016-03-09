@@ -29,9 +29,14 @@
 	else if ([typeName caseInsensitiveCompare:@"boolean"] == NSOrderedSame)
 		type = GDGColumnTypeBoolean;
 	else
-		type = GDGColumnTypeNone;
+		type = GDGColumnTypeNull;
 
 	return type;
+}
+
+- (instancetype)initWithName:(NSString *)name type:(GDGColumnType)type
+{
+	return [self initWithName:name type:type primaryKey:NO notNull:NO];
 }
 
 - (instancetype)initWithName:(NSString *)name type:(GDGColumnType)type primaryKey:(BOOL)primaryKey notNull:(BOOL)notNull

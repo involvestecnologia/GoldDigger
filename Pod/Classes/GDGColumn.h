@@ -16,18 +16,19 @@ typedef NS_ENUM(NSUInteger, GDGColumnType)
 	GDGColumnTypeDate,
 	GDGColumnTypeDouble,
 	GDGColumnTypeBoolean,
-	GDGColumnTypeNone
+	GDGColumnTypeNull
 };
 
 @interface GDGColumn : NSObject
 
+@property (strong, readonly, nonatomic) NSString *name;
 @property (assign, readonly, nonatomic) GDGColumnType type;
 @property (assign, readonly, nonatomic, getter=isPrimaryKey) BOOL primaryKey;
 @property (assign, readonly, nonatomic, getter=isNotNull) BOOL notNull;
-@property (strong, readonly, nonatomic) NSString *name;
 
 + (GDGColumnType)columnTypeFromTypeName:(NSString *)typeName;
 
+- (instancetype)initWithName:(NSString *)name type:(GDGColumnType)type;
 - (instancetype)initWithName:(NSString *)name type:(GDGColumnType)type primaryKey:(BOOL)primaryKey notNull:(BOOL)notNull;
 
 - (NSString *)fullName;
