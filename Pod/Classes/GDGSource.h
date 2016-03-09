@@ -1,9 +1,8 @@
 //
 //  GDGSource.h
-//  Pods
+//  GoldDigger
 //
 //  Created by Pietro Caselani on 2/12/16.
-//
 //
 
 #import <Foundation/Foundation.h>
@@ -20,8 +19,6 @@
 - (NSString *)adjustColumnNamed:(NSString *)columnName;
 
 - (GDGColumn *)objectForKeyedSubscript:(NSString *)idx;
-
-- (void)setObject:(id)obj forKeyedSubscript:(NSString *)idx;
 
 @end
 

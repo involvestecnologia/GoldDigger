@@ -1,9 +1,8 @@
 //
 //  GDGQuerySource.h
-//  Pods
+//  GoldDigger
 //
 //  Created by Pietro Caselani on 2/12/16.
-//
 //
 
 #import "GDGSource.h"
@@ -14,6 +13,6 @@
 
 @property (strong, nonatomic) GDGQuery *query;
 
-- (instancetype)initWithQuery:(GDGQuery*)query;
+- (instancetype)initWithQuery:(GDGQuery *)query;
 
 @end

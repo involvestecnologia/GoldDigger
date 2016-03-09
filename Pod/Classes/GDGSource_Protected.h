@@ -1,5 +1,8 @@
 //
-// Created by Pietro Caselani on 2/26/16.
+//  GDGTableSource.h
+//  GoldDigger
+//
+//  Created by Pietro Caselani on 2/26/16.
 //
 
 #import <Foundation/Foundation.h>
@@ -8,6 +11,6 @@
 
 @interface GDGSource ()
 
-@property(readwrite, nonatomic) NSArray<GDGColumn *> *columns;
+@property (readwrite, nonatomic) NSArray<GDGColumn *> *columns;
 
 @end

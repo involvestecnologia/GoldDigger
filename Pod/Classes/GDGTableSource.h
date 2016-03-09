@@ -1,19 +1,23 @@
 //
 //  GDGTableSource.h
-//  Pods
+//  GoldDigger
 //
 //  Created by Pietro Caselani on 2/12/16.
-//
 //
 
 #import "GDGSource.h"
 
 @class GDGColumn;
+@class CIRDatabase;
 
 @interface GDGTableSource : GDGSource
 
-@property (strong, readonly, nonatomic) NSString* name;
+@property (strong, readonly, nonatomic) NSString *name;
 
-- (instancetype)initWithName:(NSString*)tableName columns:(NSArray<GDGColumn*>*)columns;
++ (instancetype)tableSourceFromTable:(NSString *)tableName;
+
++ (instancetype)tableSourceFromTable:(NSString *)tableName in:(CIRDatabase *)database;
+
+- (instancetype)initWithName:(NSString *)tableName columns:(NSArray<GDGColumn *> *)columns;
 
 @end
