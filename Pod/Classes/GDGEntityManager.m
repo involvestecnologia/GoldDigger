@@ -400,4 +400,11 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 	return [NSString stringWithFormat:@"DELETE FROM %@ WHERE id = ?", _settings.tableSource.alias];
 }
 
+#pragma mark - Subscript
+
+- (GDGColumn *)objectForKeyedSubscript:(NSString *)idx
+{
+	return [self columnForProperty:idx];
+}
+
 @end

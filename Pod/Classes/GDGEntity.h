@@ -9,6 +9,7 @@
 
 @class GDGEntityManager;
 @class GDGEntity;
+@class GDGColumn;
 
 @protocol GDGEntityFillDelegate <NSObject>
 

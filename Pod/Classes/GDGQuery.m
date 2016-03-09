@@ -40,7 +40,7 @@
 		_conditionBuilder = [[GDGConditionBuilder alloc] init];
 		_mutableProjection = [[NSMutableArray alloc] init];
 
-		__weak __typeof(self) weakSelf = self;
+		__weak typeof(self) weakSelf = self;
 
 		_select = ^GDGQuery *(NSArray<NSString *> *projection) {
 			NSMutableArray *validProjection = [[NSMutableArray alloc] initWithCapacity:projection.count];
@@ -139,7 +139,7 @@
 
 	if (_distinctFlag) [query appendString:@" DISTINCT "];
 
-	[query appendString:_mutableProjection.count > 0 ? @"*" : [_mutableProjection join:@", "]];
+	[query appendString:_mutableProjection.count == 0 ? @"*" : [_mutableProjection join:@", "]];
 
 	[query appendString:@" FROM "];
 	[query appendString:_source.alias];
@@ -193,7 +193,7 @@
 
 	const int columnCount = [resultSet columnCount];
 
-	for (NSUInteger i = 0; i < columnCount; i++)
+	for (NSUInteger i = 0; i < columnCount && columnCount > 1; i++)
 		objects[i] = [NSMutableArray array];
 
 	while ([resultSet next])

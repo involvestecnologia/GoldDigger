@@ -53,4 +53,6 @@
 
 - (void)addValueTransformer:(__kindof NSValueTransformer *)transformer forProperties:(NSArray<NSString *> *)properties;
 
+- (GDGColumn *)objectForKeyedSubscript:(NSString *)idx;
+
 @end

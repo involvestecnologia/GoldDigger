@@ -9,10 +9,12 @@
 
 #import "GDGColumn.h"
 #import "GDGQuery.h"
+#import "GDGTableSource.h"
 #import <ObjectiveSugar/ObjectiveSugar.h>
 
 @interface GDGConditionBuilder ()
 
+@property (strong, nonatomic) id context;
 @property (strong, nonatomic) NSMutableArray<NSString *> *strings;
 @property (strong, nonatomic) NSMutableDictionary<NSString *, id> *args;
 
@@ -31,16 +33,45 @@
 	{
 		_strings = [[NSMutableArray alloc] init];
 		_args = [[NSMutableDictionary alloc] init];
+		_context = nil;
 
-		__weak __typeof(self) weakSelf = self;
+		__weak typeof(self) weakSelf = self;
 
 		_col = ^GDGConditionBuilder *(GDGColumn *column) {
+			weakSelf.context = column;
+
 			[weakSelf.strings addObject:column.fullName];
+			return weakSelf;
+		};
+
+		_func = ^GDGConditionBuilder *(NSString *desc, NSArray<GDGColumn *> *params) {
+			weakSelf.context = desc;
+
+			[weakSelf.strings addObject:[NSString stringWithFormat:@"%@(%@)", desc, [[params map:^id(id object) {
+				return [object fullName];
+			}] join:@", "]]];
+
 			return weakSelf;
 		};
 
 		_equals = ^GDGConditionBuilder *(id value) {
 			return [weakSelf appendValue:value forOperator:@"="];
+		};
+
+		_gt = ^GDGConditionBuilder *(id value) {
+			return [weakSelf appendValue:value forOperator:@">"];
+		};
+
+		_gte = ^GDGConditionBuilder *(id value) {
+			return [weakSelf appendValue:value forOperator:@">="];
+		};
+
+		_lt = ^GDGConditionBuilder *(id value) {
+			return [weakSelf appendValue:value forOperator:@"<"];
+		};
+
+		_lte = ^GDGConditionBuilder *(id value) {
+			return [weakSelf appendValue:value forOperator:@"<="];
 		};
 
 		_notEquals = ^GDGConditionBuilder *(id value) {
@@ -59,19 +90,13 @@
 			return [weakSelf appendText:@"IS NOT NULL"];
 		};
 
-		_equalsDate = ^GDGConditionBuilder *(NSString *dateString) {
-			NSString *columnName = [weakSelf.strings lastObject];
-
-			return [weakSelf appendValue:dateString forOperator:[NSString stringWithFormat:@"DATE(%@) = ", columnName]];
-		};
-
 		_equalsCol = ^GDGConditionBuilder *(GDGColumn *column) {
-			[weakSelf.strings addObject:[NSString stringWithFormat:@" = %@", column.fullName]];
+			[self appendValue:column.fullName forOperator:@"="];
 			return weakSelf;
 		};
 
 		_inText = ^GDGConditionBuilder *(NSString *text) {
-			return [weakSelf appendText:[NSString stringWithFormat:@" IN (%@)", text]];
+			return [weakSelf appendText:[NSString stringWithFormat:@"IN (%@)", text]];
 		};
 
 		_inList = ^GDGConditionBuilder *(NSArray<NSNumber *> *array) {
@@ -112,6 +137,10 @@
 
 			return weakSelf.inText(sql);
 		};
+
+		_DATE = ^GDGConditionBuilder *(GDGColumn *arg) {
+			return weakSelf.func(@"DATE", @[arg]);
+		};
 	}
 
 	return self;
@@ -147,27 +176,25 @@
 
 - (GDGConditionBuilder *)appendValue:(id)value forOperator:(NSString *)operator
 {
-	NSString *propertyName = [_strings lastObject];
+	if (!_context)
+		@throw [NSException exceptionWithName:@"Non Existent Context"
+		                               reason:@"[GDGConditionBuilder -appendValue:forOperator:] throws that you must provide a context before using an operator"
+		                             userInfo:nil];
 
-	NSUInteger dotIndex = [propertyName rangeOfString:@"."].location;
+	NSString *context = [_context isKindOfClass:[GDGColumn class]] ? [_context name] : _context;
+	NSString *name = [NSString stringWithFormat:@"%@%u", context, arc4random() % 100];
 
-	if (dotIndex != NSNotFound)
-		propertyName = [propertyName substringFromIndex:dotIndex + 1];
+	[self appendText:operator];
+	[self appendText:[NSString stringWithFormat:@":%@", name]];
 
-	unsigned int random = arc4random() % 100;
-
-	NSString *argumentName = [NSString stringWithFormat:@"%@%u", propertyName, random];
-
-	[_strings addObject:[NSString stringWithFormat:@" %@ :%@", operator, argumentName]];
-
-	_args[argumentName] = value;
+	_args[name] = value;
 
 	return self;
 }
 
 - (GDGConditionBuilder *)appendText:(NSString *)text
 {
-	[_strings addObject:[NSString stringWithFormat:@" %@ ", text]];
+	[_strings addObject:[NSString stringWithFormat:@"%@", text]];
 
 	return self;
 }
@@ -179,7 +206,7 @@
 
 - (NSString *)visit
 {
-	return [_strings join];
+	return [_strings join:@" "];
 }
 
 - (BOOL)isEmpty
