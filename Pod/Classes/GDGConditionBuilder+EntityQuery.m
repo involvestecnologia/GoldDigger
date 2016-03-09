@@ -39,11 +39,7 @@
 		__weak typeof(self) weakSelf = self;
 
 		prop = ^GDGConditionBuilder *(NSString *property) {
-			GDGEntityQuery *query = weakSelf.query;
-
-			NSInteger dotIndex = [property rangeOfString:@"."].location;
-
-			return weakSelf.col([query.manager columnForProperty:dotIndex == NSNotFound ? property : [property substringFromIndex:(NSUInteger) (dotIndex + 1)]]);
+			return weakSelf.col([weakSelf.query.manager columnForProperty:property]);
 		};
 
 		objc_setAssociatedObject(self, _cmd, prop, OBJC_ASSOCIATION_COPY_NONATOMIC);
