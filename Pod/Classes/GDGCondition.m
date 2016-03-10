@@ -1,18 +1,20 @@
 //
-//  GDGConditionBuilder.m
+//  GDGCondition.m
 //  GoldDigger
 //
 //  Created by Pietro Caselani on 2/8/16.
 //
 
-#import "GDGConditionBuilder.h"
+#import "GDGCondition.h"
 
 #import "GDGColumn.h"
 #import "GDGQuery.h"
 #import "GDGTableSource.h"
 #import <ObjectiveSugar/ObjectiveSugar.h>
 
-@interface GDGConditionBuilder ()
+#import <objc/runtime.h>
+
+@interface GDGCondition ()
 
 @property (strong, nonatomic) id context;
 @property (strong, nonatomic) NSMutableArray<NSString *> *strings;
@@ -20,11 +22,11 @@
 
 @end
 
-@implementation GDGConditionBuilder
+@implementation GDGCondition
 
 + (instancetype)builder
 {
-	return [[GDGConditionBuilder alloc] init];
+	return [[GDGCondition alloc] init];
 }
 
 - (instancetype)init
@@ -37,14 +39,14 @@
 
 		__weak typeof(self) weakSelf = self;
 
-		_col = ^GDGConditionBuilder *(GDGColumn *column) {
+		_col = ^GDGCondition *(GDGColumn *column) {
 			weakSelf.context = column;
 
 			[weakSelf.strings addObject:column.fullName];
 			return weakSelf;
 		};
 
-		_func = ^GDGConditionBuilder *(NSString *desc, NSArray<GDGColumn *> *params) {
+		_func = ^GDGCondition *(NSString *desc, NSArray<GDGColumn *> *params) {
 			weakSelf.context = desc;
 
 			[weakSelf.strings addObject:[NSString stringWithFormat:@"%@(%@)", desc, [[params map:^id(id object) {
@@ -54,52 +56,52 @@
 			return weakSelf;
 		};
 
-		_equals = ^GDGConditionBuilder *(id value) {
+		_equals = ^GDGCondition *(id value) {
 			return [weakSelf appendValue:value forOperator:@"="];
 		};
 
-		_gt = ^GDGConditionBuilder *(id value) {
+		_gt = ^GDGCondition *(id value) {
 			return [weakSelf appendValue:value forOperator:@">"];
 		};
 
-		_gte = ^GDGConditionBuilder *(id value) {
+		_gte = ^GDGCondition *(id value) {
 			return [weakSelf appendValue:value forOperator:@">="];
 		};
 
-		_lt = ^GDGConditionBuilder *(id value) {
+		_lt = ^GDGCondition *(id value) {
 			return [weakSelf appendValue:value forOperator:@"<"];
 		};
 
-		_lte = ^GDGConditionBuilder *(id value) {
+		_lte = ^GDGCondition *(id value) {
 			return [weakSelf appendValue:value forOperator:@"<="];
 		};
 
-		_notEquals = ^GDGConditionBuilder *(id value) {
+		_notEquals = ^GDGCondition *(id value) {
 			return [weakSelf appendValue:value forOperator:@"<>"];
 		};
 
-		_build = ^GDGConditionBuilder *(void (^builderHandler)(GDGConditionBuilder *)) {
+		_build = ^GDGCondition *(void (^builderHandler)(GDGCondition *)) {
 			return [weakSelf build:builderHandler];
 		};
 
-		_isNull = ^GDGConditionBuilder * {
+		_isNull = ^GDGCondition * {
 			return [weakSelf appendText:@"IS NULL"];
 		};
 
-		_isNotNull = ^GDGConditionBuilder * {
+		_isNotNull = ^GDGCondition * {
 			return [weakSelf appendText:@"IS NOT NULL"];
 		};
 
-		_equalsCol = ^GDGConditionBuilder *(GDGColumn *column) {
-			[self appendValue:column.fullName forOperator:@"="];
+		_equalsCol = ^GDGCondition *(GDGColumn *column) {
+			[weakSelf appendValue:column.fullName forOperator:@"="];
 			return weakSelf;
 		};
 
-		_inText = ^GDGConditionBuilder *(NSString *text) {
+		_inText = ^GDGCondition *(NSString *text) {
 			return [weakSelf appendText:[NSString stringWithFormat:@"IN (%@)", text]];
 		};
 
-		_inList = ^GDGConditionBuilder *(NSArray<NSNumber *> *array) {
+		_inList = ^GDGCondition *(NSArray<NSNumber *> *array) {
 			NSString *arrayString = [[array map:^id(id object) {
 				return [NSString stringWithFormat:@"%d", [object intValue]];
 			}] join:@", "];
@@ -107,12 +109,12 @@
 			return weakSelf.inText(arrayString);
 		};
 
-		_cat = ^GDGConditionBuilder *(GDGConditionBuilder *builder) {
+		_cat = ^GDGCondition *(GDGCondition *builder) {
 			[weakSelf.args addEntriesFromDictionary:builder.args];
 			return [[weakSelf and] appendText:builder.visit];
 		};
 
-		_inQuery = ^GDGConditionBuilder *(GDGQuery *query) {
+		_inQuery = ^GDGCondition *(GDGQuery *query) {
 			NSDictionary<NSString *, id> *arguments = query.arguments;
 			NSString *sql = query.visit;
 
@@ -138,7 +140,7 @@
 			return weakSelf.inText(sql);
 		};
 
-		_DATE = ^GDGConditionBuilder *(GDGColumn *arg) {
+		_DATE = ^GDGCondition *(GDGColumn *arg) {
 			return weakSelf.func(@"DATE", @[arg]);
 		};
 	}
@@ -146,7 +148,7 @@
 	return self;
 }
 
-- (GDGConditionBuilder *)build:(void (^)(GDGConditionBuilder *))builder
+- (GDGCondition *)build:(void (^)(GDGCondition *))builder
 {
 	[self appendText:@"("];
 	builder(self);
@@ -154,31 +156,31 @@
 	return self;
 }
 
-- (GDGConditionBuilder *)and
+- (GDGCondition *)and
 {
 	return [self appendText:@"AND"];
 }
 
-- (GDGConditionBuilder *)or
+- (GDGCondition *)or
 {
 	return [self appendText:@"OR"];
 }
 
-- (GDGConditionBuilder *)openParentheses
+- (GDGCondition *)openParentheses
 {
 	return [self appendText:@"("];
 }
 
-- (GDGConditionBuilder *)closeParentheses
+- (GDGCondition *)closeParentheses
 {
 	return [self appendText:@")"];
 }
 
-- (GDGConditionBuilder *)appendValue:(id)value forOperator:(NSString *)operator
+- (GDGCondition *)appendValue:(id)value forOperator:(NSString *)operator
 {
 	if (!_context)
 		@throw [NSException exceptionWithName:@"Non Existent Context"
-		                               reason:@"[GDGConditionBuilder -appendValue:forOperator:] throws that you must provide a context before using an operator"
+		                               reason:@"[GDGCondition -appendValue:forOperator:] throws that you must provide a context before using an operator"
 		                             userInfo:nil];
 
 	NSString *context = [_context isKindOfClass:[GDGColumn class]] ? [_context name] : _context;
@@ -192,7 +194,7 @@
 	return self;
 }
 
-- (GDGConditionBuilder *)appendText:(NSString *)text
+- (GDGCondition *)appendText:(NSString *)text
 {
 	[_strings addObject:[NSString stringWithFormat:@"%@", text]];
 
@@ -212,6 +214,17 @@
 - (BOOL)isEmpty
 {
 	return _strings.count == 0;
+}
+
+- (GDGCondition *)copyWithZone:(nullable NSZone *)zone
+{
+	GDGCondition *copy = (GDGCondition *) [[[self class] allocWithZone:zone] init];
+
+	copy.strings = [_strings mutableCopy];
+	copy.args = [_args mutableCopy];
+	copy.context = [_context copy];
+
+	return copy;
 }
 
 @end

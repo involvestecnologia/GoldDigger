@@ -9,9 +9,9 @@
 
 #import "GDGQuery.h"
 
-@interface GDGQuerySource : GDGSource
+@interface GDGQuerySource : GDGSource <NSCopying>
 
-@property (strong, nonatomic) GDGQuery *query;
+@property (readonly, nonatomic) GDGQuery *query;
 
 - (instancetype)initWithQuery:(GDGQuery *)query;
 

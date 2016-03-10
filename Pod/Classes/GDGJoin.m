@@ -35,4 +35,15 @@
 	return [NSString stringWithString:joinString];
 }
 
+- (GDGJoin *)copyWithZone:(nullable NSZone *)zone
+{
+	GDGJoin *join = [(GDGJoin *) [[self class] alloc] init];
+
+	join.type = _type;
+	join.condition = _condition;
+	join.source = _source.copy;
+
+	return join;
+}
+
 @end

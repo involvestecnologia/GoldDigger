@@ -8,15 +8,15 @@
 #import "GDGQuery.h"
 
 #import "GDGColumn.h"
-#import "GDGConditionBuilder.h"
-#import "GDGEntityManager.h"
+#import "GDGCondition.h"
 #import "GDGJoin.h"
 #import "GDGQuery_Protected.h"
 #import "GDGTableSource.h"
-#import "GDGConditionBuilder_Protected.h"
+#import "GDGCondition_Protected.h"
 #import "CIRDatabase+GoldDigger.h"
+#import "GDGFilter.h"
+#import "ObjectiveSugar.h"
 #import <SQLAid/CIRResultSet.h>
-#import <ObjectiveSugar/NSArray+ObjectiveSugar.h>
 
 @interface GDGQuery ()
 
@@ -34,10 +34,17 @@
 
 - (instancetype)initWithSource:(GDGSource *)source
 {
+	if (self = [self init])
+		_source = source;
+
+	return self;
+}
+
+- (instancetype)init
+{
 	if (self = [super init])
 	{
-		_source = source;
-		_conditionBuilder = [[GDGConditionBuilder alloc] init];
+		_condition = [[GDGCondition alloc] init];
 		_mutableProjection = [[NSMutableArray alloc] init];
 
 		__weak typeof(self) weakSelf = self;
@@ -58,17 +65,26 @@
 		};
 
 		_join = ^GDGQuery *(GDGSource *joinSource, NSString *type, NSString *condition, NSArray<NSString *> *projection) {
-			if (weakSelf.joins == nil) weakSelf.joins = [[NSMutableArray alloc] init];
+			if (weakSelf.joins == nil)
+				weakSelf.joins = [[NSMutableArray alloc] init];
+			else
+			{
+				if ([weakSelf.joins find:^BOOL(GDGJoin *object) {
+					return [object.source.alias caseInsensitiveCompare:joinSource.alias] == NSOrderedSame;
+				}])
+					@throw [NSException exceptionWithName:@"Duplicate Join's alias" reason:NSStringWithFormat(@"Multiple joins with the same alias %@", joinSource.alias) userInfo:nil];
+			}
 
 			NSMutableArray *validProjection = [[NSMutableArray alloc] initWithCapacity:projection.count];
+			GDGColumn *column;
 
-			for (NSString *column in projection)
-				if ([source columnNamed:column])
-					[validProjection addObject:column];
+			for (NSString *columnName in projection)
+				if ((column = [joinSource columnNamed:columnName]))
+					[validProjection addObject:column.fullName];
 
 			weakSelf.select([NSArray arrayWithArray:validProjection]);
 
-			[weakSelf.joins addObject:[[GDGJoin alloc] initWithType:type condition:condition source:source]];
+			[weakSelf.joins addObject:[[GDGJoin alloc] initWithType:type condition:condition source:joinSource]];
 
 			return weakSelf;
 		};
@@ -77,8 +93,8 @@
 			return weakSelf.join([GDGTableSource tableSourceFromTable:tableName in:[CIRDatabase goldDigger_mainDatabase]], type, condition, projection);
 		};
 
-		_where = ^GDGQuery *(void (^handler)(GDGConditionBuilder *)) {
-			handler(weakSelf.conditionBuilder);
+		_where = ^GDGQuery *(void (^handler)(GDGCondition *)) {
+			handler(weakSelf.condition);
 			return weakSelf;
 		};
 
@@ -110,6 +126,13 @@
 
 		_fromTable = ^GDGQuery *(NSString *tableName) {
 			return weakSelf.from([GDGTableSource tableSourceFromTable:tableName in:[CIRDatabase goldDigger_mainDatabase]]);
+		};
+
+		_filter = ^GDGQuery *(NSArray<id <GDGFilter>> *filters) {
+			for (id <GDGFilter> filter in filters)
+				[filter apply:weakSelf];
+
+			return weakSelf;
 		};
 	}
 
@@ -153,10 +176,10 @@
 		[query appendFormat:@" %@", joinsString];
 	}
 
-	if (![_conditionBuilder isEmpty])
+	if (![_condition isEmpty])
 	{
 		[query appendString:@" WHERE ("];
-		[query appendString:_conditionBuilder.visit];
+		[query appendString:_condition.visit];
 		[query appendString:@")"];
 	}
 
@@ -212,6 +235,22 @@
 	return [self.pluck[0] unsignedIntegerValue];
 }
 
+#pragma - Copying
+
+- (__kindof GDGQuery *)copyWithZone:(nullable NSZone *)zone
+{
+	GDGQuery *copy = [(GDGQuery *) [[self class] allocWithZone:zone] initWithSource:_source.copy];
+
+	copy.limitValue = _limitValue;
+	copy.distinctFlag = _distinctFlag;
+	copy.joins = [_joins mutableCopy];
+	copy.mutableProjection = [_mutableProjection mutableCopy];
+	copy.orderList = [_orderList mutableCopy];
+	copy.condition = [_condition copy];
+
+	return copy;
+}
+
 #pragma mark Private
 
 - (id)rawObjectWithResultSet:(CIRResultSet *)resultSet
@@ -264,7 +303,7 @@
 
 - (NSDictionary<NSString *, id> *)arguments
 {
-	return [_conditionBuilder.arguments copy];
+	return [_condition.arguments copy];
 }
 
 @end

@@ -15,7 +15,8 @@
 #import "GDGQuery_Protected.h"
 #import "GDGRelation.h"
 #import "GDGTableSource.h"
-#import "GDGConditionBuilder+EntityQuery.h"
+#import "GDGCondition+EntityQuery.h"
+#import "GDGCondition_Protected.h"
 
 @implementation GDGQuery (Entity)
 
@@ -35,19 +36,23 @@
 
 @end
 
+@interface GDGEntityQuery ()
+
+@property (readwrite, nonatomic) GDGEntityManager *manager;
+
+@end
+
 @implementation GDGEntityQuery
 
 #pragma mark - Initialization
 
-- (instancetype)initWithManager:(GDGEntityManager *)manager
+- (instancetype)initWithSource:(__kindof GDGSource *)source
 {
-	if (self = [super initWithSource:manager.settings.tableSource])
+	if (self = [super initWithSource:source])
 	{
-		_manager = manager;
-
 		self.select(@[@"id"]);
 
-		self.conditionBuilder = [GDGConditionBuilder builderWithEntityQuery:self];
+		self.condition = [GDGCondition builderWithEntityQuery:self];
 
 		__weak typeof(self) weakSelf = self;
 
@@ -68,17 +73,17 @@
 		};
 
 #define ORDER_BLOCK(direction) \
-		^GDGQuery *(NSString *prop) { \
-			if (weakSelf.orderList == nil)\
-				weakSelf.orderList = [NSMutableArray array];\
-			\
-			NSString *column = [weakSelf.manager columnNameForProperty:prop]; \
-			\
-			if ([weakSelf findColumnNamed:column])\
-				[weakSelf.orderList addObject:[column stringByAppendingString:direction]];\
-			\
-			return weakSelf;\
-		};
+    ^GDGQuery *(NSString *prop) { \
+      if (weakSelf.orderList == nil)\
+        weakSelf.orderList = [NSMutableArray array];\
+      \
+      NSString *column = [weakSelf.manager columnNameForProperty:prop]; \
+      \
+      if ([weakSelf findColumnNamed:column])\
+        [weakSelf.orderList addObject:[column stringByAppendingString:direction]];\
+      \
+      return weakSelf;\
+    };
 
 		self.asc = ORDER_BLOCK(@" ASC");
 		self.desc = ORDER_BLOCK(@" DESC");
@@ -88,23 +93,35 @@
 		_joinRelation = ^GDGEntityQuery *(NSString *relationName, NSArray<NSString *> *projection) {
 			GDGRelation *relation = weakSelf.manager.settings.relationNameDictionary[relationName];
 
-			GDGTableSource *tableSource = weakSelf.manager.settings.tableSource;
-
 			NSMutableArray *validProjection = [[NSMutableArray alloc] initWithCapacity:projection.count];
 
-			for (NSString *property in projection)
-			{
-				NSString *columnName = [weakSelf.manager columnNameForProperty:property];
-				GDGColumn *column = [tableSource columnNamed:columnName];
-				if (column)
-					[validProjection addObject:column.fullName];
-			}
+			for (NSString *propertyName in projection)
+				[validProjection addObject:[weakSelf.manager columnForProperty:propertyName].fullName];
 
 			return weakSelf.join(relation.relatedManager.settings.tableSource, @"INNER", [relation joinCondition], validProjection);
 		};
 	}
 
 	return self;
+}
+
+
+- (instancetype)initWithManager:(GDGEntityManager *)manager
+{
+	if (self = [self initWithSource:manager.settings.tableSource])
+		_manager = manager;
+
+	return self;
+}
+
+#pragma mark - Copy
+
+- (GDGEntityQuery *)copyWithZone:(nullable NSZone *)zone
+{
+	GDGEntityQuery *copy = (GDGEntityQuery *) [super copyWithZone:zone];
+	copy.manager = _manager;
+	copy.condition.query = copy;
+	return copy;
 }
 
 #pragma mark - Object

@@ -7,7 +7,7 @@
 
 #import "GDGBelongsToRelation.h"
 
-#import <GoldDigger/GDGConditionBuilder+EntityQuery.h>
+#import "GDGCondition+EntityQuery.h"
 #import <ObjectiveSugar/ObjectiveSugar.h>
 #import "GDGEntityQuery.h"
 #import "GDGEntitySettings.h"
@@ -38,12 +38,12 @@
 	}
 
 	GDGEntityQuery *query = self.relatedManager.query.select(properties)
-			.where(^(GDGConditionBuilder *builder) {
+			.where(^(GDGCondition *builder) {
 				builder.prop(@"id").inList(ids);
 			});
 
 	if (self.condition)
-		query.where(^(GDGConditionBuilder *builder) {
+		query.where(^(GDGCondition *builder) {
 			builder.and.cat(self.condition);
 		});
 

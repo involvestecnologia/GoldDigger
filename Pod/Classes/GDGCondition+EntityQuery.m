@@ -1,21 +1,21 @@
 //
-//  GDGConditionBuilder+EntityQuery.m
+//  GDGCondition+EntityQuery.m
 //  GoldDigger
 //
 //  Created by Pietro Caselani on 2/12/16.
 //
 
-#import "GDGConditionBuilder+EntityQuery.h"
+#import "GDGCondition+EntityQuery.h"
 
 #import <objc/runtime.h>
 #import "GDGEntityQuery.h"
 #import "GDGEntityManager.h"
 
-@implementation GDGConditionBuilder (EntityQuery)
+@implementation GDGCondition (EntityQuery)
 
 + (instancetype)builderWithEntityQuery:(GDGEntityQuery *)entityQuery;
 {
-	GDGConditionBuilder *builder = [[self alloc] init];
+	GDGCondition *builder = [[self alloc] init];
 	builder.query = entityQuery;
 
 	return builder;
@@ -31,14 +31,14 @@
 	objc_setAssociatedObject(self, @selector(query), query, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (GDGConditionBuilder *(^)(NSString *))prop
+- (GDGCondition *(^)(NSString *))prop
 {
-	GDGConditionBuilder *(^prop)(NSString *) = objc_getAssociatedObject(self, _cmd);
+	GDGCondition *(^prop)(NSString *) = objc_getAssociatedObject(self, _cmd);
 	if (prop == nil)
 	{
 		__weak typeof(self) weakSelf = self;
 
-		prop = ^GDGConditionBuilder *(NSString *property) {
+		prop = ^GDGCondition *(NSString *property) {
 			return weakSelf.col([weakSelf.query.manager columnForProperty:property]);
 		};
 

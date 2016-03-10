@@ -9,7 +9,7 @@
 
 #import "GDGColumn.h"
 
-@interface GDGSource : NSObject
+@interface GDGSource : NSObject <NSCopying>
 
 @property (strong, nonatomic) NSString *alias;
 @property (readonly, nonatomic) NSArray<GDGColumn *> *columns;

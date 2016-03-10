@@ -12,11 +12,12 @@
 
 @implementation GDGEntitySettings
 
-- (instancetype)initWithEntityClass:(Class)entityClass
+- (instancetype)initWithEntityClass:(Class)entityClass tableSource:(GDGTableSource *)tableSource
 {
 	if (self = [super init])
 	{
 		_entityClass = entityClass;
+		_tableSource = tableSource;
 		_relationNameDictionary = [NSMutableDictionary dictionary];
 		_valueTransformerDictionary = [NSMutableDictionary dictionary];
 	}

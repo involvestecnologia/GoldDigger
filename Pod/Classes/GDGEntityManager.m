@@ -14,7 +14,7 @@
 #import "GDGHasManyRelation.h"
 #import "GDGHasOneRelation.h"
 #import "GDGTableSource.h"
-#import "GDGConditionBuilder+EntityQuery.h"
+#import "GDGCondition+EntityQuery.h"
 #import "CIRDatabase+GoldDigger.h"
 #import <objc/runtime.h>
 #import <ObjectiveSugar/ObjectiveSugar.h>
@@ -91,8 +91,7 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 
 		if (settings == nil)
 		{
-			settings = [[GDGEntitySettings alloc] initWithEntityClass:entityClass];
-			settings.tableSource = [GDGTableSource tableSourceFromTable:tableName in:[CIRDatabase goldDigger_mainDatabase]];
+			settings = [[GDGEntitySettings alloc] initWithEntityClass:entityClass tableSource:[GDGTableSource tableSourceFromTable:tableName in:[CIRDatabase goldDigger_mainDatabase]]];
 
 			ClassSettingsDictionary[className] = settings;
 		}
@@ -224,7 +223,7 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 	}
 
 	NSString *visit = self.query.select([NSArray arrayWithArray:projection])
-			.where(^(GDGConditionBuilder *builder) {
+			.where(^(GDGCondition *builder) {
 				builder.prop(@"id").inList(ids);
 			}).visit;
 

@@ -7,24 +7,26 @@
 
 #import <Foundation/Foundation.h>
 
-@class GDGConditionBuilder;
+@class GDGCondition;
 @class GDGSource;
 @class GDGColumn;
+@protocol GDGFilter;
 
-@interface GDGQuery : NSObject
+@interface GDGQuery : NSObject <NSCopying>
 
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^select)(NSArray<NSString *> *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^from)(GDGSource *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^fromTable)(NSString *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^join)(__kindof GDGSource *, NSString *, NSString *, NSArray<NSString *> *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^joinTable)(NSString *, NSString *, NSString *, NSArray<NSString *> *);
-@property (copy, readonly, nonatomic) __kindof GDGQuery *(^where)(void (^)(GDGConditionBuilder *));
+@property (copy, readonly, nonatomic) __kindof GDGQuery *(^where)(void (^)(GDGCondition *));
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^asc)(NSString *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^desc)(NSString *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^limit)(int);
-@property (strong, readonly, nonatomic) NSArray<NSString *> *projection;
+@property (copy, readonly, nonatomic) __kindof GDGQuery *(^filter)(NSArray<id <GDGFilter>> *);
+@property (readonly, nonatomic) NSArray<NSString *> *projection;
 @property (readonly, nonatomic) NSDictionary<NSString *, id> *arguments;
-@property (readonly, nonatomic) GDGConditionBuilder *whereBuilder;
+@property (readonly, nonatomic) GDGCondition *condition;
 @property (readonly, nonatomic) GDGSource *source;
 
 - (instancetype)initWithSource:(__kindof GDGSource *)source;

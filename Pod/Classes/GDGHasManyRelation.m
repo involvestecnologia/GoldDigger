@@ -9,7 +9,7 @@
 
 #import "GDGEntityQuery.h"
 #import <ObjectiveSugar/ObjectiveSugar.h>
-#import "GDGConditionBuilder+EntityQuery.h"
+#import "GDGCondition+EntityQuery.h"
 
 @implementation GDGHasManyRelation
 
@@ -41,12 +41,12 @@
 	[mutableProperties addObject:self.foreignProperty];
 
 	GDGEntityQuery *query = self.relatedManager.query.select([NSArray arrayWithArray:mutableProperties])
-			.where(^(GDGConditionBuilder *builder) {
+			.where(^(GDGCondition *builder) {
 				builder.prop(self.foreignProperty).inList(ids);
 			});
 
 	if (self.condition)
-		query.where(^(GDGConditionBuilder *builder) {
+		query.where(^(GDGCondition *builder) {
 			builder.and.cat(self.condition);
 		});
 
