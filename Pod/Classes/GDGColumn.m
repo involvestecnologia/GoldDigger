@@ -59,7 +59,7 @@
 
 - (GDGColumn *)copyWithZone:(nullable NSZone *)zone
 {
-	GDGColumn *copy = [(GDGColumn *) [[self class] alloc] init];
+	GDGColumn *copy = [(GDGColumn *) [[self class] allocWithZone:zone] init];
 
 	copy.name = _name;
 	copy.type = _type;

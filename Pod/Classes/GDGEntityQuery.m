@@ -59,9 +59,9 @@
 		self.select = ^GDGQuery *(NSArray<NSString *> *projection) {
 			NSMutableArray *validProjection = [[NSMutableArray alloc] initWithCapacity:projection.count];
 
-			for (NSString *property in projection)
+			for (NSString *propertyName in projection)
 			{
-				NSString *columnName = [weakSelf.manager columnNameForProperty:property];
+				NSString *columnName = [weakSelf.manager columnNameForProperty:propertyName];
 				GDGColumn *column = [weakSelf findColumnNamed:columnName];
 				if (column)
 					[validProjection addObject:column.fullName];

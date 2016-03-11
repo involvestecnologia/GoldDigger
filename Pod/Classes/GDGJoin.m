@@ -37,7 +37,7 @@
 
 - (GDGJoin *)copyWithZone:(nullable NSZone *)zone
 {
-	GDGJoin *join = [(GDGJoin *) [[self class] alloc] init];
+	GDGJoin *join = [(GDGJoin *) [[self class] allocWithZone:zone] init];
 
 	join.type = _type;
 	join.condition = _condition;
