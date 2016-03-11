@@ -16,7 +16,7 @@
 @property (strong, nonatomic) NSMutableArray<NSString *> *mutableProjection;
 @property (strong, nonatomic) NSMutableArray<NSString *> *orderList;
 
-@property (readwrite, nonatomic) GDGConditionBuilder *conditionBuilder;
+@property (readwrite, nonatomic) GDGCondition *condition;
 @property (readwrite, nonatomic) GDGSource *source;
 
 - (NSDictionary<NSString *, id> *)arguments;

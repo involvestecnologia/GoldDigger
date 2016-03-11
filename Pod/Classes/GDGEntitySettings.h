@@ -13,10 +13,10 @@
 @interface GDGEntitySettings : NSObject
 
 @property (assign, readonly, nonatomic) Class entityClass;
-@property (strong, nonatomic) GDGTableSource *tableSource;
+@property (strong, readonly, nonatomic) GDGTableSource *tableSource;
 @property (strong, nonatomic) NSDictionary<NSString *, NSString *> *columnsDictionary;
 @property (strong, nonatomic) NSDictionary<NSString *, NSString *> *propertiesDictionary;
 
-- (instancetype)initWithEntityClass:(Class)entityClass;
+- (instancetype)initWithEntityClass:(Class)entityClass tableSource:(GDGTableSource *)tableSource;
 
 @end

@@ -9,7 +9,7 @@
 #import "GDGEntity.h"
 #import "GDGEntityManager.h"
 
-@class GDGConditionBuilder;
+@class GDGCondition;
 
 @interface GDGRelation : NSObject
 
@@ -17,7 +17,7 @@
 @property (readonly, nonatomic) GDGEntityManager *manager;
 @property (strong, nonatomic) GDGEntityManager *relatedManager;
 @property (strong, nonatomic) NSString *foreignProperty;
-@property (strong, nonatomic) GDGConditionBuilder *condition;
+@property (strong, nonatomic) GDGCondition *condition;
 
 - (instancetype)initWithName:(NSString *)name manager:(GDGEntityManager *)manager;
 

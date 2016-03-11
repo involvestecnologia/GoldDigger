@@ -6,6 +6,7 @@
 //
 
 #import "GDGSource.h"
+#import "GDGSource_Protected.h"
 
 #import <objc/runtime.h>
 #import <ObjectiveSugar/ObjectiveSugar.h>
@@ -46,6 +47,16 @@
 - (GDGColumn *)objectForKeyedSubscript:(NSString *)idx
 {
 	return [self columnNamed:idx];
+}
+
+- (__kindof GDGSource *)copyWithZone:(nullable NSZone *)zone
+{
+	GDGSource *copy = (GDGSource *) [[[self class] allocWithZone:zone] init];
+
+	copy.alias = _alias;
+	copy.columns = [_columns copy];
+
+	return copy;
 }
 
 @end

@@ -9,11 +9,11 @@
 
 @class GDGSource;
 
-@interface GDGJoin : NSObject
+@interface GDGJoin : NSObject <NSCopying>
 
-@property (strong, readonly, nonatomic) NSString *type;
-@property (strong, readonly, nonatomic) NSString *condition;
-@property (strong, readonly, nonatomic) GDGSource *source;
+@property (strong, nonatomic) NSString *type;
+@property (strong, nonatomic) NSString *condition;
+@property (strong, nonatomic) GDGSource *source;
 
 - (instancetype)initWithType:(NSString *)type condition:(NSString *)condition source:(GDGSource *)source;
 

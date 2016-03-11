@@ -9,26 +9,27 @@
 
 typedef NS_ENUM(NSUInteger, GDGColumnType)
 {
-	GDGColumnTypeText,
-	GDGColumnTypeInteger,
-	GDGColumnTypeFloat,
-	GDGColumnTypeBlob,
-	GDGColumnTypeDate,
-	GDGColumnTypeDouble,
-	GDGColumnTypeBoolean,
-	GDGColumnTypeNull
+		GDGColumnTypeText,
+		GDGColumnTypeInteger,
+		GDGColumnTypeFloat,
+		GDGColumnTypeBlob,
+		GDGColumnTypeDate,
+		GDGColumnTypeDouble,
+		GDGColumnTypeBoolean,
+		GDGColumnTypeNull
 };
 
-@interface GDGColumn : NSObject
+@interface GDGColumn : NSObject <NSCopying>
 
-@property (strong, readonly, nonatomic) NSString *name;
-@property (assign, readonly, nonatomic) GDGColumnType type;
-@property (assign, readonly, nonatomic, getter=isPrimaryKey) BOOL primaryKey;
-@property (assign, readonly, nonatomic, getter=isNotNull) BOOL notNull;
+@property (strong, nonatomic) NSString *name;
+@property (assign, nonatomic) GDGColumnType type;
+@property (assign, nonatomic, getter=isPrimaryKey) BOOL primaryKey;
+@property (assign, nonatomic, getter=isNotNull) BOOL notNull;
 
 + (GDGColumnType)columnTypeFromTypeName:(NSString *)typeName;
 
 - (instancetype)initWithName:(NSString *)name type:(GDGColumnType)type;
+
 - (instancetype)initWithName:(NSString *)name type:(GDGColumnType)type primaryKey:(BOOL)primaryKey notNull:(BOOL)notNull;
 
 - (NSString *)fullName;

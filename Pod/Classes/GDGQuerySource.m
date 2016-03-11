@@ -7,6 +7,14 @@
 
 #import "GDGQuerySource.h"
 
+#import "GDGSource_Protected.h"
+
+@interface GDGQuerySource ()
+
+@property (readwrite, nonatomic) GDGQuery *query;
+
+@end
+
 @implementation GDGQuerySource
 
 - (instancetype)initWithQuery:(GDGQuery *)query;
@@ -19,6 +27,15 @@
 	}
 
 	return self;
+}
+
+- (GDGQuerySource *)copyWithZone:(nullable NSZone *)zone
+{
+	GDGQuerySource *copy = (GDGQuerySource *) [super copyWithZone:zone];
+
+	copy.query = [_query copy];
+
+	return copy;
 }
 
 @end

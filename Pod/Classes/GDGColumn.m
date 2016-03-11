@@ -41,8 +41,7 @@
 
 - (instancetype)initWithName:(NSString *)name type:(GDGColumnType)type primaryKey:(BOOL)primaryKey notNull:(BOOL)notNull
 {
-	self = [super init];
-	if (self)
+	if (self = [super init])
 	{
 		_name = name;
 		_type = type;
@@ -56,6 +55,18 @@
 - (NSString *)fullName
 {
 	return [self.source.alias stringByAppendingFormat:@".%@", _name];
+}
+
+- (GDGColumn *)copyWithZone:(nullable NSZone *)zone
+{
+	GDGColumn *copy = [(GDGColumn *) [[self class] allocWithZone:zone] init];
+
+	copy.name = _name;
+	copy.type = _type;
+	copy.primaryKey = _primaryKey;
+	copy.notNull = _notNull;
+
+	return copy;
 }
 
 @end

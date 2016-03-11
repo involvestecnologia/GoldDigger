@@ -10,9 +10,9 @@
 @class GDGColumn;
 @class CIRDatabase;
 
-@interface GDGTableSource : GDGSource
+@interface GDGTableSource : GDGSource <NSCopying>
 
-@property (strong, readonly, nonatomic) NSString *name;
+@property (readonly, nonatomic) NSString *name;
 
 + (instancetype)tableSourceFromTable:(NSString *)tableName;
 
