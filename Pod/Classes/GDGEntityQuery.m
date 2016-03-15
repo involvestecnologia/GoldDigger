@@ -11,7 +11,7 @@
 #import "GDGColumn.h"
 #import "GDGEntityManager.h"
 #import "GDGEntitySettings.h"
-#import "GDGEntitySettings_Relations.h"
+#import "GDGEntitySettings+Relations.h"
 #import "GDGQuery_Protected.h"
 #import "GDGRelation.h"
 #import "GDGTableSource.h"

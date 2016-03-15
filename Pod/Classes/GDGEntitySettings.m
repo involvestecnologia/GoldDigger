@@ -7,7 +7,7 @@
 
 #import "GDGEntitySettings.h"
 
-#import "GDGEntitySettings_Relations.h"
+#import "GDGEntitySettings+Relations.h"
 #import <objc/runtime.h>
 
 @implementation GDGEntitySettings
@@ -18,8 +18,8 @@
 	{
 		_entityClass = entityClass;
 		_tableSource = tableSource;
-		_relationNameDictionary = [NSMutableDictionary dictionary];
-		_valueTransformerDictionary = [NSMutableDictionary dictionary];
+		self.relationNameDictionary = [NSMutableDictionary dictionary];
+		self.valueTransformerDictionary = [NSMutableDictionary dictionary];
 	}
 
 	return self;
