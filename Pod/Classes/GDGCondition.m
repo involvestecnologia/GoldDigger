@@ -111,7 +111,7 @@
 
 		_cat = ^GDGCondition *(GDGCondition *builder) {
 			[weakSelf.args addEntriesFromDictionary:builder.args];
-			return [[weakSelf and] appendText:builder.visit];
+			return [weakSelf appendText:builder.visit];
 		};
 
 		_inQuery = ^GDGCondition *(GDGQuery *query) {
