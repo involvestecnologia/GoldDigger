@@ -12,12 +12,6 @@
 #import "CIRResultSet.h"
 #import "CIRDatabase+GoldDigger.h"
 
-@interface GDGTableSource ()
-
-@property (readwrite, nonatomic) NSString *name;
-
-@end
-
 @implementation GDGTableSource
 
 + (instancetype)tableSourceFromTable:(NSString *)tableName
@@ -48,7 +42,7 @@
 {
 	if (self = [super init])
 	{
-		self.alias = _name = tableName;
+		self.name = tableName;
 		self.columns = columns;
 	}
 
@@ -57,9 +51,7 @@
 
 - (GDGTableSource *)copyWithZone:(nullable NSZone *)zone
 {
-	GDGTableSource *copy = (GDGTableSource *) [super copyWithZone:zone];
-	copy.name = _name;
-	return copy;
+	return (GDGTableSource *) [super copyWithZone:zone];
 }
 
 @end

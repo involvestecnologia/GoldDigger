@@ -41,7 +41,7 @@
 - (NSString *)adjustColumnNamed:(NSString *)columnName
 {
 	NSInteger dotIndex = [columnName rangeOfString:@"."].location;
-	return dotIndex != NSNotFound ? columnName : [_alias stringByAppendingFormat:@".%@", columnName];
+	return dotIndex != NSNotFound ? columnName : [self.identifier stringByAppendingFormat:@".%@", columnName];
 }
 
 - (GDGColumn *)objectForKeyedSubscript:(NSString *)idx
@@ -49,11 +49,17 @@
 	return [self columnNamed:idx];
 }
 
+- (NSString *)identifier
+{
+	return _alias ? _alias : _name;
+}
+
 - (__kindof GDGSource *)copyWithZone:(nullable NSZone *)zone
 {
 	GDGSource *copy = (GDGSource *) [[[self class] allocWithZone:zone] init];
 
 	copy.alias = _alias;
+	copy.name = _name;
 	copy.columns = [_columns copy];
 
 	return copy;

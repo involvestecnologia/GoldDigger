@@ -54,7 +54,7 @@
 
 - (NSString *)fullName
 {
-	return [self.source.alias stringByAppendingFormat:@".%@", _name];
+	return [(self.source.alias ? self.source.alias : self.source.name) stringByAppendingFormat:@".%@", _name];
 }
 
 - (GDGColumn *)copyWithZone:(nullable NSZone *)zone

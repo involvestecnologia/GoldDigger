@@ -165,7 +165,10 @@
 	[query appendString:_mutableProjection.count == 0 ? @"*" : [_mutableProjection join:@", "]];
 
 	[query appendString:@" FROM "];
-	[query appendString:_source.alias];
+	[query appendString:_source.name];
+
+	if (_source.alias)
+		[query appendFormat:@" AS %@", _source.alias];
 
 	if (_joins.count > 0)
 	{
