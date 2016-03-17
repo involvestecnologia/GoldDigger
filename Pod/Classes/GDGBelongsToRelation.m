@@ -55,7 +55,7 @@
 	}
 }
 
-- (NSString *)joinConditionForSource:(GDGSource *)source withSource:(GDGSource *)joinedSource
+- (NSString *)joinConditionFromSource:(GDGSource *)source toSource:(GDGSource *)joinedSource
 {
 	NSMutableString *condition = [[NSMutableString alloc] initWithString:joinedSource.identifier];
 

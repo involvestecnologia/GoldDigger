@@ -54,7 +54,7 @@
 
 - (void)addValueTransformer:(__kindof NSValueTransformer *)transformer forProperties:(NSArray<NSString *> *)properties;
 
-- (GDGColumn *)objectForKeyedSubscript:(NSString *)idx;
+- (id)objectForKeyedSubscript:(NSString *)idx;
 
 - (GDGRelation *)relationNamed:(NSString *)relationName;
 

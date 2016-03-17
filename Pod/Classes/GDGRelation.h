@@ -26,6 +26,6 @@
 
 - (NSString *)joinCondition;
 
-- (NSString *)joinConditionForSource:(GDGSource *)source withSource:(GDGSource *)joinedSource;
+- (NSString *)joinConditionFromSource:(GDGSource *)source toSource:(GDGSource *)joinedSource;
 
 @end

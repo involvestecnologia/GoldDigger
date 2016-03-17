@@ -57,7 +57,12 @@
 		};
 
 		_equals = ^GDGCondition *(id value) {
-			return [weakSelf appendValue:value forOperator:@"="];
+			if ([value isKindOfClass:[GDGColumn class]])
+				[weakSelf appendText:[NSString stringWithFormat:@"= %@", [value fullName]]];
+			else
+				[weakSelf appendValue:value forOperator:@"="];
+
+			return weakSelf;
 		};
 
 		_gt = ^GDGCondition *(id value) {
@@ -90,11 +95,6 @@
 
 		_isNotNull = ^GDGCondition * {
 			return [weakSelf appendText:@"IS NOT NULL"];
-		};
-
-		_equalsCol = ^GDGCondition *(GDGColumn *column) {
-			[weakSelf appendText:[NSString stringWithFormat:@"= %@", column.fullName]];
-			return weakSelf;
 		};
 
 		_inText = ^GDGCondition *(NSString *text) {

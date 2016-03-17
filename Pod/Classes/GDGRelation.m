@@ -35,10 +35,10 @@
 
 - (NSString *)joinCondition
 {
-	return [self joinConditionForSource:_manager.settings.tableSource withSource:_relatedManager.settings.tableSource];
+	return [self joinConditionFromSource:_manager.settings.tableSource toSource:_relatedManager.settings.tableSource];
 }
 
-- (NSString *)joinConditionForSource:(GDGSource *)source withSource:(GDGSource *)joinedSource
+- (NSString *)joinConditionFromSource:(GDGSource *)source toSource:(GDGSource *)joinedSource
 {
 	NSMutableString *condition = [[NSMutableString alloc] initWithString:joinedSource.identifier];
 

@@ -406,9 +406,10 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 
 #pragma mark - Subscript
 
-- (GDGColumn *)objectForKeyedSubscript:(NSString *)idx
+- (id)objectForKeyedSubscript:(NSString *)idx;
 {
-	return [self columnForProperty:idx];
+	GDGColumn *column = [self columnForProperty:idx];
+	return column ?: [self relationNamed:idx];
 }
 
 @end

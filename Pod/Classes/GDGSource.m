@@ -51,7 +51,7 @@
 
 - (NSString *)identifier
 {
-	return _alias ? _alias : _name;
+	return _alias ?: _name;
 }
 
 - (__kindof GDGSource *)copyWithZone:(nullable NSZone *)zone
