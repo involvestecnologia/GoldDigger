@@ -93,7 +93,7 @@
 		};
 
 		_equalsCol = ^GDGCondition *(GDGColumn *column) {
-			[weakSelf appendValue:column.fullName forOperator:@"="];
+			[weakSelf appendText:[NSString stringWithFormat:@"= %@", column.fullName]];
 			return weakSelf;
 		};
 
@@ -196,7 +196,7 @@
 
 - (GDGCondition *)appendText:(NSString *)text
 {
-	[_strings addObject:[NSString stringWithFormat:@"%@", text]];
+	[_strings addObject:text];
 
 	return self;
 }

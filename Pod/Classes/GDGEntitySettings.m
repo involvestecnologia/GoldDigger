@@ -8,9 +8,12 @@
 #import "GDGEntitySettings.h"
 
 #import "GDGEntitySettings+Relations.h"
+#import "GDGTableSource.h"
 #import <objc/runtime.h>
 
 @implementation GDGEntitySettings
+
+@synthesize tableSource = _tableSource;
 
 - (instancetype)initWithEntityClass:(Class)entityClass tableSource:(GDGTableSource *)tableSource
 {
@@ -39,5 +42,11 @@
 
 	_propertiesDictionary = propertiesDictionary;
 }
+
+- (GDGTableSource *)tableSource
+{
+	return _tableSource.copy;
+}
+
 
 @end

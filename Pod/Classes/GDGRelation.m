@@ -9,6 +9,7 @@
 
 #import "GDGEntitySettings.h"
 #import "GDGTableSource.h"
+#import "GDGSource.h"
 
 @implementation GDGRelation
 
@@ -34,10 +35,14 @@
 
 - (NSString *)joinCondition
 {
-	NSMutableString *condition = [[NSMutableString alloc] initWithString:_relatedManager.settings.tableSource.alias];
+	return [self joinConditionForSource:_manager.settings.tableSource withSource:_relatedManager.settings.tableSource];
+}
 
-	[condition appendFormat:@".%@", _foreignProperty];
-	[condition appendFormat:@" = %@.id", _manager.settings.tableSource.alias];
+- (NSString *)joinConditionForSource:(GDGSource *)source withSource:(GDGSource *)joinedSource
+{
+	NSMutableString *condition = [[NSMutableString alloc] initWithString:joinedSource.identifier];
+
+	[condition appendFormat:@".id = %@.%@", source.identifier, [_manager columnNameForProperty:_foreignProperty]];
 
 	return [NSString stringWithString:condition];
 }
