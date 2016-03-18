@@ -77,10 +77,11 @@
       if (weakSelf.orderList == nil)\
         weakSelf.orderList = [NSMutableArray array];\
       \
-      NSString *column = [weakSelf.manager columnNameForProperty:prop]; \
+      NSString *columnName = [weakSelf.manager columnNameForProperty:prop]; \
+			GDGColumn *column; \
       \
-      if ([weakSelf findColumnNamed:column])\
-        [weakSelf.orderList addObject:[column stringByAppendingString:direction]];\
+      if (column = [weakSelf findColumnNamed:columnName])\
+        [weakSelf.orderList addObject:[column.fullName stringByAppendingString:direction]];\
       \
       return weakSelf;\
     };

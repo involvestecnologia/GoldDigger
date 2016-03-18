@@ -103,8 +103,9 @@
             if (weakSelf.orderList == nil)\
                 weakSelf.orderList = [NSMutableArray array];\
             \
-            if ([weakSelf findColumnNamed:col])\
-                [weakSelf.orderList addObject:[col stringByAppendingString:direction]];\
+						GDGColumn *column; \
+            if (column = [weakSelf findColumnNamed:col])\
+                [weakSelf.orderList addObject:[column.fullName stringByAppendingString:direction]];\
             \
             return weakSelf;\
         };
