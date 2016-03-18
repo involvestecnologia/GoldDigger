@@ -28,7 +28,11 @@
 	NSMutableString *joinString = [_type mutableCopy];
 
 	[joinString appendString:@" JOIN "];
-	[joinString appendString:_source.alias];
+	[joinString appendString:_source.name];
+
+	if (_source.alias)
+		[joinString appendFormat:@" AS %@", _source.alias];
+
 	[joinString appendString:@" ON "];
 	[joinString appendString:_condition];
 

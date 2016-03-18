@@ -103,8 +103,9 @@
             if (weakSelf.orderList == nil)\
                 weakSelf.orderList = [NSMutableArray array];\
             \
-            if ([weakSelf findColumnNamed:col])\
-                [weakSelf.orderList addObject:[col stringByAppendingString:direction]];\
+						GDGColumn *column; \
+            if (column = [weakSelf findColumnNamed:col])\
+                [weakSelf.orderList addObject:[column.fullName stringByAppendingString:direction]];\
             \
             return weakSelf;\
         };
@@ -165,7 +166,10 @@
 	[query appendString:_mutableProjection.count == 0 ? @"*" : [_mutableProjection join:@", "]];
 
 	[query appendString:@" FROM "];
-	[query appendString:_source.alias];
+	[query appendString:_source.name];
+
+	if (_source.alias)
+		[query appendFormat:@" AS %@", _source.alias];
 
 	if (_joins.count > 0)
 	{

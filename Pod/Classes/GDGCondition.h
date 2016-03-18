@@ -24,7 +24,6 @@
 @property (copy, readonly, nonatomic) GDGCondition *(^notEquals)(id);
 @property (copy, readonly, nonatomic) GDGCondition *(^isNull)();
 @property (copy, readonly, nonatomic) GDGCondition *(^isNotNull)();
-@property (copy, readonly, nonatomic) GDGCondition *(^equalsCol)(GDGColumn *);
 @property (copy, readonly, nonatomic) GDGCondition *(^inText)(NSString *);
 @property (copy, readonly, nonatomic) GDGCondition *(^inList)(NSArray<NSNumber *> *);
 @property (copy, readonly, nonatomic) GDGCondition *(^inQuery)(GDGQuery *);

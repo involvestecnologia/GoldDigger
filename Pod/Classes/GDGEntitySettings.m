@@ -7,10 +7,13 @@
 
 #import "GDGEntitySettings.h"
 
-#import "GDGEntitySettings_Relations.h"
+#import "GDGEntitySettings+Relations.h"
+#import "GDGTableSource.h"
 #import <objc/runtime.h>
 
 @implementation GDGEntitySettings
+
+@synthesize tableSource = _tableSource;
 
 - (instancetype)initWithEntityClass:(Class)entityClass tableSource:(GDGTableSource *)tableSource
 {
@@ -18,8 +21,8 @@
 	{
 		_entityClass = entityClass;
 		_tableSource = tableSource;
-		_relationNameDictionary = [NSMutableDictionary dictionary];
-		_valueTransformerDictionary = [NSMutableDictionary dictionary];
+		self.relationNameDictionary = [NSMutableDictionary dictionary];
+		self.valueTransformerDictionary = [NSMutableDictionary dictionary];
 	}
 
 	return self;
@@ -39,5 +42,11 @@
 
 	_propertiesDictionary = propertiesDictionary;
 }
+
+- (GDGTableSource *)tableSource
+{
+	return _tableSource.copy;
+}
+
 
 @end

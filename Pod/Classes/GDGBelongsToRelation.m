@@ -38,9 +38,9 @@
 	}
 
 	GDGEntityQuery *query = self.relatedManager.query.select(properties)
-			.where(^(GDGCondition *builder) {
-				builder.prop(@"id").inList(ids);
-			});
+		.where(^(GDGCondition *builder) {
+			builder.prop(@"id").inList(ids);
+		});
 
 	if (self.condition)
 		query.where(^(GDGCondition *builder) {
@@ -55,12 +55,11 @@
 	}
 }
 
-- (NSString *)joinCondition
+- (NSString *)joinConditionFromSource:(GDGSource *)source toSource:(GDGSource *)joinedSource
 {
-	NSMutableString *condition = [[NSMutableString alloc] initWithString:self.manager.settings.tableSource.alias];
+	NSMutableString *condition = [[NSMutableString alloc] initWithString:joinedSource.identifier];
 
-	[condition appendString:@".id"];
-	[condition appendFormat:@" = %@.%@", self.relatedManager.settings.tableSource.alias, self.foreignProperty];
+	[condition appendFormat:@".%@ = %@.id", [self.manager columnNameForProperty:self.foreignProperty], source.identifier];
 
 	return [NSString stringWithString:condition];
 }

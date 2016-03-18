@@ -10,6 +10,7 @@
 #import "GDGEntityManager.h"
 
 @class GDGCondition;
+@class GDGSource;
 
 @interface GDGRelation : NSObject
 
@@ -24,5 +25,7 @@
 - (void)fill:(NSArray<GDGEntity *> *)entities withProperties:(NSArray<NSString *> *)properties;
 
 - (NSString *)joinCondition;
+
+- (NSString *)joinConditionFromSource:(GDGSource *)source toSource:(GDGSource *)joinedSource;
 
 @end

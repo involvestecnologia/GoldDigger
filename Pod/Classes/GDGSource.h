@@ -11,6 +11,7 @@
 
 @interface GDGSource : NSObject <NSCopying>
 
+@property (strong, nonatomic) NSString *name;
 @property (strong, nonatomic) NSString *alias;
 @property (readonly, nonatomic) NSArray<GDGColumn *> *columns;
 
@@ -19,6 +20,8 @@
 - (NSString *)adjustColumnNamed:(NSString *)columnName;
 
 - (GDGColumn *)objectForKeyedSubscript:(NSString *)idx;
+
+- (NSString *)identifier;
 
 @end
 

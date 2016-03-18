@@ -57,7 +57,12 @@
 		};
 
 		_equals = ^GDGCondition *(id value) {
-			return [weakSelf appendValue:value forOperator:@"="];
+			if ([value isKindOfClass:[GDGColumn class]])
+				[weakSelf appendText:[NSString stringWithFormat:@"= %@", [value fullName]]];
+			else
+				[weakSelf appendValue:value forOperator:@"="];
+
+			return weakSelf;
 		};
 
 		_gt = ^GDGCondition *(id value) {
@@ -92,11 +97,6 @@
 			return [weakSelf appendText:@"IS NOT NULL"];
 		};
 
-		_equalsCol = ^GDGCondition *(GDGColumn *column) {
-			[weakSelf appendValue:column.fullName forOperator:@"="];
-			return weakSelf;
-		};
-
 		_inText = ^GDGCondition *(NSString *text) {
 			return [weakSelf appendText:[NSString stringWithFormat:@"IN (%@)", text]];
 		};
@@ -111,7 +111,7 @@
 
 		_cat = ^GDGCondition *(GDGCondition *builder) {
 			[weakSelf.args addEntriesFromDictionary:builder.args];
-			return [[weakSelf and] appendText:builder.visit];
+			return [weakSelf appendText:builder.visit];
 		};
 
 		_inQuery = ^GDGCondition *(GDGQuery *query) {
@@ -196,7 +196,7 @@
 
 - (GDGCondition *)appendText:(NSString *)text
 {
-	[_strings addObject:[NSString stringWithFormat:@"%@", text]];
+	[_strings addObject:text];
 
 	return self;
 }

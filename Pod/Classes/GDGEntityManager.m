@@ -10,7 +10,7 @@
 #import "GDGBelongsToRelation.h"
 #import "GDGColumn.h"
 #import "GDGEntityQuery.h"
-#import "GDGEntitySettings_Relations.h"
+#import "GDGEntitySettings+Relations.h"
 #import "GDGHasManyRelation.h"
 #import "GDGHasOneRelation.h"
 #import "GDGTableSource.h"
@@ -346,6 +346,11 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 	return _settings.tableSource[[self columnNameForProperty:propertyName]];
 }
 
+- (GDGRelation *)relationNamed:(NSString *)relationName
+{
+	return _settings.relationNameDictionary[relationName];
+}
+
 #pragma mark - Adapters
 
 - (void)addValueTransformer:(__kindof NSValueTransformer *)transformer forProperties:(NSArray<NSString *> *)properties
@@ -401,9 +406,10 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 
 #pragma mark - Subscript
 
-- (GDGColumn *)objectForKeyedSubscript:(NSString *)idx
+- (id)objectForKeyedSubscript:(NSString *)idx;
 {
-	return [self columnForProperty:idx];
+	GDGColumn *column = [self columnForProperty:idx];
+	return column ?: [self relationNamed:idx];
 }
 
 @end
