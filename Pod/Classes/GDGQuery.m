@@ -20,6 +20,7 @@
 
 @interface GDGQuery ()
 
+@property (assign, nonatomic, getter=isIdExplicit) BOOL explicitId;
 @property (assign, nonatomic) int limitValue;
 @property (assign, nonatomic, getter=isDistinct) BOOL distinctFlag;
 @property (strong, nonatomic) NSMutableArray<GDGJoin *> *joins;
@@ -46,10 +47,14 @@
 	{
 		_condition = [[GDGCondition alloc] init];
 		_mutableProjection = [[NSMutableArray alloc] init];
+		_explicitId = NO;
 
 		__weak typeof(self) weakSelf = self;
 
 		_select = ^GDGQuery *(NSArray<NSString *> *projection) {
+			if ([projection containsObject:@"id"])
+				_explicitId = YES;
+
 			NSMutableArray *validProjection = [[NSMutableArray alloc] initWithCapacity:projection.count];
 
 			for (NSString *columnName in projection)
@@ -213,10 +218,13 @@
 
 - (NSArray *)pluck
 {
-	[_mutableProjection removeObject:@"id"];
+	typeof(self) query = self.copy;
+
+	if (!_explicitId)
+		[query->_mutableProjection removeObject:@"id"];
 
 	NSMutableArray *objects = [NSMutableArray array];
-	CIRResultSet *resultSet = [[CIRDatabase goldDigger_mainDatabase] executeQuery:[self visit] withNamedParameters:self.arguments];
+	CIRResultSet *resultSet = [[CIRDatabase goldDigger_mainDatabase] executeQuery:[query visit] withNamedParameters:query.arguments];
 
 	const int columnCount = [resultSet columnCount];
 
@@ -235,7 +243,7 @@
 
 - (NSUInteger)count
 {
-	self.mutableProjection = [@[@"COUNT(id)"] mutableCopy];
+	self.mutableProjection = [@[NSStringWithFormat(@"COUNT(%@.id)", self.source.identifier)] mutableCopy];
 	return [self.pluck[0] unsignedIntegerValue];
 }
 
@@ -245,12 +253,12 @@
 {
 	GDGQuery *copy = [(GDGQuery *) [[self class] allocWithZone:zone] initWithSource:_source.copy];
 
-	copy.limitValue = _limitValue;
-	copy.distinctFlag = _distinctFlag;
-	copy.joins = [_joins mutableCopy];
-	copy.mutableProjection = [_mutableProjection mutableCopy];
-	copy.orderList = [_orderList mutableCopy];
-	copy.condition = [_condition copy];
+	copy->_limitValue = _limitValue;
+	copy->_distinctFlag = _distinctFlag;
+	copy->_joins = [_joins mutableCopy];
+	copy->_mutableProjection = [_mutableProjection mutableCopy];
+	copy->_orderList = [_orderList mutableCopy];
+	copy->_condition = [_condition copy];
 
 	return copy;
 }

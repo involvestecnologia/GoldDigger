@@ -8,6 +8,7 @@
 #import "GDGEntity.h"
 
 #import <objc/runtime.h>
+#import <GoldDigger/GDGRelation.h>
 #import "GDGEntityManager.h"
 
 @implementation GDGEntity
@@ -74,26 +75,42 @@
 	Method setter = class_getInstanceMethod(clazz, setterSelector);
 	IMP setterImplementation = method_getImplementation(setter);
 
-	char type = property_getAttributes(property)[1];
+	char *str = property_getAttributes(property);
+	char type = str[1];
 
-#define SETTER_IMP_BLOCK(T) ^(GDGEntity* _self, T argument) { \
-        [_self.db entity:_self hasFilledPropertyNamed:propertyName]; \
+#define SETTER_IMP_BEGIN(T)	^(GDGEntity* _self, T argument) {
+#define SETTER_IMP_END(T) [_self.db entity:_self hasFilledPropertyNamed:propertyName]; \
         ((void(*)(GDGEntity*, SEL, T)) setterImplementation)(_self, setterSelector, argument); \
-    }
+	}
+#define SETTER_IMP_BLOCK(T) SETTER_IMP_BEGIN(T) SETTER_IMP_END(T)
 
 	id block;
 	switch (type)
 	{
 		case '@':
 		{
-			block = SETTER_IMP_BLOCK(id);
+			block = SETTER_IMP_BEGIN(id)
+				GDGRelation *relation = [_self.db relationNamed:propertyName];
+				if (relation) [relation set:argument onEntity:_self];
+				SETTER_IMP_END(id);
 			break;
 		}
 		case 'i':
 		case 'l':
 		case 's':
+		case 'q':
 		{
 			block = SETTER_IMP_BLOCK(NSInteger);
+			break;
+		}
+		case 'Q':
+		{
+			block = SETTER_IMP_BLOCK(NSUInteger);
+			break;
+		}
+		case 'B':
+		{
+			block = SETTER_IMP_BLOCK(BOOL);
 			break;
 		}
 		case 'c':
@@ -120,6 +137,8 @@
 			@throw [NSException exceptionWithName:@"Setter Type Not Handled Exception" reason:[NSString stringWithFormat:@"[GDGEntity -overrideSetter:forClass:] throws that the type %c cannot be handled", type] userInfo:nil];
 	}
 
+#undef SETTER_IMP_BEGIN
+#undef SETTER_IMP_END
 #undef SETTER_IMP_BLOCK
 
 	IMP fillSetterImplementation = imp_implementationWithBlock(block);
@@ -158,8 +177,19 @@
 		case 'i':
 		case 'l':
 		case 's':
+		case 'q':
 		{
 			block = GETTER_IMP_BLOCK(NSInteger);
+			break;
+		}
+		case 'Q':
+		{
+			block = GETTER_IMP_BLOCK(NSUInteger);
+			break;
+		}
+		case 'B':
+		{
+			block = GETTER_IMP_BLOCK(BOOL);
 			break;
 		}
 		case 'c':

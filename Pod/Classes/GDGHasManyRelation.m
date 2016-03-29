@@ -13,10 +13,10 @@
 
 @implementation GDGHasManyRelation
 
-- (void)fill:(NSArray<GDGEntity *> *)entities withProperties:(NSArray<NSString *> *)properties
+- (void)fill:(NSArray<GDGEntity *> *)entities withProperties:(NSArray *)properties
 {
-	NSArray<NSNumber *> *ids = [entities map:^id(id object) {
-		return @([object id]);
+	NSArray<NSNumber *> *ids = [entities map:^id(GDGEntity *object) {
+		return @(object.id);
 	}];
 
 	NSMutableDictionary<NSNumber *, NSMutableArray<GDGEntity *> *> *relationEntitiesDictionary = [[NSMutableDictionary alloc] initWithCapacity:entities.count];
@@ -36,14 +36,18 @@
 		[mutableEntities addObject:entity];
 	}
 
-	NSMutableArray *mutableProperties = [NSMutableArray arrayWithArray:properties];
+	NSArray <NSDictionary *> *pulledRelations = [properties select:^BOOL(id object) {
+		return [object isKindOfClass:[NSDictionary class]];
+	}];
+	properties = [[properties relativeComplement:pulledRelations] arrayByAddingObject:self.foreignProperty];
 
-	[mutableProperties addObject:self.foreignProperty];
+	GDGEntityQuery *query = self.relatedManager.query.copy;
+	query.select(properties).where(^(GDGCondition *builder) {
+		builder.prop(self.foreignProperty).inList(ids);
+	});
 
-	GDGEntityQuery *query = self.relatedManager.query.select([NSArray arrayWithArray:mutableProperties])
-			.where(^(GDGCondition *builder) {
-				builder.prop(self.foreignProperty).inList(ids);
-			});
+	for (NSDictionary *relation in pulledRelations)
+		query.pull(relation);
 
 	if (self.condition)
 		query.where(^(GDGCondition *builder) {
@@ -75,6 +79,19 @@
 
 		[entity setValue:[NSArray arrayWithArray:relatedEntities] forKey:self.name];
 	}
+}
+
+- (void)set:(NSArray <GDGEntity *> *)ownedEntities onEntity:(GDGEntity *)entity
+{
+	for (GDGEntity *owned in ownedEntities)
+		[owned setValue:@(entity.id) forKey:self.foreignProperty];
+}
+
+- (void)save:(GDGEntity *)entity
+{
+	NSArray <GDGEntity *> *ownedEntities = [entity valueForKey:self.foreignProperty];
+	for (GDGEntity *owned in ownedEntities)
+		[owned.db save];
 }
 
 @end

@@ -23,14 +23,14 @@
 - (NSArray<__kindof GDGEntity *> *)array
 {
 	@throw [NSException exceptionWithName:@"Abstract Method Call"
-	                               reason:@"[GDGQuery+Entity -array] throws that as a abstract method interface, it should never be called directly"
+	                               reason:@"[GDGQuery+Entity -array] throws that as an abstract method interface, it should never be called directly"
 	                             userInfo:nil];
 }
 
 - (__kindof GDGEntity *)object
 {
 	@throw [NSException exceptionWithName:@"Abstract Method Call"
-	                               reason:@"[GDGQuery+Entity -object] throws that as a abstract method interface, it should never be called directly"
+	                               reason:@"[GDGQuery+Entity -object] throws that as an abstract method interface, it should never be called directly"
 	                             userInfo:nil];
 }
 
@@ -38,11 +38,13 @@
 
 @interface GDGEntityQuery ()
 
+@property (strong, nonatomic) NSMutableDictionary *mutablePulledRelations;
 @property (readwrite, nonatomic) GDGEntityManager *manager;
 
 @end
 
-@implementation GDGEntityQuery
+@implementation
+GDGEntityQuery
 
 #pragma mark - Initialization
 
@@ -54,9 +56,21 @@
 
 		self.condition = [GDGCondition builderWithEntityQuery:self];
 
+		_mutablePulledRelations = [NSMutableDictionary dictionary];
+
 		__weak typeof(self) weakSelf = self;
 
-		self.select = ^GDGQuery *(NSArray<NSString *> *projection) {
+		_pull = ^GDGEntityQuery *(NSDictionary <NSString *, NSArray *> *pulledRelations) {
+			for (NSString *relationName in pulledRelations.keyEnumerator)
+			{
+				GDGRelation *relation = [weakSelf.manager relationNamed:relationName];
+				weakSelf.select(@[relation.foreignProperty]);
+			}
+			[weakSelf.mutablePulledRelations addEntriesFromDictionary:pulledRelations];
+			return weakSelf;
+		};
+
+		self.select = ^GDGEntityQuery *(NSArray<NSString *> *projection) {
 			NSMutableArray *validProjection = [[NSMutableArray alloc] initWithCapacity:projection.count];
 
 			for (NSString *propertyName in projection)
@@ -73,7 +87,7 @@
 		};
 
 #define ORDER_BLOCK(direction) \
-    ^GDGQuery *(NSString *prop) { \
+    ^GDGEntityQuery *(NSString *prop) { \
       if (weakSelf.orderList == nil)\
         weakSelf.orderList = [NSMutableArray array];\
       \
@@ -90,6 +104,12 @@
 		self.desc = ORDER_BLOCK(@" DESC");
 
 #undef ORDER_BLOCK
+
+		_id = ^GDGEntityQuery *(NSInteger id) {
+			return self.where(^(GDGCondition *condition) {
+				condition.prop(@"id").equals(@(id));
+			}).limit(1);
+		};
 
 		_joinRelation = ^GDGEntityQuery *(NSString *relationName, NSArray<NSString *> *projection) {
 			GDGRelation *relation = weakSelf.manager.settings.relationNameDictionary[relationName];
@@ -115,7 +135,20 @@
 	return self;
 }
 
+- (NSDictionary <NSString *, NSArray *> *)pulledRelations
+{
+	return [NSDictionary dictionaryWithDictionary:_mutablePulledRelations];
+}
+
 #pragma mark - Copy
+
+- (instancetype)copy
+{
+	GDGEntityQuery *copy = (GDGEntityQuery *)[super copy];
+	copy->_mutablePulledRelations = _mutablePulledRelations;
+
+	return copy;
+}
 
 - (GDGEntityQuery *)copyWithZone:(nullable NSZone *)zone
 {

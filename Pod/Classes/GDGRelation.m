@@ -9,7 +9,7 @@
 
 #import "GDGEntitySettings.h"
 #import "GDGTableSource.h"
-#import "GDGSource.h"
+#import "GDGEntityQuery.h"
 
 @implementation GDGRelation
 
@@ -33,6 +33,11 @@
 	_foreignProperty = [[className stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:[[className substringToIndex:1] lowercaseString]] stringByAppendingString:@"Id"];
 }
 
+- (GDGEntityQuery *)baseQuery
+{
+	return _relatedManager.query.copy;
+}
+
 - (NSString *)joinCondition
 {
 	return [self joinConditionFromSource:_manager.settings.tableSource toSource:_relatedManager.settings.tableSource];
@@ -47,9 +52,25 @@
 	return [NSString stringWithString:condition];
 }
 
-- (void)fill:(NSArray<GDGEntity *> *)entities withProperties:(NSArray<NSString *> *)properties
+- (void)save:(GDGEntity *)entity
 {
-	@throw [[NSException alloc] initWithName:@"Not Implemented" reason:@"TODO" userInfo:nil];
+	// Default implementation does nothing
+}
+
+#pragma mark - Abstract
+
+- (void)fill:(NSArray<GDGEntity *> *)entities withProperties:(NSArray *)properties
+{
+	@throw [NSException exceptionWithName:@"Abstract Implementation Exception"
+	                               reason:@"[GDGRelation -fill:withProperties:] throws that child classes must override this method"
+	                             userInfo:nil];
+}
+
+- (void)set:(__kindof NSObject *)value onEntity:(GDGEntity *)entity
+{
+	@throw [NSException exceptionWithName:@"Abstract Implementation Exception"
+	                               reason:@"[GDGRelation -set:onEntity:] throws that child classes must override this method"
+	                             userInfo:nil];
 }
 
 @end

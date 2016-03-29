@@ -19,13 +19,18 @@
 @property (strong, nonatomic) GDGEntityManager *relatedManager;
 @property (strong, nonatomic) NSString *foreignProperty;
 @property (strong, nonatomic) GDGCondition *condition;
+@property (strong, nonatomic) GDGEntityQuery *baseQuery;
 
 - (instancetype)initWithName:(NSString *)name manager:(GDGEntityManager *)manager;
-
-- (void)fill:(NSArray<GDGEntity *> *)entities withProperties:(NSArray<NSString *> *)properties;
 
 - (NSString *)joinCondition;
 
 - (NSString *)joinConditionFromSource:(GDGSource *)source toSource:(GDGSource *)joinedSource;
+
+- (void)fill:(NSArray<GDGEntity *> *)entities withProperties:(NSArray *)properties;
+
+- (void)set:(__kindof NSObject *)value onEntity:(GDGEntity *)entity;
+
+- (void)save:(GDGEntity *)entity;
 
 @end
