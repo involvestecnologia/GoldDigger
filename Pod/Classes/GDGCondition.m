@@ -22,7 +22,8 @@
 
 @end
 
-@implementation GDGCondition
+@implementation
+GDGCondition
 
 + (instancetype)builder
 {
@@ -89,12 +90,9 @@
 			return [weakSelf build:builderHandler];
 		};
 
-		_isNull = ^GDGCondition * {
-			return [weakSelf appendText:@"IS NULL"];
-		};
-
-		_isNotNull = ^GDGCondition * {
-			return [weakSelf appendText:@"IS NOT NULL"];
+		_in = ^GDGCondition *(id arg) {
+			return [arg isKindOfClass:[GDGQuery class]] ? _inQuery(arg) :
+					[arg isKindOfClass:[NSArray class]] ? _inList(arg) : _inText(arg);
 		};
 
 		_inText = ^GDGCondition *(NSString *text) {
@@ -166,14 +164,14 @@
 	return [self appendText:@"OR"];
 }
 
-- (GDGCondition *)openParentheses
+- (GDGCondition *)null
 {
-	return [self appendText:@"("];
+	return [self appendText:@"IS NULL"];
 }
 
-- (GDGCondition *)closeParentheses
+- (GDGCondition *)notNull
 {
-	return [self appendText:@")"];
+	return [self appendText:@"IS NOT NULL"];
 }
 
 - (GDGCondition *)appendValue:(id)value forOperator:(NSString *)operator

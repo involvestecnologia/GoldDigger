@@ -21,7 +21,7 @@
 
 @interface GDGEntity : NSObject
 
-@property (assign, nonatomic) NSUInteger id;
+@property (assign, nonatomic) NSInteger id;
 @property (readonly, nonatomic) GDGEntityManager <GDGEntityFillDelegate> *db;
 
 + (instancetype)entity;
