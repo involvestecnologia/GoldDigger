@@ -174,7 +174,7 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 		[_entity.changedProperties removeAllObjects];
 
 	if (!exists)
-		_entity.id = (NSUInteger) [database lastInsertedId];
+		_entity.id = (NSInteger) [database lastInsertedId];
 
 	return saved;
 }

@@ -103,11 +103,6 @@
 			block = SETTER_IMP_BLOCK(NSInteger);
 			break;
 		}
-		case 'Q':
-		{
-			block = SETTER_IMP_BLOCK(NSUInteger);
-			break;
-		}
 		case 'B':
 		{
 			block = SETTER_IMP_BLOCK(BOOL);
@@ -119,6 +114,7 @@
 			break;
 		}
 		case 'I':
+		case 'Q':
 		{
 			block = SETTER_IMP_BLOCK(NSUInteger);
 			break;
@@ -182,11 +178,6 @@
 			block = GETTER_IMP_BLOCK(NSInteger);
 			break;
 		}
-		case 'Q':
-		{
-			block = GETTER_IMP_BLOCK(NSUInteger);
-			break;
-		}
 		case 'B':
 		{
 			block = GETTER_IMP_BLOCK(BOOL);
@@ -198,6 +189,7 @@
 			break;
 		}
 		case 'I':
+		case 'Q':
 		{
 			block = GETTER_IMP_BLOCK(NSUInteger);
 			break;
