@@ -16,6 +16,7 @@
 #import "GDGTableSource.h"
 #import "GDGCondition+EntityQuery.h"
 #import "CIRDatabase+GoldDigger.h"
+#import "GDGHasManyThroughRelation.h"
 #import <objc/runtime.h>
 #import <ObjectiveSugar/ObjectiveSugar.h>
 #import <SQLAid/CIRResultSet.h>
@@ -189,6 +190,13 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 - (void)hasMany:(NSString *)relationName config:(void (^)(GDGHasManyRelation *))tap
 {
 	GDGHasManyRelation *relation = [[GDGHasManyRelation alloc] initWithName:relationName manager:self];
+	_settings.relationNameDictionary[relationName] = relation;
+	tap(relation);
+}
+
+- (void)hasManyThrough:(NSString *)relationName config:(void (^)(GDGHasManyThroughRelation *))tap
+{
+	GDGHasManyThroughRelation *relation = [[GDGHasManyThroughRelation alloc] initWithName:relationName manager:self];
 	_settings.relationNameDictionary[relationName] = relation;
 	tap(relation);
 }
