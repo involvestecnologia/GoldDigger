@@ -17,8 +17,8 @@
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^select)(NSArray<NSString *> *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^from)(GDGSource *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^fromTable)(NSString *);
-@property (copy, readonly, nonatomic) __kindof GDGQuery *(^join)(__kindof GDGSource *, NSString *, NSString *, NSArray<NSString *> *);
-@property (copy, readonly, nonatomic) __kindof GDGQuery *(^joinTable)(NSString *, NSString *, NSString *, NSArray<NSString *> *);
+@property (copy, readonly, nonatomic) __kindof GDGQuery *(^join)(__kindof GDGSource *, NSString *, GDGCondition *, NSArray<NSString *> *);
+@property (copy, readonly, nonatomic) __kindof GDGQuery *(^joinTable)(NSString *, NSString *, GDGCondition *, NSArray<NSString *> *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^where)(void (^)(GDGCondition *));
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^asc)(NSString *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^desc)(NSString *);

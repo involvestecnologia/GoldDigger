@@ -69,7 +69,7 @@
 			return weakSelf;
 		};
 
-		_join = ^GDGQuery *(GDGSource *joinSource, NSString *type, NSString *condition, NSArray<NSString *> *projection) {
+		_join = ^GDGQuery *(GDGSource *joinSource, NSString *type, GDGCondition *condition, NSArray<NSString *> *projection) {
 			if (weakSelf.joins == nil)
 				weakSelf.joins = [[NSMutableArray alloc] init];
 			else
@@ -94,7 +94,7 @@
 			return weakSelf;
 		};
 
-		_joinTable = ^GDGQuery *(NSString *tableName, NSString *type, NSString *condition, NSArray<NSString *> *projection) {
+		_joinTable = ^GDGQuery *(NSString *tableName, NSString *type, GDGCondition *condition, NSArray<NSString *> *projection) {
 			return weakSelf.join([GDGTableSource tableSourceFromTable:tableName in:[CIRDatabase goldDigger_mainDatabase]], type, condition, projection);
 		};
 
@@ -315,7 +315,12 @@
 
 - (NSDictionary<NSString *, id> *)arguments
 {
-	return [_condition.arguments copy];
+	NSMutableDictionary *args = [[NSMutableDictionary alloc] initWithDictionary:_condition.arguments];
+
+	for (GDGJoin *join in _joins)
+		[args addEntriesFromDictionary:join.condition.arguments];
+
+	return [NSDictionary dictionaryWithDictionary:args];
 }
 
 @end

@@ -57,7 +57,7 @@
 
 	properties = [[properties relativeComplement:pulledRelations] arrayByAddingObject:self.foreignProperty];
 
-	NSString *joinCondition = [GDGCondition builder].col([_relationSource columnNamed:_foreignRelationColumn]).equals([self.relatedManager columnForProperty:@"id"]).visit;
+	GDGCondition *joinCondition = [GDGCondition builder].col([_relationSource columnNamed:_foreignRelationColumn]).equals([self.relatedManager columnForProperty:@"id"]);
 
 	GDGEntityQuery *query = self.relatedManager.query.copy;
 	query.select(properties).join(_relationSource, @"INNER", joinCondition, nil).where(^(GDGCondition *builder) {
