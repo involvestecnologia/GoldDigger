@@ -91,8 +91,8 @@ GDGCondition
 		};
 
 		_in = ^GDGCondition *(id arg) {
-			return [arg isKindOfClass:[GDGQuery class]] ? _inQuery(arg) :
-					[arg isKindOfClass:[NSArray class]] ? _inList(arg) : _inText(arg);
+			return [arg isKindOfClass:[GDGQuery class]] ? weakSelf.inQuery(arg) :
+					[arg isKindOfClass:[NSArray class]] ? weakSelf.inList(arg) : weakSelf.inText(arg);
 		};
 
 		_inText = ^GDGCondition *(NSString *text) {

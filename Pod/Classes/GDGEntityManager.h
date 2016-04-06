@@ -38,7 +38,7 @@
 
 - (void)hasMany:(NSString *)relationName config:(void (^)(GDGHasManyRelation *))tap;
 
-- (void)hasManyThrough:(NSString *)relationName config:(void (^)(GDGHasManyThroughRelation *))tap;
+- (void)hasMany:(NSString *)relationName through:(NSString *)tableName config:(void (^)(GDGHasManyThroughRelation *))tap;
 
 - (void)hasOne:(NSString *)relationName config:(void (^)(GDGHasOneRelation *))tap;
 

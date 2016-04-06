@@ -24,6 +24,8 @@
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^desc)(NSString *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^limit)(int);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^filter)(NSArray<id <GDGFilter>> *);
+@property (copy, readonly, nonatomic) __kindof GDGQuery *(^groupBy)(GDGColumn *);
+@property (copy, readonly, nonatomic) __kindof GDGQuery *(^having)(GDGCondition *);
 @property (readonly, nonatomic) NSArray<NSString *> *projection;
 @property (readonly, nonatomic) NSDictionary<NSString *, id> *arguments;
 @property (readonly, nonatomic) GDGCondition *condition;

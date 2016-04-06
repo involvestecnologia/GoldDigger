@@ -24,6 +24,8 @@
 @property (assign, nonatomic) int limitValue;
 @property (assign, nonatomic, getter=isDistinct) BOOL distinctFlag;
 @property (strong, nonatomic) NSMutableArray<GDGJoin *> *joins;
+@property (strong, nonatomic) NSMutableArray<NSString *> *groups;
+@property (strong, nonatomic) GDGCondition *havingCondition;
 
 @end
 
@@ -74,9 +76,11 @@
 				weakSelf.joins = [[NSMutableArray alloc] init];
 			else
 			{
-				if ([weakSelf.joins find:^BOOL(GDGJoin *object) {
-					return [object.source.alias caseInsensitiveCompare:joinSource.alias] == NSOrderedSame;
-				}])
+				GDGJoin *join = [weakSelf.joins find:^BOOL(GDGJoin *object) {
+					return [object.source.identifier caseInsensitiveCompare:joinSource.identifier] == NSOrderedSame;
+				}];
+
+				if (join != nil)
 					@throw [NSException exceptionWithName:@"Duplicate Join's alias" reason:NSStringWithFormat(@"Multiple joins with the same alias %@", joinSource.alias) userInfo:nil];
 			}
 
@@ -140,6 +144,20 @@
 
 			return weakSelf;
 		};
+
+		_groupBy = ^__kindof GDGQuery *(GDGColumn *column) {
+			if (weakSelf.groups == nil)
+				weakSelf.groups = [[NSMutableArray alloc] init];
+
+			[weakSelf.groups addObject:column.fullName];
+
+			return weakSelf;
+		};
+
+		_having = ^__kindof GDGQuery *(GDGCondition *condition) {
+			weakSelf.havingCondition = condition;
+			return weakSelf;
+		};
 	}
 
 	return self;
@@ -190,6 +208,18 @@
 		[query appendString:@" WHERE ("];
 		[query appendString:_condition.visit];
 		[query appendString:@")"];
+	}
+
+	if (_groups.count > 0)
+	{
+		[query appendString:@" GROUP BY "];
+		[query appendString:[_groups join:@", "]];
+	}
+
+	if (_havingCondition)
+	{
+		[query appendString:@" HAVING "];
+		[query appendString:_havingCondition.visit];
 	}
 
 	if (_orderList.count > 0)

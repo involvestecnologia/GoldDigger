@@ -194,10 +194,13 @@ static NSMutableDictionary<NSString *, GDGEntitySettings *> *ClassSettingsDictio
 	tap(relation);
 }
 
-- (void)hasManyThrough:(NSString *)relationName config:(void (^)(GDGHasManyThroughRelation *))tap
+- (void)hasMany:(NSString *)relationName through:(NSString *)tableName config:(void (^)(GDGHasManyThroughRelation *))tap
 {
 	GDGHasManyThroughRelation *relation = [[GDGHasManyThroughRelation alloc] initWithName:relationName manager:self];
 	_settings.relationNameDictionary[relationName] = relation;
+
+	relation.relationSource = [GDGTableSource tableSourceFromTable:tableName];
+
 	tap(relation);
 }
 
