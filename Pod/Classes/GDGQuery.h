@@ -10,6 +10,8 @@
 @class GDGCondition;
 @class GDGSource;
 @class GDGColumn;
+@class GDGJoin;
+@class GDGTableSource;
 @protocol GDGFilter;
 
 @interface GDGQuery : NSObject <NSCopying>
@@ -48,5 +50,7 @@
 - (instancetype)clearProjection;
 
 - (instancetype)clearOrder;
+
+- (GDGJoin *)joinForTableSource:(GDGTableSource *)tableSource;
 
 @end

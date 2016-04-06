@@ -338,6 +338,13 @@
 	return self;
 }
 
+- (GDGJoin *)joinForTableSource:(GDGTableSource *)tableSource
+{
+	return [_joins find:^BOOL(GDGJoin *object) {
+		return [object.source.name isEqualToString:tableSource.name];
+	}];
+}
+
 - (NSArray *)projection
 {
 	return [NSArray arrayWithArray:_mutableProjection];
