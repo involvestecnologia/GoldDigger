@@ -214,14 +214,21 @@ GDGCondition
 	return _strings.count == 0;
 }
 
+- (id)copy
+{
+	return [self copyTo:(GDGCondition *) [[[self class] alloc] init]];
+}
+
 - (GDGCondition *)copyWithZone:(nullable NSZone *)zone
 {
-	GDGCondition *copy = (GDGCondition *) [[[self class] allocWithZone:zone] init];
+	return [self copyTo:(GDGCondition *) [[[self class] allocWithZone:zone] init]];
+}
 
+- (instancetype)copyTo:(GDGCondition *)copy
+{
 	copy.strings = [_strings mutableCopy];
 	copy.args = [_args mutableCopy];
 	copy.context = [_context copy];
-
 	return copy;
 }
 
