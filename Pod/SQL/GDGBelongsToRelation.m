@@ -1,0 +1,103 @@
+//
+//  GDGBelongsToRelation.m
+//  GoldDigger
+//
+//  Created by Pietro Caselani on 1/26/16.
+//
+
+#import <ObjectiveSugar/ObjectiveSugar.h>
+#import "GDGBelongsToRelation.h"
+
+#import "GDGCondition+Entity.h"
+#import "SQLEntityQuery.h"
+#import "GDGEntity.h"
+
+@implementation GDGBelongsToRelation
+
+- (GDGCondition *)joinConditionFromSource:(id <GDGSource>)source toSource:(id <GDGSource>)joinedSource
+{
+	return [GDGCondition builder]
+			.field([GDGRelationField relationFieldWithName:self.foreignProperty source:joinedSource])
+			.equals([GDGRelationField relationFieldWithName:@"id" source:source]);
+}
+
+- (void)fill:(NSArray <GDGEntity *> *)entities selecting:(NSArray *)properties
+{
+	NSMutableDictionary *pulling = [NSMutableDictionary dictionary];
+	NSMutableArray *selecting = [NSMutableArray array];
+
+	for (id property in properties)
+		if ([property isKindOfClass:[NSDictionary class]])
+			[pulling addEntriesFromDictionary:property];
+		else
+			[selecting addObject:property];
+
+	SQLEntityQuery *baseQuery = ((SQLEntityMap *)self.relatedMap).query;
+
+	[self fill:entities fromQuery:baseQuery.select(selecting).pull(pulling)];
+}
+
+- (void)fill:(NSArray<GDGEntity *> *)entities fromQuery:(SQLEntityQuery *)query
+{
+	NSMutableArray *ids = [NSMutableArray arrayWithArray:[entities map:^id(id object) {
+		return [object valueForKey:self.foreignProperty] ?: [NSNull null];
+	}]];
+
+	NSMutableDictionary<id, NSMutableArray<GDGEntity *> *> *relationEntitiesDictionary = [[NSMutableDictionary alloc] initWithCapacity:entities.count];
+	for (NSUInteger i = 0; i < entities.count; i++)
+	{
+		id foreignId = ids[i];
+
+		if (foreignId == [NSNull null])
+			continue;
+
+		GDGEntity *entity = entities[i];
+
+		NSMutableArray<GDGEntity *> *mutableEntities = relationEntitiesDictionary[foreignId];
+		if (mutableEntities == nil)
+		{
+			mutableEntities = [NSMutableArray array];
+			relationEntitiesDictionary[foreignId] = mutableEntities;
+		}
+
+		[mutableEntities addObject:entity];
+	}
+
+	ids = (NSMutableArray *) [ids keepIf:^BOOL(id object) {
+		return object != [NSNull null];
+	}];
+
+	query.where(^(GDGCondition *builder) {
+		builder.prop(@"id").in(ids);
+	});
+
+	if (self.condition)
+		query.where(^(GDGCondition *builder) {
+			builder.and.build(^(GDGCondition *catBuilder) {
+				catBuilder.cat(self.condition);
+			});
+		});
+
+	NSMutableArray *unfilledEntities = [entities mutableCopy];
+
+	for (GDGEntity *relatedEntity in query.array)
+	{
+		NSMutableArray<GDGEntity *> *mutableEntities = relationEntitiesDictionary[relatedEntity.id];
+		for (GDGEntity *entity in mutableEntities)
+		{
+			[entity setValue:relatedEntity forKey:self.name];
+			[entity setValue:relatedEntity.id forKey:self.foreignProperty];
+			[unfilledEntities removeObject:entity];
+		}
+	}
+
+	for (GDGEntity *unfilledEntity in unfilledEntities)
+		[unfilledEntity setValue:nil forKey:self.name];
+}
+
+- (void)hasBeenSetOnEntity:(GDGEntity *)entity
+{
+	[entity setValue:[[entity valueForKey:self.name] id] forKey:self.foreignProperty];
+}
+
+@end
