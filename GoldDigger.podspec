@@ -1,14 +1,7 @@
-#
-# Be sure to run `pod lib lint GoldDigger.podspec' to ensure this is a
-# valid spec before submitting.
-#
-# Any lines starting with a # are optional, but their use is encouraged
-# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
-#
 
 Pod::Spec.new do |s|
   s.name             = "GoldDigger"
-  s.version          = "0.3.0"
+  s.version          = "0.4.0"
   s.summary          = "Simple ORM"
   s.description      = "Simple ORM for Objective-C"
   s.homepage         = "https://github.com/CopyIsRight/GoldDigger.git"
@@ -17,8 +10,18 @@ Pod::Spec.new do |s|
   s.source           = { :git => "https://github.com/CopyIsRight/GoldDigger.git", :tag => s.version.to_s }
   s.platform         = :ios, '7.0'
   s.requires_arc     = true
-  s.source_files     = 'Pod/Classes/**/*'
+  
+  s.subspec 'Core' do |core|
+    core.source_files   = 'Pod/Core/*.{h,m}'
 
-  s.dependency 'SQLAid', '~> 0.1'
-  s.dependency 'ObjectiveSugar', '1.1.0'
+    core.dependency   'ObjectiveSugar', '1.1.0'
+  end
+
+  s.subspec 'SQL' do |sql|
+    sql.source_files    = 'Pod/SQL/*.{h,m}'
+
+    sql.dependency    'GoldDigger/Core'
+    sql.dependency    'SQLAid', '~> 0.1'
+  end
+
 end
