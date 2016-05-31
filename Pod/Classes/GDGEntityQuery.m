@@ -144,17 +144,20 @@ GDGEntityQuery
 
 - (instancetype)copy
 {
-	GDGEntityQuery *copy = (GDGEntityQuery *) [super copy];
-	copy->_mutablePulledRelations = _mutablePulledRelations;
-
-	return copy;
+	return [self copyTo:(GDGEntityQuery *) [super copy]];
 }
 
 - (GDGEntityQuery *)copyWithZone:(nullable NSZone *)zone
 {
-	GDGEntityQuery *copy = (GDGEntityQuery *) [super copyWithZone:zone];
+	return [self copyTo:(GDGEntityQuery *) [super copyWithZone:zone]];
+}
+
+- (instancetype)copyTo:(GDGEntityQuery *)copy
+{
 	copy.manager = _manager;
 	copy.condition.query = copy;
+	copy->_mutablePulledRelations = _mutablePulledRelations;
+
 	return copy;
 }
 
