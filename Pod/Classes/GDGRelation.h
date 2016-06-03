@@ -23,9 +23,9 @@
 
 - (instancetype)initWithName:(NSString *)name manager:(GDGEntityManager *)manager;
 
-- (NSString *)joinCondition;
+- (GDGCondition *)joinCondition;
 
-- (NSString *)joinConditionFromSource:(GDGSource *)source toSource:(GDGSource *)joinedSource;
+- (GDGCondition *)joinConditionFromSource:(GDGSource *)source toSource:(GDGSource *)joinedSource;
 
 - (void)fill:(NSArray<GDGEntity *> *)entities withProperties:(NSArray *)properties;
 

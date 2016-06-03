@@ -92,7 +92,7 @@ GDGEntityQuery
         weakSelf.orderList = [NSMutableArray array];\
       \
       NSString *columnName = [weakSelf.manager columnNameForProperty:prop]; \
-			GDGColumn *column; \
+      GDGColumn *column; \
       \
       if (column = [weakSelf findColumnNamed:columnName])\
         [weakSelf.orderList addObject:[column.fullName stringByAppendingString:direction]];\
@@ -106,7 +106,7 @@ GDGEntityQuery
 #undef ORDER_BLOCK
 
 		_id = ^GDGEntityQuery *(NSInteger id) {
-			return self.where(^(GDGCondition *condition) {
+			return weakSelf.where(^(GDGCondition *condition) {
 				condition.prop(@"id").equals(@(id));
 			}).limit(1);
 		};
@@ -144,17 +144,20 @@ GDGEntityQuery
 
 - (instancetype)copy
 {
-	GDGEntityQuery *copy = (GDGEntityQuery *)[super copy];
-	copy->_mutablePulledRelations = _mutablePulledRelations;
-
-	return copy;
+	return [self copyTo:(GDGEntityQuery *) [super copy]];
 }
 
 - (GDGEntityQuery *)copyWithZone:(nullable NSZone *)zone
 {
-	GDGEntityQuery *copy = (GDGEntityQuery *) [super copyWithZone:zone];
+	return [self copyTo:(GDGEntityQuery *) [super copyWithZone:zone]];
+}
+
+- (instancetype)copyTo:(GDGEntityQuery *)copy
+{
 	copy.manager = _manager;
 	copy.condition.query = copy;
+	copy->_mutablePulledRelations = _mutablePulledRelations;
+
 	return copy;
 }
 

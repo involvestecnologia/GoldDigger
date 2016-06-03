@@ -48,5 +48,4 @@
 	return _tableSource.copy;
 }
 
-
 @end

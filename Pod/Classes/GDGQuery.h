@@ -10,6 +10,8 @@
 @class GDGCondition;
 @class GDGSource;
 @class GDGColumn;
+@class GDGJoin;
+@class GDGTableSource;
 @protocol GDGFilter;
 
 @interface GDGQuery : NSObject <NSCopying>
@@ -17,13 +19,15 @@
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^select)(NSArray<NSString *> *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^from)(GDGSource *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^fromTable)(NSString *);
-@property (copy, readonly, nonatomic) __kindof GDGQuery *(^join)(__kindof GDGSource *, NSString *, NSString *, NSArray<NSString *> *);
-@property (copy, readonly, nonatomic) __kindof GDGQuery *(^joinTable)(NSString *, NSString *, NSString *, NSArray<NSString *> *);
+@property (copy, readonly, nonatomic) __kindof GDGQuery *(^join)(__kindof GDGSource *, NSString *, GDGCondition *, NSArray<NSString *> *);
+@property (copy, readonly, nonatomic) __kindof GDGQuery *(^joinTable)(NSString *, NSString *, GDGCondition *, NSArray<NSString *> *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^where)(void (^)(GDGCondition *));
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^asc)(NSString *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^desc)(NSString *);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^limit)(int);
 @property (copy, readonly, nonatomic) __kindof GDGQuery *(^filter)(NSArray<id <GDGFilter>> *);
+@property (copy, readonly, nonatomic) __kindof GDGQuery *(^groupBy)(GDGColumn *);
+@property (copy, readonly, nonatomic) __kindof GDGQuery *(^having)(GDGCondition *);
 @property (readonly, nonatomic) NSArray<NSString *> *projection;
 @property (readonly, nonatomic) NSDictionary<NSString *, id> *arguments;
 @property (readonly, nonatomic) GDGCondition *condition;
@@ -46,5 +50,7 @@
 - (instancetype)clearProjection;
 
 - (instancetype)clearOrder;
+
+- (GDGJoin *)joinForTableSource:(GDGTableSource *)tableSource;
 
 @end

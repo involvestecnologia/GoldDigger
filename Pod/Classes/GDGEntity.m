@@ -42,7 +42,7 @@
 
 - (NSUInteger)hash
 {
-	return self.id * 11;
+	return self.id * 11u;
 }
 
 #pragma mark - Property hacking
@@ -56,6 +56,10 @@
 	for (NSString *propertyName in propertiesNames)
 	{
 		objc_property_t property = class_getProperty(clazz, propertyName.UTF8String);
+
+		if (property == NULL)
+			@throw [NSException exceptionWithName:@"Property not found exception" reason:[NSString stringWithFormat:@"Property named %@ does not exists", propertyName] userInfo:nil];
+
 		[self overrideSetter:property forClass:clazz];
 		[self overrideGetter:property forClass:clazz];
 	}
@@ -75,7 +79,7 @@
 	Method setter = class_getInstanceMethod(clazz, setterSelector);
 	IMP setterImplementation = method_getImplementation(setter);
 
-	char *str = property_getAttributes(property);
+	const char *str = property_getAttributes(property);
 	char type = str[1];
 
 #define SETTER_IMP_BEGIN(T)	^(GDGEntity* _self, T argument) {

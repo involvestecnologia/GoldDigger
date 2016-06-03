@@ -23,8 +23,8 @@
 @property (copy, readonly, nonatomic) GDGEntityQuery *(^select)(NSArray<NSString *> *);
 @property (copy, readonly, nonatomic) GDGEntityQuery *(^from)(GDGSource *);
 @property (copy, readonly, nonatomic) GDGEntityQuery *(^fromTable)(NSString *);
-@property (copy, readonly, nonatomic) GDGEntityQuery *(^join)(__kindof GDGSource *, NSString *, NSString *, NSArray<NSString *> *);
-@property (copy, readonly, nonatomic) GDGEntityQuery *(^joinTable)(NSString *, NSString *, NSString *, NSArray<NSString *> *);
+@property (copy, readonly, nonatomic) GDGEntityQuery *(^join)(__kindof GDGSource *, NSString *, GDGCondition *, NSArray<NSString *> *);
+@property (copy, readonly, nonatomic) GDGEntityQuery *(^joinTable)(NSString *, NSString *, GDGCondition *, NSArray<NSString *> *);
 @property (copy, readonly, nonatomic) GDGEntityQuery *(^where)(void (^)(GDGCondition *));
 @property (copy, readonly, nonatomic) GDGEntityQuery *(^asc)(NSString *);
 @property (copy, readonly, nonatomic) GDGEntityQuery *(^desc)(NSString *);

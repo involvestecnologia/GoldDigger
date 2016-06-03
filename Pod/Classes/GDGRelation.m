@@ -10,6 +10,7 @@
 #import "GDGEntitySettings.h"
 #import "GDGTableSource.h"
 #import "GDGEntityQuery.h"
+#import "GDGCondition.h"
 
 @implementation GDGRelation
 
@@ -38,18 +39,14 @@
 	return _relatedManager.query.copy;
 }
 
-- (NSString *)joinCondition
+- (GDGCondition *)joinCondition
 {
 	return [self joinConditionFromSource:_manager.settings.tableSource toSource:_relatedManager.settings.tableSource];
 }
 
-- (NSString *)joinConditionFromSource:(GDGSource *)source toSource:(GDGSource *)joinedSource
+- (GDGCondition *)joinConditionFromSource:(GDGSource *)source toSource:(GDGSource *)joinedSource
 {
-	NSMutableString *condition = [[NSMutableString alloc] initWithString:joinedSource.identifier];
-
-	[condition appendFormat:@".id = %@.%@", source.identifier, [_manager columnNameForProperty:_foreignProperty]];
-
-	return [NSString stringWithString:condition];
+	return [GDGCondition builder].col([joinedSource columnNamed:@"id"]).equals([source columnNamed:[_manager columnNameForProperty:_foreignProperty]]);
 }
 
 - (void)save:(GDGEntity *)entity
@@ -68,9 +65,7 @@
 
 - (void)set:(__kindof NSObject *)value onEntity:(GDGEntity *)entity
 {
-	@throw [NSException exceptionWithName:@"Abstract Implementation Exception"
-	                               reason:@"[GDGRelation -set:onEntity:] throws that child classes must override this method"
-	                             userInfo:nil];
+	// Default implementation does nothing
 }
 
 @end

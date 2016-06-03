@@ -8,14 +8,15 @@
 #import <Foundation/Foundation.h>
 
 @class GDGSource;
+@class GDGCondition;
 
 @interface GDGJoin : NSObject <NSCopying>
 
 @property (strong, nonatomic) NSString *type;
-@property (strong, nonatomic) NSString *condition;
+@property (strong, nonatomic) GDGCondition *condition;
 @property (strong, nonatomic) GDGSource *source;
 
-- (instancetype)initWithType:(NSString *)type condition:(NSString *)condition source:(GDGSource *)source;
+- (instancetype)initWithType:(NSString *)type condition:(GDGCondition *)condition source:(GDGSource *)source;
 
 - (NSString *)visit;
 

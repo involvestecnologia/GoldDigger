@@ -10,18 +10,13 @@
 #import "GDGCondition+EntityQuery.h"
 #import <ObjectiveSugar/ObjectiveSugar.h>
 #import "GDGEntityQuery.h"
-#import "GDGEntitySettings.h"
 #import "GDGTableSource.h"
 
 @implementation GDGBelongsToRelation
 
-- (NSString *)joinConditionFromSource:(GDGSource *)source toSource:(GDGSource *)joinedSource
+- (GDGCondition *)joinConditionFromSource:(GDGSource *)source toSource:(GDGSource *)joinedSource
 {
-	NSMutableString *condition = [[NSMutableString alloc] initWithString:joinedSource.identifier];
-
-	[condition appendFormat:@".%@ = %@.id", [self.manager columnNameForProperty:self.foreignProperty], source.identifier];
-
-	return [NSString stringWithString:condition];
+	return [GDGCondition builder].col([joinedSource columnNamed:[self.manager columnNameForProperty:self.foreignProperty]]).equals([source columnNamed:@"id"]);
 }
 
 - (void)fill:(NSArray<GDGEntity *> *)entities withProperties:(NSArray *)properties

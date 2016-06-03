@@ -24,6 +24,8 @@
 @property (assign, nonatomic) int limitValue;
 @property (assign, nonatomic, getter=isDistinct) BOOL distinctFlag;
 @property (strong, nonatomic) NSMutableArray<GDGJoin *> *joins;
+@property (strong, nonatomic) NSMutableArray<NSString *> *groups;
+@property (strong, nonatomic) GDGCondition *havingCondition;
 
 @end
 
@@ -69,14 +71,16 @@
 			return weakSelf;
 		};
 
-		_join = ^GDGQuery *(GDGSource *joinSource, NSString *type, NSString *condition, NSArray<NSString *> *projection) {
+		_join = ^GDGQuery *(GDGSource *joinSource, NSString *type, GDGCondition *condition, NSArray<NSString *> *projection) {
 			if (weakSelf.joins == nil)
 				weakSelf.joins = [[NSMutableArray alloc] init];
 			else
 			{
-				if ([weakSelf.joins find:^BOOL(GDGJoin *object) {
-					return [object.source.alias caseInsensitiveCompare:joinSource.alias] == NSOrderedSame;
-				}])
+				GDGJoin *join = [weakSelf.joins find:^BOOL(GDGJoin *object) {
+					return [object.source.identifier caseInsensitiveCompare:joinSource.identifier] == NSOrderedSame;
+				}];
+
+				if (join != nil)
 					@throw [NSException exceptionWithName:@"Duplicate Join's alias" reason:NSStringWithFormat(@"Multiple joins with the same alias %@", joinSource.alias) userInfo:nil];
 			}
 
@@ -94,7 +98,7 @@
 			return weakSelf;
 		};
 
-		_joinTable = ^GDGQuery *(NSString *tableName, NSString *type, NSString *condition, NSArray<NSString *> *projection) {
+		_joinTable = ^GDGQuery *(NSString *tableName, NSString *type, GDGCondition *condition, NSArray<NSString *> *projection) {
 			return weakSelf.join([GDGTableSource tableSourceFromTable:tableName in:[CIRDatabase goldDigger_mainDatabase]], type, condition, projection);
 		};
 
@@ -138,6 +142,20 @@
 			for (id <GDGFilter> filter in filters)
 				[filter apply:weakSelf];
 
+			return weakSelf;
+		};
+
+		_groupBy = ^__kindof GDGQuery *(GDGColumn *column) {
+			if (weakSelf.groups == nil)
+				weakSelf.groups = [[NSMutableArray alloc] init];
+
+			[weakSelf.groups addObject:column.fullName];
+
+			return weakSelf;
+		};
+
+		_having = ^__kindof GDGQuery *(GDGCondition *condition) {
+			weakSelf.havingCondition = condition;
 			return weakSelf;
 		};
 	}
@@ -190,6 +208,18 @@
 		[query appendString:@" WHERE ("];
 		[query appendString:_condition.visit];
 		[query appendString:@")"];
+	}
+
+	if (_groups.count > 0)
+	{
+		[query appendString:@" GROUP BY "];
+		[query appendString:[_groups join:@", "]];
+	}
+
+	if (_havingCondition)
+	{
+		[query appendString:@" HAVING "];
+		[query appendString:_havingCondition.visit];
 	}
 
 	if (_orderList.count > 0)
@@ -249,16 +279,26 @@
 
 #pragma - Copying
 
-- (__kindof GDGQuery *)copyWithZone:(nullable NSZone *)zone
+- (id)copy
 {
-	GDGQuery *copy = [(GDGQuery *) [[self class] allocWithZone:zone] initWithSource:_source.copy];
+	return [self innerCopyTo:[(GDGQuery *) [[self class] alloc] initWithSource:_source.copy]];
+}
 
+- (id)copyWithZone:(NSZone *)zone
+{
+	return [self innerCopyTo:[(GDGQuery *) [[self class] allocWithZone:zone] initWithSource:_source.copy]];
+}
+
+- (instancetype)innerCopyTo:(GDGQuery *)copy
+{
 	copy->_limitValue = _limitValue;
 	copy->_distinctFlag = _distinctFlag;
 	copy->_joins = [_joins mutableCopy];
 	copy->_mutableProjection = [_mutableProjection mutableCopy];
 	copy->_orderList = [_orderList mutableCopy];
 	copy->_condition = [_condition copy];
+	copy->_havingCondition = [_havingCondition copy];
+	copy->_groups = [_groups copy];
 
 	return copy;
 }
@@ -308,6 +348,13 @@
 	return self;
 }
 
+- (GDGJoin *)joinForTableSource:(GDGTableSource *)tableSource
+{
+	return [_joins find:^BOOL(GDGJoin *object) {
+		return [object.source.name isEqualToString:tableSource.name];
+	}];
+}
+
 - (NSArray *)projection
 {
 	return [NSArray arrayWithArray:_mutableProjection];
@@ -315,7 +362,12 @@
 
 - (NSDictionary<NSString *, id> *)arguments
 {
-	return [_condition.arguments copy];
+	NSMutableDictionary *args = [[NSMutableDictionary alloc] initWithDictionary:_condition.arguments];
+
+	for (GDGJoin *join in _joins)
+		[args addEntriesFromDictionary:join.condition.arguments];
+
+	return [NSDictionary dictionaryWithDictionary:args];
 }
 
 @end

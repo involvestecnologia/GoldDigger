@@ -8,10 +8,11 @@
 #import "GDGJoin.h"
 
 #import "GDGSource.h"
+#import "GDGCondition.h"
 
 @implementation GDGJoin
 
-- (instancetype)initWithType:(NSString *)type condition:(NSString *)condition source:(GDGSource *)source
+- (instancetype)initWithType:(NSString *)type condition:(GDGCondition *)condition source:(GDGSource *)source
 {
 	if (self = [super init])
 	{
@@ -34,7 +35,7 @@
 		[joinString appendFormat:@" AS %@", _source.alias];
 
 	[joinString appendString:@" ON "];
-	[joinString appendString:_condition];
+	[joinString appendString:_condition.visit];
 
 	return [NSString stringWithString:joinString];
 }

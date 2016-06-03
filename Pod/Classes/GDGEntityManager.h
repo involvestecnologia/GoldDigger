@@ -10,7 +10,7 @@
 #import "GDGEntity.h"
 
 @class GDGEntitySettings;
-@class GDGHasOneRelation, GDGHasManyRelation, GDGBelongsToRelation;
+@class GDGHasOneRelation, GDGHasManyRelation, GDGHasManyThroughRelation, GDGBelongsToRelation;
 @class GDGEntityQuery;
 @class GDGTableSource;
 @class CIRDatabase;
@@ -37,6 +37,8 @@
 - (BOOL)drop;
 
 - (void)hasMany:(NSString *)relationName config:(void (^)(GDGHasManyRelation *))tap;
+
+- (void)hasMany:(NSString *)relationName through:(NSString *)tableName config:(void (^)(GDGHasManyThroughRelation *))tap;
 
 - (void)hasOne:(NSString *)relationName config:(void (^)(GDGHasOneRelation *))tap;
 
