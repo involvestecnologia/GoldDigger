@@ -31,9 +31,9 @@
 		__weak typeof(self) weakSelf = self;
 
 		_field = ^GDGCondition *(id <GDGConditionField> field) {
-			[self appendField:field];
+			[weakSelf appendField:field];
 
-			self.context = field.fullName;
+			weakSelf.context = field.fullName;
 
 			return weakSelf;
 		};
@@ -111,6 +111,7 @@
 - (GDGCondition *)notNull
 {
 	[_mutableTokens addObject:@"NOTNULL"];
+	return self;
 }
 
 - (GDGCondition *)appendValue:(id)value forOperator:(NSString *)operator
@@ -126,11 +127,11 @@
 		[self appendField:value];
 	else
 	{
-		NSString *argName = NSStringWithFormat(@"ARG_%u", self.mutableArgs.count);
+		NSString *argName = NSStringWithFormat(@"ARG_%u", _mutableArgs.count);
 
-		self.mutableArgs[argName] = value;
+		_mutableArgs[argName] = value;
 
-		[self.mutableTokens addObject:argName];
+		[_mutableTokens addObject:argName];
 	}
 
 	return self;
@@ -148,9 +149,9 @@
 	NSString *fieldName = field.fullName;
 	NSString *token = NSStringWithFormat(@"FIELD_%@", fieldName);
 
-	self.mutableFields[token] = field;
+	_mutableFields[token] = field;
 
-	[self.mutableTokens addObject:token];
+	[_mutableTokens addObject:token];
 }
 
 #pragma mark - Computed

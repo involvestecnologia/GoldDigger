@@ -162,7 +162,7 @@
 		[query appendString:@" ORDER BY "];
 
 		for (NSString *token in orderList)
-			if ([token isEqualToString:@"ASC"] || [token isEqualToString:@"ASC"])
+			if ([token isEqualToString:@"ASC"] || [token isEqualToString:@"DESC"])
 				[query appendFormat:@" %@, ", token];
 			else
 				[query appendString:token];

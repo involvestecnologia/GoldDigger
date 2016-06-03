@@ -8,7 +8,6 @@
 #import "GDGQuery.h"
 
 @protocol SQLSource;
-@class SQLEntityMapper;
 @class SQLTableSource;
 @class SQLJoin;
 @class GDGCondition;

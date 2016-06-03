@@ -27,8 +27,8 @@
 
 - (void)fillProperties:(NSArray *)properties;
 
-- (BOOL)save:(NSError *)error;
+- (BOOL)save:(NSError **)error;
 
-- (BOOL)delete:(NSError *)error;
+- (BOOL)delete:(NSError **)error;
 
 @end

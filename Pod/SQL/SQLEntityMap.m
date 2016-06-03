@@ -17,17 +17,16 @@
 #import "GDGHasOneRelation.h"
 #import "GDGEntity+SQL.h"
 #import "SQLEntityQuery.h"
+#import "GDGEntity_Package.h"
 
 @implementation SQLEntityMap
 
 @synthesize entityClass = _entityClass;
 
-+ (instancetype)mapWithDictionary:(NSDictionary *)fromToDictionary from:(id <SQLSource>)source to:(Class)class
++ (instancetype)mapWithDictionary:(NSDictionary *)fromToDictionary from:(SQLTableSource *)source to:(Class)class
 {
-	SQLTableSource *table = (SQLTableSource *) source;
-
-	NSMutableDictionary *mutableFromTo = [NSMutableDictionary dictionaryWithCapacity:table.columns.count];
-	for (GDGColumn *column in table.columns)
+	NSMutableDictionary *mutableFromTo = [NSMutableDictionary dictionaryWithCapacity:source.columns.count];
+	for (GDGColumn *column in source.columns)
 		mutableFromTo[column.name] = column;
 
 	for (NSString *key in fromToDictionary.keyEnumerator)
@@ -64,7 +63,7 @@
 
 - (SQLTableSource *)table
 {
-	return self.source;
+	return [self.source copy];
 }
 
 - (SQLEntityQuery *)query
@@ -105,7 +104,7 @@
 {
 	[self addFromToMappings:@{relation.name : relation}];
 	[self->_entityClass addAfterSetHandler:^(GDGEntity *entity, NSString *string) {
-//		[relation]
+		// TODO handle relation after setting
 	} forProperty:relation.name];
 }
 
@@ -118,12 +117,14 @@
 
 - (NSString *)propertyFromColumnName:(NSString *)columnName
 {
-	__block NSString *propertyName = nil;
+	NSString *propertyName = nil;
 
-	[self.fromToDictionary each:^(id key, id value) {
-		if ([[value name] isEqualToString:columnName])
+	for (NSString *key in self.fromToDictionary.keyEnumerator)
+		if ([[self.fromToDictionary[key] name] isEqualToString:columnName])
+		{
 			propertyName = key;
-	}];
+			break;
+		}
 
 	return propertyName;
 }

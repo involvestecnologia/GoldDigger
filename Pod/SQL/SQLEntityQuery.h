@@ -17,7 +17,7 @@
 @property (copy, readonly, nonatomic) SQLEntityQuery *(^pull)(NSDictionary <NSString *, NSArray *> *);
 @property (copy, readonly, nonatomic) SQLEntityQuery *(^withId)(id);
 @property (copy, readonly, nonatomic) SQLEntityQuery *(^select)(NSArray <NSString *> *);
-@property (copy, readonly, nonatomic) SQLEntityQuery *(^join)(__kindof SQLJoin *);
+@property (copy, readonly, nonatomic) SQLEntityQuery *(^join)(SQLJoin *);
 @property (copy, readonly, nonatomic) SQLEntityQuery *(^filter)(NSArray <id <GDGFilter>> *);
 @property (copy, readonly, nonatomic) SQLEntityQuery *(^where)(void (^)(GDGCondition *));
 @property (copy, readonly, nonatomic) SQLEntityQuery *(^asc)(NSString *);

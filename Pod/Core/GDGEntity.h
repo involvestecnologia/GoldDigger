@@ -15,15 +15,6 @@
 
 + (instancetype)entity;
 
-+ (void)addBeforeSetHandler:(void (^)(GDGEntity *, NSString *))hasFilledHandler
-                forProperty:(NSString *)propertyName;
-
-+ (void)addAfterSetHandler:(void (^)(GDGEntity *, NSString *))hasFilledHandler
-               forProperty:(NSString *)propertyName;
-
-+ (void)addBeforeGetHandler:(void (^)(GDGEntity *, NSString *))hasFilledHandler
-                forProperty:(NSString *)propertyName;
-
 - (BOOL)isEqualToEntity:(GDGEntity *)entity;
 
 @end

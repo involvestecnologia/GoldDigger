@@ -7,6 +7,7 @@
 
 #import <objc/runtime.h>
 #import "GDGEntity.h"
+#import "GDGEntity_Package.h"
 #import "GDGEntityMap.h"
 
 static BOOL IsTrackingProperties;
@@ -72,7 +73,9 @@ static NSMutableDictionary *Maps;
 	{
 		objc_property_t property = properties[i];
 		if (property == NULL)
-			@throw [NSException new];
+			@throw [NSException exceptionWithName:@"Property List Inconsistency Exception"
+			                               reason:@"[GDGEntity -trackPropertyCalls] throws that and <objc/runtime> error has occurred and property list could not be fully retrieved"
+			                             userInfo:nil];
 
 		[self overrideSetter:property];
 		[self overrideGetter:property];
