@@ -1,14 +1,7 @@
-#
-# Be sure to run `pod lib lint GoldDigger.podspec' to ensure this is a
-# valid spec before submitting.
-#
-# Any lines starting with a # are optional, but their use is encouraged
-# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
-#
 
 Pod::Spec.new do |s|
   s.name             = "GoldDigger"
-  s.version          = "0.3.0"
+  s.version          = "0.3.2"
   s.summary          = "Simple ORM"
   s.description      = "Simple ORM for Objective-C"
   s.homepage         = "https://github.com/CopyIsRight/GoldDigger.git"
