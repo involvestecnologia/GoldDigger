@@ -65,9 +65,7 @@
 
 - (void)set:(__kindof NSObject *)value onEntity:(GDGEntity *)entity
 {
-	@throw [NSException exceptionWithName:@"Abstract Implementation Exception"
-	                               reason:@"[GDGRelation -set:onEntity:] throws that child classes must override this method"
-	                             userInfo:nil];
+	// Default implementation does nothing
 }
 
 @end

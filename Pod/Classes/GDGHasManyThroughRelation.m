@@ -13,6 +13,8 @@
 #import "GDGSource.h"
 #import "GDGTableSource.h"
 #import "GDGEntitySettings.h"
+#import "CIRDatabase+GoldDigger.h"
+#import "CIRStatement.h"
 
 @implementation GDGHasManyThroughRelation
 
@@ -132,6 +134,40 @@
 	}
 }
 
-- (void)set:(__kindof NSObject *)value onEntity:(GDGEntity *)entity {}
+- (void)save:(GDGEntity *)entity
+{
+	NSString *sql = [NSString stringWithFormat:@"REPLACE INTO %@ (%@, %@, rowId) VALUES (?, ?, (SELECT rowId FROM %@ WHERE (%@ = ? AND %@ = ?)))",
+	                                           _relationSource.name, _foreignRelationColumn, _ownerRelationColumn,
+	                                           _relationSource.name, _foreignRelationColumn, _ownerRelationColumn];
+
+	CIRStatement *statement = [[CIRDatabase goldDigger_mainDatabase] prepareStatement:sql];
+
+	NSArray<__kindof GDGEntity *> *entities = [entity valueForKey:self.name];
+
+	NSInteger ownerId = entity.id, relationId;
+
+	for (GDGEntity *relatedEntity in entities)
+	{
+		if ([relatedEntity.db save])
+		{
+			relationId = relatedEntity.id;
+
+			[self checkResultCode:[statement bindLong:relationId atIndex:1] isSQLCode:SQLITE_OK];
+			[self checkResultCode:[statement bindLong:ownerId atIndex:2] isSQLCode:SQLITE_OK];
+			[self checkResultCode:[statement bindLong:relationId atIndex:3] isSQLCode:SQLITE_OK];
+			[self checkResultCode:[statement bindLong:ownerId atIndex:4] isSQLCode:SQLITE_OK];
+
+			[self checkResultCode:[statement step] isSQLCode:SQLITE_DONE];
+
+			[self checkResultCode:[statement reset] isSQLCode:SQLITE_OK];
+		}
+	}
+}
+
+- (void)checkResultCode:(int)resultCode isSQLCode:(int)sqliteCode
+{
+	if (resultCode != sqliteCode)
+		@throw [NSException exceptionWithName:@"SQLite Exception" reason:[CIRDatabase goldDigger_mainDatabase].lastErrorMessage userInfo:nil];
+}
 
 @end
