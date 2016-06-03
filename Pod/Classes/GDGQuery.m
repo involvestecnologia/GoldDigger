@@ -279,16 +279,26 @@
 
 #pragma - Copying
 
-- (__kindof GDGQuery *)copyWithZone:(nullable NSZone *)zone
+- (id)copy
 {
-	GDGQuery *copy = [(GDGQuery *) [[self class] allocWithZone:zone] initWithSource:_source.copy];
+	return [self innerCopyTo:[(GDGQuery *) [[self class] alloc] initWithSource:_source.copy]];
+}
 
+- (id)copyWithZone:(NSZone *)zone
+{
+	return [self innerCopyTo:[(GDGQuery *) [[self class] allocWithZone:zone] initWithSource:_source.copy]];
+}
+
+- (instancetype)innerCopyTo:(GDGQuery *)copy
+{
 	copy->_limitValue = _limitValue;
 	copy->_distinctFlag = _distinctFlag;
 	copy->_joins = [_joins mutableCopy];
 	copy->_mutableProjection = [_mutableProjection mutableCopy];
 	copy->_orderList = [_orderList mutableCopy];
 	copy->_condition = [_condition copy];
+	copy->_havingCondition = [_havingCondition copy];
+	copy->_groups = [_groups copy];
 
 	return copy;
 }
@@ -336,6 +346,13 @@
 {
 	[_orderList removeAllObjects];
 	return self;
+}
+
+- (GDGJoin *)joinForTableSource:(GDGTableSource *)tableSource
+{
+	return [_joins find:^BOOL(GDGJoin *object) {
+		return [object.source.name isEqualToString:tableSource.name];
+	}];
 }
 
 - (NSArray *)projection

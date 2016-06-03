@@ -30,14 +30,11 @@ static NSMutableArray *Callbacks;
 
 - (void)goldDigger_setAsMainDatabase
 {
-	if (GoldDiggerDatabase)
-		@throw [NSException exceptionWithName:@"Main Database Override Exception"
-		                               reason:@"[CIRDatabase+GoldDigger -setAsMainDatabase] throws that you should not override Gold Digger's main database after it was set"
-		                             userInfo:nil];
-
 	[Callbacks each:^(id object) {
 		((void (^)())object)();
 	}];
+
+	[Callbacks removeAllObjects];
 
 	GoldDiggerDatabase = self;
 }
