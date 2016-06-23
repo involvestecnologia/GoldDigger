@@ -121,7 +121,7 @@
 		                               reason:@"[GDGCondition -appendValue:forOperator:] throws that you must provide a context before using an operator"
 		                             userInfo:nil];
 
-	[self.mutableTokens addObject:operator];
+	[_mutableTokens addObject:operator];
 
 	if ([value conformsToProtocol:@protocol(GDGConditionField)])
 		[self appendField:value];
