@@ -16,6 +16,7 @@
 @class GDGEntity;
 @class GDGRelation;
 @class SQLTableSource;
+@class GDGHasManyThroughRelation;
 
 @interface SQLEntityMap : GDGEntityMap
 
@@ -26,6 +27,8 @@
 - (void)hasOne:(NSString *)relationName config:(void (^)(GDGHasOneRelation *))tap;
 
 - (void)hasMany:(NSString *)relationName config:(void (^)(GDGHasManyRelation *))tap;
+
+- (void)hasMany:(NSString *)relationName through:(SQLTableSource *)table config:(void (^)(GDGHasManyThroughRelation *))tap;
 
 - (void)belongsTo:(NSString *)relationName config:(void (^)(GDGBelongsToRelation *))tap;
 

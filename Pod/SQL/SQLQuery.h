@@ -10,6 +10,7 @@
 @protocol SQLSource;
 @class SQLTableSource;
 @class SQLJoin;
+@class GDGColumn;
 @class GDGCondition;
 
 @interface SQLQuery : GDGQuery
@@ -25,6 +26,8 @@
 @property (copy, readonly, nonatomic) __kindof SQLQuery *(^join)(SQLJoin *);
 @property (copy, readonly, nonatomic) __kindof SQLQuery *(^filter)(NSArray <id <GDGFilter>> *);
 @property (copy, readonly, nonatomic) __kindof SQLQuery *(^where)(void (^)(GDGCondition *));
+@property (copy, readonly, nonatomic) __kindof SQLQuery *(^groupBy)(GDGColumn *);
+@property (copy, readonly, nonatomic) __kindof SQLQuery *(^having)(void (^)(GDGCondition *));
 @property (copy, readonly, nonatomic) __kindof SQLQuery *(^asc)(NSString *);
 @property (copy, readonly, nonatomic) __kindof SQLQuery *(^desc)(NSString *);
 @property (copy, readonly, nonatomic) __kindof SQLQuery *(^limit)(int);

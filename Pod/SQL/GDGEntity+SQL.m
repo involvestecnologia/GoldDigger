@@ -12,9 +12,9 @@
 #import "SQLEntityMap.h"
 #import "SQLTableSource.h"
 #import "GDGColumn.h"
-#import "GDGCondition.h"
 #import "GDGRelation.h"
 #import "GDGCondition+Entity.h"
+#import "GDGEntity_Package.h"
 
 @implementation GDGEntity (SQL)
 

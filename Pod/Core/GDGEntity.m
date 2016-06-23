@@ -306,6 +306,17 @@ static NSMutableDictionary *Maps;
 	Maps[NSStringFromSelector(selector)] = map;
 }
 
+- (BOOL)isEqual:(id)object
+{
+	if (self == object)
+		return YES;
+
+	if (![object isKindOfClass:[self class]])
+		return NO;
+
+	return [self isEqualToEntity:object];
+}
+
 - (BOOL)isEqualToEntity:(GDGEntity *)entity
 {
 	return [entity isKindOfClass:[self class]]
@@ -316,7 +327,7 @@ static NSMutableDictionary *Maps;
 
 - (NSUInteger)hash
 {
-	return [self.id hash] ^ [NSStringFromClass(self.class) hash];
+	return ([self.id hash] ^ [NSStringFromClass(self.class) hash]) * 31u;
 }
 
 @end

@@ -15,9 +15,9 @@
 #import "GDGHasManyRelation.h"
 #import "SQLQuery.h"
 #import "GDGHasOneRelation.h"
-#import "GDGEntity+SQL.h"
 #import "SQLEntityQuery.h"
 #import "GDGEntity_Package.h"
+#import "GDGHasManyThroughRelation.h"
 
 @implementation SQLEntityMap
 
@@ -63,7 +63,8 @@
 
 - (SQLTableSource *)table
 {
-	return [self.source copy];
+	SQLTableSource *table = self.source;
+	return [table copy];
 }
 
 - (SQLEntityQuery *)query
@@ -85,6 +86,16 @@
 - (void)hasMany:(NSString *)relationName config:(void (^)(GDGHasManyRelation *))tap
 {
 	GDGHasManyRelation *relation = [[GDGHasManyRelation alloc] initWithName:relationName map:self];
+
+	[self synthesizeRelation:relation];
+
+	tap(relation);
+}
+
+- (void)hasMany:(NSString *)relationName through:(SQLTableSource *)table config:(void (^)(GDGHasManyThroughRelation *))tap
+{
+	GDGHasManyThroughRelation *relation = [[GDGHasManyThroughRelation alloc] initWithName:relationName map:self];
+	relation.relationSource = table;
 
 	[self synthesizeRelation:relation];
 

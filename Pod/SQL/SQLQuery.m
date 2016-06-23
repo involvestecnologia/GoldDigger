@@ -289,7 +289,7 @@
 			[validProjection addObject:column.fullName];
 	}
 
-	[super select:validProjection];
+	[_mutableProjection addObjectsFromArray:validProjection];
 }
 
 - (void)join:(SQLJoin *)join
@@ -342,6 +342,8 @@
 - (instancetype)distinct
 {
 	_distinct = YES;
+
+	return self;
 }
 
 #pragma mark - Convenience
