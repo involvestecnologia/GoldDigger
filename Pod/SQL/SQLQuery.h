@@ -19,6 +19,7 @@
 @property (readonly, nonatomic) NSArray<SQLJoin *> *joins;
 @property (readonly, nonatomic) NSArray<NSString *> *orderList;
 @property (readonly, nonatomic) GDGCondition *whereCondition;
+@property (readonly, nonatomic) GDGCondition *havingCondition;
 @property (readonly, nonatomic) id <SQLSource> source;
 @property (assign, readonly, nonatomic, getter=isDistinct) BOOL distinct;
 @property (copy, readonly, nonatomic) __kindof SQLQuery *(^select)(NSArray <NSString *> *);

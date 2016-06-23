@@ -21,6 +21,7 @@
 
 @property (readwrite, nonatomic) NSObject <SQLSource> *source;
 @property (strong, nonatomic) NSMutableDictionary <NSString *, id> *mutableArgs;
+@property (strong, nonatomic) NSMutableArray <GDGColumn *> *mutableGroups;
 
 @end
 
@@ -47,10 +48,12 @@
 	{
 		_distinct = NO;
 		_whereCondition = [GDGCondition builder];
+		_havingCondition = [GDGCondition builder];
 		_mutableArgs = [NSMutableDictionary dictionary];
 		_mutableProjection = [NSMutableArray array];
 		_mutableOrderList = [NSMutableArray array];
 		_mutableJoins = [NSMutableArray array];
+		_mutableGroups = [NSMutableArray array];
 
 		__weak typeof(self) weakSelf = self;
 
@@ -71,6 +74,16 @@
 
 		_where = ^SQLQuery *(void (^handler)(GDGCondition *)) {
 			[weakSelf where:handler];
+			return weakSelf;
+		};
+
+		_groupBy = ^SQLQuery *(GDGColumn *column) {
+			[weakSelf groupBy:column];
+			return weakSelf;
+		};
+
+		_having = ^SQLQuery *(void (^handler)(GDGCondition *)) {
+			[weakSelf having:handler];
 			return weakSelf;
 		};
 
@@ -153,6 +166,21 @@
 		[query appendString:@" WHERE ("];
 		[query appendString:[self visitCondition:self.whereCondition disambiguate:disambiguateArgs]];
 		[query appendString:@")"];
+	}
+
+	if (_mutableGroups.count > 0)
+	{
+		[query appendString:@" GROUP BY "];
+		[query appendString:[[_mutableGroups map:^NSString *(GDGColumn *column) {
+			return column.fullName;
+		}] join:@", "]];
+
+		if (!_havingCondition.isEmpty)
+		{
+			[query appendString:@" HAVING ("];
+			[query appendString:[self visitCondition:_havingCondition disambiguate:disambiguateArgs]];
+			[query appendString:@")"];
+		}
 	}
 
 	NSArray *orderList = self.orderList;
@@ -323,6 +351,16 @@
 - (void)where:(void (^)(GDGCondition *))handler
 {
 	handler(_whereCondition);
+}
+
+- (void)groupBy:(GDGColumn *)column
+{
+	[_mutableGroups addObject:column];
+}
+
+- (void)having:(void (^)(GDGCondition *))handler
+{
+	handler(_havingCondition);
 }
 
 - (void)asc:(NSString *)prop
