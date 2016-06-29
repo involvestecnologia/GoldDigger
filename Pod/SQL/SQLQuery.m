@@ -8,14 +8,11 @@
 #import <ObjectiveSugar/ObjectiveSugar.h>
 #import "SQLQuery.h"
 
-#import "GDGQuery_Protected.h"
 #import "GDGColumn.h"
 #import "SQLTableSource.h"
 #import "SQLJoin.h"
-#import "SQLSource.h"
 #import "SQLQuerySource.h"
 #import "SQLQuery_Protected.h"
-#import "GDGCondition.h"
 
 @interface SQLQuery ()
 
@@ -232,7 +229,11 @@
 
 		[_mutableArgs addEntriesFromDictionary:condition.args];
 
-		if ([token hasPrefix:@"FIELD_"])
+		if ([token isEqualToString:@"("])
+			[mutableCondition appendString:@"("];
+		else if ([token isEqualToString:@")"])
+			[mutableCondition appendString:@")"];
+		else if ([token hasPrefix:@"FIELD_"])
 			[mutableCondition appendString:[(id <GDGConditionField>) fields[token] fullName]];
 		else if ([operatorTokens containsObject:token])
 			[mutableCondition appendString:token];

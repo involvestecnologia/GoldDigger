@@ -9,6 +9,7 @@
 
 #import "GDGEntityMap.h"
 #import "GDGQuery.h"
+#import "GDGColumn.h"
 
 @implementation GDGRelationField
 
@@ -71,7 +72,7 @@
 {
 	return [GDGCondition builder]
 			.field(GDGRelationField(@"id", source))
-			.equals(GDGRelationField(self.foreignProperty, joinedSource));
+			.equals(GDGRelationField(((GDGColumn *)self.relatedMap[self.foreignProperty]).name, joinedSource));
 }
 
 - (GDGCondition *)joinCondition

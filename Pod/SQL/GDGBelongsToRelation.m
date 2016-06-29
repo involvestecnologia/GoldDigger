@@ -7,17 +7,17 @@
 
 #import <ObjectiveSugar/ObjectiveSugar.h>
 #import "GDGBelongsToRelation.h"
-
 #import "GDGCondition+Entity.h"
-#import "SQLEntityQuery.h"
 #import "GDGEntity.h"
+#import "GDGColumn.h"
+#import "SQLEntityQuery.h"
 
 @implementation GDGBelongsToRelation
 
 - (GDGCondition *)joinConditionFromSource:(id <GDGSource>)source toSource:(id <GDGSource>)joinedSource
 {
 	return [GDGCondition builder]
-			.field([GDGRelationField relationFieldWithName:self.foreignProperty source:joinedSource])
+			.field([GDGRelationField relationFieldWithName:((GDGColumn *) self.map[self.foreignProperty]).name source:joinedSource])
 			.equals([GDGRelationField relationFieldWithName:@"id" source:source]);
 }
 

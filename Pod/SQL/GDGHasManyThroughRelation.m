@@ -17,6 +17,7 @@
 #import "SQLEntityMap.h"
 #import "SQLJoin.h"
 #import "GDGDatabaseProvider.h"
+#import "GDGColumn.h"
 
 @implementation GDGHasManyThroughRelation
 
@@ -32,7 +33,21 @@
 	return self;
 }
 
-- (void)fill:(NSArray<GDGEntity *> *)entities withProperties:(NSArray *)properties
+- (void)fill:(NSArray <GDGEntity *> *)entities selecting:(NSArray *)properties
+{
+	NSArray <NSDictionary *> *pulledRelations = [properties select:^BOOL(id object) {
+		return [object isKindOfClass:[NSDictionary class]];
+	}];
+
+	properties = [[properties relativeComplement:pulledRelations] arrayByAddingObject:self.foreignProperty];
+
+	SQLEntityQuery *query = ((SQLEntityMap *) self.relatedMap).query.select(properties);
+
+	for (NSDictionary *relation in pulledRelations)
+		query.pull(relation);
+}
+
+- (void)fill:(NSArray <GDGEntity *> *)entities fromQuery:(SQLEntityQuery *)query
 {
 	NSArray<NSNumber *> *ids = [entities map:^id(GDGEntity *object) {
 		return object.id;
@@ -55,22 +70,11 @@
 		[mutableEntities addObject:entity];
 	}
 
-	NSArray <NSDictionary *> *pulledRelations = [properties select:^BOOL(id object) {
-		return [object isKindOfClass:[NSDictionary class]];
-	}];
-
-	properties = [[properties relativeComplement:pulledRelations] arrayByAddingObject:self.foreignProperty];
-
 	GDGCondition *joinCondition = [GDGCondition builder].field(_relationSource[_foreignRelationColumn]).equals(self.relatedMap[@"id"]);
 
-	SQLEntityQuery *query = ((SQLEntityMap *) self.relatedMap).query
-			.select(properties)
-			.join([SQLJoin joinWithKind:SQLJoinKindInner
-			                  condition:joinCondition
-			                     source:_relationSource])
-			.where(^(GDGCondition *cond) {
-				cond.field(_relationSource[_localRelationColumn]).in(ids);
-			});
+	query.where(^(GDGCondition *cond) {
+		cond.field(_relationSource[_localRelationColumn]).in(ids);
+	}).join([SQLJoin joinWithKind:SQLJoinKindInner condition:joinCondition source:_relationSource]);
 
 	SQLQuery *relationQuery = [SQLQuery query].from(_relationSource)
 			.select(@[_foreignRelationColumn, _localRelationColumn])
@@ -82,9 +86,6 @@
 			})
 			.asc(_localRelationColumn)
 			.asc(_foreignRelationColumn);
-
-	for (NSDictionary *relation in pulledRelations)
-		query.pull(relation);
 
 	if (self.condition)
 	{
