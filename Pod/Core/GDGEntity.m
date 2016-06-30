@@ -87,20 +87,28 @@ static NSMutableDictionary *EntityHandlersDictionary;
 
 	EntityHandlersDictionary[NSStringFromClass(self)] = [GDGEntityHandler entityHandler];
 
-	unsigned int count = 0;
-	objc_property_t *properties = class_copyPropertyList(self, &count);
+	Class entityClass = self;
 
-	for (int i = 0; i < count; ++i)
-	{
-		objc_property_t property = properties[i];
-		if (property == NULL)
-			@throw [NSException exceptionWithName:@"Property List Inconsistency Exception"
-			                               reason:@"[GDGEntity -trackPropertyCalls] throws that and <objc/runtime> error has occurred and property list could not be fully retrieved"
-			                             userInfo:nil];
+	do {
+		unsigned int count = 0;
+		objc_property_t *properties = class_copyPropertyList(entityClass, &count);
 
-		[self overrideSetter:property];
-		[self overrideGetter:property];
-	}
+		for (int i = 0; i < count; ++i)
+		{
+			objc_property_t property = properties[i];
+			if (property == NULL)
+				@throw [NSException exceptionWithName:@"Property List Inconsistency Exception"
+				                               reason:@"[GDGEntity -trackPropertyCalls] throws that and <objc/runtime> error has occurred and property list could not be fully retrieved"
+				                             userInfo:nil];
+
+			[self overrideSetter:property];
+			[self overrideGetter:property];
+		}
+
+		free(properties);
+
+		entityClass = [entityClass superclass];
+	} while (entityClass != [GDGEntity class]);
 }
 
 #pragma mark - Creation
