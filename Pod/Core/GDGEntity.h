@@ -9,6 +9,12 @@
 
 @class GDGEntityMap;
 
+@interface NSObject (GDG)
+
++ (NSArray<NSValue *> *)gdg_propertyListFromClass:(Class)fromClass until:(Class)toClass;
+
+@end
+
 @interface GDGEntity : NSObject
 
 @property (strong, nonatomic) id id;
