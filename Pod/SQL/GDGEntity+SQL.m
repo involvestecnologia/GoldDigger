@@ -40,10 +40,17 @@
 		[entity.changedProperties addObject:propertyName];
 	};
 
+	void (^afterSetHandler)(GDGEntity *, NSString *) = ^(GDGEntity *entity, NSString *propertyName) {
+		[[entity.class db][propertyName] hasBeenSetOnEntity:entity];
+	};
+
 	for (NSString *propertyName in propertyNames)
 	{
 		[self addBeforeGetHandler:getHandler forProperty:propertyName];
 		[self addBeforeSetHandler:setHandler forProperty:propertyName];
+
+		if ([[self db][propertyName] isKindOfClass:[GDGRelation class]])
+			[self addAfterSetHandler:afterSetHandler forProperty:propertyName];
 	}
 }
 
