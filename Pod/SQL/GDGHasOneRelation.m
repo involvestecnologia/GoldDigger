@@ -12,8 +12,16 @@
 #import "SQLEntityQuery.h"
 #import "GDGCondition+Entity.h"
 #import "GDGEntity.h"
+#import "GDGColumn.h"
 
 @implementation GDGHasOneRelation
+
+- (GDGCondition *)joinConditionFromSource:(id <GDGSource>)source toSource:(id <GDGSource>)joinedSource
+{
+	return [GDGCondition builder]
+			.field(GDGRelationField(@"id", source))
+			.equals(GDGRelationField(((GDGColumn *) self.relatedMap[self.foreignProperty]).name, joinedSource));
+}
 
 - (void)fill:(NSArray <GDGEntity *> *)entities selecting:(NSArray *)properties
 {

@@ -21,6 +21,15 @@
 
 @implementation GDGHasManyThroughRelation
 
+- (GDGCondition *)joinConditionFromSource:(id <GDGSource>)source toSource:(id <GDGSource>)joinedSource
+{
+	@throw [NSException exceptionWithName:@"Join Condition Nonexistent"
+	                               reason:@"[GDGHasManyThroughRelation -joinConditionFromSource:toSource:] thorws that "
+			                               @"relations defined through third party tables can not provide a pattern of "
+			                               @"join condition"
+	                             userInfo:nil];
+}
+
 - (instancetype)initWithName:(NSString *)name map:(GDGEntityMap *)map
 {
 	if (self = [super initWithName:name map:map])
