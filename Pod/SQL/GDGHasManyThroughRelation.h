@@ -15,4 +15,6 @@
 @property (strong, nonatomic) NSString *localRelationColumn;
 @property (strong, nonatomic) NSString *foreignRelationColumn;
 
+- (void)insertOrReplaceOwner:(NSNumber *)ownerId forRelated:(NSArray <NSNumber *> *)related;
+
 @end

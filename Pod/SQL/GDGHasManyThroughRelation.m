@@ -21,6 +21,15 @@
 
 @implementation GDGHasManyThroughRelation
 
+- (GDGCondition *)joinConditionFromSource:(id <GDGSource>)source toSource:(id <GDGSource>)joinedSource
+{
+	@throw [NSException exceptionWithName:@"Join Condition Nonexistent"
+	                               reason:@"[GDGHasManyThroughRelation -joinConditionFromSource:toSource:] thorws that "
+			                               @"relations defined through third party tables can not provide a pattern of "
+			                               @"join condition"
+	                             userInfo:nil];
+}
+
 - (instancetype)initWithName:(NSString *)name map:(GDGEntityMap *)map
 {
 	if (self = [super initWithName:name map:map])
@@ -146,31 +155,32 @@
 
 - (void)save:(GDGEntity *)entity
 {
+	[self insertOrReplaceOwner:entity.id
+	                forRelated:[[(NSArray *) [entity valueForKey:self.name] select:^BOOL(GDGEntity *related) {
+		                return [related save:nil];
+	                }] map:^NSNumber *(GDGEntity *related) {
+		                return related.id;
+	                }]];
+}
+
+- (void)insertOrReplaceOwner:(NSNumber *)ownerId forRelated:(NSArray <NSNumber *> *)related
+{
 	NSString *sql = [NSString stringWithFormat:@"REPLACE INTO %@ (%@, %@, rowId) VALUES (?, ?, (SELECT rowId FROM %@ WHERE (%@ = ? AND %@ = ?)))",
 	                                           _relationSource.name, _foreignRelationColumn, _localRelationColumn,
 	                                           _relationSource.name, _foreignRelationColumn, _localRelationColumn];
 
 	CIRStatement *statement = [_relationSource.databaseProvider.database prepareStatement:sql];
 
-	NSArray<GDGEntity *> *entities = [entity valueForKey:self.name];
-
-	NSInteger ownerId = [entity.id integerValue], relationId;
-
-	for (GDGEntity *relatedEntity in entities)
+	for (NSNumber *relatedId in related)
 	{
-		if ([relatedEntity save:nil])
-		{
-			relationId = [relatedEntity.id integerValue];
+		[statement bindLong:[relatedId longValue] atIndex:1];
+		[statement bindLong:[ownerId longValue] atIndex:2];
+		[statement bindLong:[relatedId longValue] atIndex:3];
+		[statement bindLong:[ownerId longValue] atIndex:4];
 
-			[statement bindLong:relationId atIndex:1];
-			[statement bindLong:ownerId atIndex:2];
-			[statement bindLong:relationId atIndex:3];
-			[statement bindLong:ownerId atIndex:4];
-
-			[statement step];
-			[statement clearBindings];
-			[statement reset];
-		}
+		[statement step];
+		[statement clearBindings];
+		[statement reset];
 	}
 }
 
