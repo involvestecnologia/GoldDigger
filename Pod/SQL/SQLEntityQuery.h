@@ -26,7 +26,7 @@
 
 - (instancetype)initWithEntityMap:(SQLEntityMap *)map;
 
-- (NSArray <GDGEntity *> *)array;
+- (NSArray<__kindof GDGEntity *> *)array;
 
 - (__kindof GDGEntity *)object;
 

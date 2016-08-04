@@ -108,7 +108,7 @@
 
 #pragma mark - Convenience
 
-- (NSArray *)array
+- (NSArray<__kindof GDGEntity *> *)array
 {
 	Class entityClass = self.map.entityClass;
 	return [entityClass entitiesFromQuery:self];
