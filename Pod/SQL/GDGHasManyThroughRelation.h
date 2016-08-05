@@ -6,6 +6,7 @@
 //
 
 #import "GDGRelation.h"
+#import <SQLAid/CIRStatement.h>
 
 @class SQLTableSource;
 
@@ -16,5 +17,7 @@
 @property (strong, nonatomic) NSString *foreignRelationColumn;
 
 - (void)insertOrReplaceOwner:(NSNumber *)ownerId forRelated:(NSArray <NSNumber *> *)related;
+
+- (CIRStatement *)insertStatement;
 
 @end

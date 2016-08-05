@@ -184,4 +184,12 @@
 	}
 }
 
+- (CIRStatement *)insertStatement
+{
+	NSString *sql = NSStringWithFormat(@"INSERT INTO %@ (%@, %@) VALUES (?, ?)",
+			_relationSource.name, _foreignRelationColumn, _localRelationColumn);
+
+	return [_relationSource.databaseProvider.database prepareStatement:sql];
+}
+
 @end
