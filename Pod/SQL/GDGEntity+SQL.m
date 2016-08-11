@@ -15,6 +15,7 @@
 #import "GDGRelation.h"
 #import "GDGCondition+Entity.h"
 #import "GDGEntity_Package.h"
+#import "GDGHasManyThroughRelation.h"
 
 @implementation GDGEntity (SQL)
 
@@ -176,8 +177,7 @@
 {
 	SQLEntityMap *db = [self class].db;
 
-	BOOL saved = YES;
-	BOOL exists = db.query.withId(self.id).count > 0;
+	BOOL saved, exists = db.query.withId(self.id).count > 0;
 
 	NSMutableArray *values = [[NSMutableArray alloc] initWithCapacity:self.changedProperties.count + 1];
 	NSMutableArray *columns = [[NSMutableArray alloc] initWithCapacity:self.changedProperties.count];
@@ -190,6 +190,12 @@
 			continue;
 
 		id mapped = db.fromToDictionary[key];
+
+		if ([mapped isKindOfClass:[GDGHasManyThroughRelation class]])
+		{
+			[(GDGHasManyThroughRelation *) mapped save:self];
+			continue;
+		}
 
 		NSString *propertyName = [mapped isKindOfClass:[GDGRelation class]] ? [mapped foreignProperty] : key;
 

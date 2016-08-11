@@ -34,8 +34,6 @@
 			[weakSelf filter:filters];
 			return weakSelf;
 		};
-
-		[self select:@[@"id"]];
 	}
 
 	return self;

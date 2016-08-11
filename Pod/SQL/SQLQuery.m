@@ -93,6 +93,8 @@
 			[weakSelf desc:prop];
 			return weakSelf;
 		};
+
+		[self select:@[@"id"]];
 	}
 
 	return self;
