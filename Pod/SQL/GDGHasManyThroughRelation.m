@@ -54,6 +54,8 @@
 
 	for (NSDictionary *relation in pulledRelations)
 		query.pull(relation);
+
+	[self fill:entities fromQuery:query];
 }
 
 - (void)fill:(NSArray <GDGEntity *> *)entities fromQuery:(SQLEntityQuery *)query

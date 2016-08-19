@@ -31,6 +31,11 @@
 		__weak typeof(self) weakSelf = self;
 
 		_field = ^GDGCondition *(id <GDGConditionField> field) {
+			if (field == nil)
+				@throw [NSException exceptionWithName:@"Condition Field Null"
+				                               reason:@"[GDGCondition -appendField] throws that you must provide a nonnull valid field"
+				                             userInfo:nil];
+
 			[weakSelf appendField:field];
 
 			weakSelf.context = field.fullName;

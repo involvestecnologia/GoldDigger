@@ -22,7 +22,9 @@
 
 @end
 
-@implementation SQLQuery
+@implementation SQLQuery {
+	BOOL _distinct;
+}
 
 #pragma mark - Initialization
 
@@ -388,6 +390,12 @@
 }
 
 #pragma mark - Convenience
+
+- (instancetype)clearProjection
+{
+	[_mutableProjection removeAllObjects];
+	return self;
+}
 
 - (NSArray *)raw
 {

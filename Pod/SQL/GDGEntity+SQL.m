@@ -29,7 +29,7 @@
 + (void)autoFillProperties:(NSArray <NSString *> *)propertyNames
 {
 	void (^getHandler)(GDGEntity *, NSString *) = ^(GDGEntity *entity, NSString *propertyName) {
-		if (![entity.filledProperties containsObject:propertyName])
+		if ([entity.id compare:@0] == NSOrderedDescending && ![entity.filledProperties containsObject:propertyName] && ![entity.changedProperties containsObject:propertyName])
 		{
 			[entity fillProperties:@[propertyName]];
 			[entity.filledProperties addObject:propertyName];
@@ -37,8 +37,11 @@
 	};
 
 	void (^setHandler)(GDGEntity *, NSString *) = ^(GDGEntity *entity, NSString *propertyName) {
-		[entity.filledProperties addObject:propertyName];
-		[entity.changedProperties addObject:propertyName];
+		if (![entity.filledProperties containsObject:propertyName])
+			[entity.filledProperties addObject:propertyName];
+
+		if (![entity.changedProperties containsObject:propertyName])
+			[entity.changedProperties addObject:propertyName];
 	};
 
 	void (^afterSetHandler)(GDGEntity *, NSString *) = ^(GDGEntity *entity, NSString *propertyName) {
@@ -83,27 +86,32 @@
 		}
 	}
 
-	SQLEntityQuery *query = self.db.query.select([NSArray arrayWithArray:projection])
-			.where(^(GDGCondition *builder) {
-				builder.prop(@"id").in(ids);
-			}).asc(@"id");
-
-	NSArray <GDGEntity *> *entries = [self.db.table eval:query];
-
-	for (unsigned int i = 0; i < ids.count; ++i)
+	if (projection.count > 0)
 	{
-		NSDictionary *entry = entries[i];
-		GDGEntity *entity = sortedEntities[i];
 
-		for (NSString *key in entry.keyEnumerator)
+		SQLEntityQuery *query = self.db.query.clearProjection
+				.select([NSArray arrayWithArray:projection])
+				.where(^(GDGCondition *builder) {
+					builder.prop(@"id").in(ids);
+				}).asc(@"id");
+
+		NSArray <NSDictionary *> *entries = [self.db.table eval:query];
+
+		for (unsigned int i = 0; i < ids.count; ++i)
 		{
-			NSString *propertyName = [self.db propertyFromColumnName:key];
+			NSDictionary *entry = entries[i];
+			GDGEntity *entity = sortedEntities[i];
 
-			NSValueTransformer *transformer = self.db.valueTransformerDictionary[propertyName];
-			id value = transformer ? [transformer transformedValue:entry[key]] : entry[key];
+			for (NSString *key in entry.keyEnumerator)
+			{
+				NSString *propertyName = [self.db propertyFromColumnName:key];
 
-			[entity setValue:value forKeyPath:propertyName];
-			[entity.changedProperties removeObject:propertyName];
+				NSValueTransformer *transformer = self.db.valueTransformerDictionary[propertyName];
+				id value = transformer ? [transformer transformedValue:entry[key]] : entry[key];
+
+				[entity setValue:value forKeyPath:propertyName];
+				[entity.changedProperties removeObject:propertyName];
+			}
 		}
 	}
 
@@ -178,6 +186,9 @@
 	SQLEntityMap *db = [self class].db;
 
 	BOOL saved, exists = db.query.withId(self.id).count > 0;
+
+	if (exists && self.changedProperties.count == 0)
+		return YES;
 
 	NSMutableArray *values = [[NSMutableArray alloc] initWithCapacity:self.changedProperties.count + 1];
 	NSMutableArray *columns = [[NSMutableArray alloc] initWithCapacity:self.changedProperties.count];

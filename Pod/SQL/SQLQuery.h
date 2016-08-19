@@ -21,7 +21,6 @@
 @property (readonly, nonatomic) GDGCondition *whereCondition;
 @property (readonly, nonatomic) GDGCondition *havingCondition;
 @property (readonly, nonatomic) id <SQLSource> source;
-@property (assign, readonly, nonatomic, getter=isDistinct) BOOL distinct;
 @property (copy, readonly, nonatomic) __kindof SQLQuery *(^select)(NSArray <NSString *> *);
 @property (copy, readonly, nonatomic) __kindof SQLQuery *(^from)(id <SQLSource>);
 @property (copy, readonly, nonatomic) __kindof SQLQuery *(^join)(SQLJoin *);
@@ -36,6 +35,8 @@
 + (instancetype)query;
 
 - (instancetype)initWithSQLSource:(id <SQLSource>)source;
+
+- (instancetype)clearProjection;
 
 - (instancetype)distinct;
 
