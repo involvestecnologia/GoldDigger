@@ -32,6 +32,8 @@
 
 - (void)hasBeenSetOnEntity:(GDGEntity *)entity;
 
+- (void)save:(GDGEntity *)entity;
+
 - (GDGCondition *)joinCondition;
 
 - (GDGCondition *)joinConditionFromSource:(id <GDGSource>)source toSource:(id <GDGSource>)joinedSource;

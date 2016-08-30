@@ -12,6 +12,10 @@
 #import "SQLEntityQuery.h"
 #import "GDGEntity.h"
 #import "GDGColumn.h"
+#import "GDGEntity+SQL.h"
+#import "SQLTableSource.h"
+#import "GDGDatabaseProvider.h"
+#import <SQLAid/CIRDatabase.h>
 
 @implementation GDGHasManyRelation
 
@@ -103,8 +107,19 @@
 
 - (void)hasBeenSetOnEntity:(GDGEntity *)entity
 {
-	for (GDGEntity *owned in [entity valueForKey:self.name])
-		[owned setValue:entity.id forKey:self.foreignProperty];
+	if (entity.id != nil)
+		for (GDGEntity *owned in [entity valueForKey:self.name])
+			[owned setValue:entity.id forKey:self.foreignProperty];
+}
+
+- (void)save:(GDGEntity *)entity
+{
+	for (GDGEntity *related in [entity valueForKey:self.name])
+	{
+		[related setValue:entity.id forKey:self.foreignProperty];
+		if (![related save:nil])
+			NSLog(((SQLEntityMap *)self.relatedMap).table.databaseProvider.database.lastErrorMessage, nil);
+	}
 }
 
 @end
