@@ -223,15 +223,33 @@
 
 	NSArray *operatorTokens = @[@"=", @">", @">=", @"<", @"<=", @"<>"];
 	NSString *token = nil;
-	NSArray *tokens = condition.tokens;
 	NSDictionary *fields = condition.fields;
-	NSDictionary *conditionArgs = condition.args;
+	NSMutableArray *tokens = condition.tokens.mutableCopy;
+	NSMutableDictionary *conditionArgs = condition.args.mutableCopy;
+
+	for (NSString *key in condition.args.keyEnumerator)
+	{
+		NSString *newKey = key;
+
+		if ([_mutableArgs hasKey:key])
+		{
+			unsigned int random = arc4random() % 10000;
+
+			newKey = NSStringWithFormat(@"%@_%u", key, random);
+
+			conditionArgs[newKey] = conditionArgs[key];
+
+			tokens[[tokens indexOfObject:key]] = newKey;
+
+			[conditionArgs removeObjectForKey:key];
+		}
+
+		_mutableArgs[newKey] = conditionArgs[newKey];
+	}
 
 	for (NSUInteger i = 0; i < tokens.count; i++)
 	{
 		token = tokens[i];
-
-		[_mutableArgs addEntriesFromDictionary:condition.args];
 
 		if ([token isEqualToString:@"("])
 			[mutableCondition appendString:@"("];

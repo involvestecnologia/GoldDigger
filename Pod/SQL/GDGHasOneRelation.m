@@ -13,6 +13,7 @@
 #import "GDGCondition+Entity.h"
 #import "GDGEntity.h"
 #import "GDGColumn.h"
+#import "GDGEntity+SQL.h"
 
 @implementation GDGHasOneRelation
 
@@ -71,6 +72,15 @@
 
 	for (GDGEntity *unfilledEntity in unfilledEntities)
 		[unfilledEntity setValue:nil forKey:self.name];
+}
+
+- (BOOL)save:(GDGEntity *)entity error:(NSError **)error
+{
+	GDGEntity *related = [entity valueForKey:self.name];
+
+	[related setValue:entity.id forKey:self.foreignProperty];
+
+	return [related save:error];
 }
 
 @end

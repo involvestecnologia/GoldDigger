@@ -9,6 +9,7 @@
 
 #import "GDGEntityMap.h"
 #import "GDGQuery.h"
+#import "GDGEntity+SQL.h"
 
 @implementation GDGRelationField
 
@@ -56,7 +57,20 @@
 	// Default implementation does nothing
 }
 
+- (BOOL)save:(GDGEntity *)entity error:(NSError **)error
+{
+	// Default implementation does nothing
+	return YES;
+}
+
 #pragma mark - Abstract
+
+- (void)fill:(NSArray <GDGEntity *> *)entities selecting:(NSArray *)properties
+{
+	@throw [NSException exceptionWithName:@"Abstract Implementation Exception"
+	                               reason:@"[GDGRelation -fill:selecting:] throws that child classes must override this method"
+	                             userInfo:nil];
+}
 
 - (void)fill:(NSArray<GDGEntity *> *)entities fromQuery:(__kindof GDGQuery *)query
 {

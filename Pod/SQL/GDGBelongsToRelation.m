@@ -17,8 +17,8 @@
 - (GDGCondition *)joinConditionFromSource:(id <GDGSource>)source toSource:(id <GDGSource>)joinedSource
 {
 	return [GDGCondition builder]
-			.field([GDGRelationField relationFieldWithName:((GDGColumn *) self.map[self.foreignProperty]).name source:joinedSource])
-			.equals([GDGRelationField relationFieldWithName:@"id" source:source]);
+			.field([GDGRelationField relationFieldWithName:((GDGColumn *) self.map[self.foreignProperty]).name source:source])
+			.equals([GDGRelationField relationFieldWithName:@"id" source:joinedSource]);
 }
 
 - (void)fill:(NSArray <GDGEntity *> *)entities selecting:(NSArray *)properties

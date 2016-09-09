@@ -97,6 +97,13 @@
 
 		NSArray <NSDictionary *> *entries = [self.db.table eval:query];
 
+		if (entries.count == 0)
+			@throw [NSException exceptionWithName:@"Query Evaluation Inconsistency"
+			                               reason:@"[GDGEntity+SQL -fill:withProperties:] throws that properties query "
+					                               @"evaluation should never get nil evalutation. You may have mapped "
+					                               @"something that is not a property or something that is not a column."
+			                             userInfo:nil];
+
 		for (unsigned int i = 0; i < ids.count; ++i)
 		{
 			NSDictionary *entry = entries[i];
@@ -194,6 +201,7 @@
 	NSMutableArray *columns = [[NSMutableArray alloc] initWithCapacity:self.changedProperties.count];
 
 	GDGColumn *primaryKey = db.fromToDictionary[@"id"];
+	NSMutableArray *relations = @[].mutableCopy;
 
 	for (NSString *key in db.fromToDictionary.keyEnumerator)
 	{
@@ -202,13 +210,13 @@
 
 		id mapped = db.fromToDictionary[key];
 
-		if ([mapped isKindOfClass:[GDGHasManyThroughRelation class]])
+		if ([mapped isKindOfClass:[GDGRelation class]])
 		{
-			[(GDGHasManyThroughRelation *) mapped save:self];
+			[relations addObject:mapped];
 			continue;
 		}
 
-		NSString *propertyName = [mapped isKindOfClass:[GDGRelation class]] ? [mapped foreignProperty] : key;
+		NSString *propertyName = key;
 
 		[columns addObject:[db columnNameForProperty:propertyName]];
 
@@ -216,7 +224,7 @@
 		id value = transformer ? [transformer reverseTransformedValue:[self valueForKeyPath:propertyName]]
 				: [self valueForKeyPath:propertyName];
 
-		[values addObject:value];
+		[values addObject:value ?: [NSNull null]];
 	}
 
 	if (exists)
@@ -227,11 +235,14 @@
 	else
 		saved = [db.table insert:columns params:values error:error];
 
-	if (saved)
-		[self.changedProperties removeAllObjects];
-
 	if (!exists && primaryKey.isAutoIncrement)
 		self.id = [db.table lastInsertedId];
+
+	for (GDGRelation *relation in relations)
+		[relation save:self error:NULL];
+
+	if (saved)
+		[self.changedProperties removeAllObjects];
 
 	return saved;
 }
