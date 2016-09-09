@@ -16,9 +16,7 @@
 @property (strong, nonatomic) NSString *localRelationColumn;
 @property (strong, nonatomic) NSString *foreignRelationColumn;
 
-- (void)save:(GDGEntity *)entity;
-
-- (void)insertOrReplaceOwner:(NSNumber *)ownerId forRelated:(NSArray <NSNumber *> *)related;
+- (BOOL)insertOrReplaceOwner:(NSNumber *)ownerId forRelated:(NSArray <NSNumber *> *)related error:(NSError **)error;
 
 - (CIRStatement *)insertStatement;
 

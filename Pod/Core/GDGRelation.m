@@ -57,9 +57,10 @@
 	// Default implementation does nothing
 }
 
-- (void)save:(GDGEntity *)entity
+- (BOOL)save:(GDGEntity *)entity error:(NSError **)error
 {
 	// Default implementation does nothing
+	return YES;
 }
 
 #pragma mark - Abstract

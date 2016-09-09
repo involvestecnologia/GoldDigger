@@ -98,7 +98,11 @@
 		NSArray <NSDictionary *> *entries = [self.db.table eval:query];
 
 		if (entries.count == 0)
-			NSLog(@"Errou!!");
+			@throw [NSException exceptionWithName:@"Query Evaluation Inconsistency"
+			                               reason:@"[GDGEntity+SQL -fill:withProperties:] throws that properties query "
+					                               @"evaluation should never get nil evalutation. You may have mapped "
+					                               @"something that is not a property or something that is not a column."
+			                             userInfo:nil];
 
 		for (unsigned int i = 0; i < ids.count; ++i)
 		{
@@ -235,7 +239,7 @@
 		self.id = [db.table lastInsertedId];
 
 	for (GDGRelation *relation in relations)
-		[relation save:self];
+		[relation save:self error:NULL];
 
 	if (saved)
 		[self.changedProperties removeAllObjects];

@@ -32,7 +32,7 @@
 
 - (void)hasBeenSetOnEntity:(GDGEntity *)entity;
 
-- (void)save:(GDGEntity *)entity;
+- (BOOL)save:(GDGEntity *)entity error:(NSError **)error;
 
 - (GDGCondition *)joinCondition;
 

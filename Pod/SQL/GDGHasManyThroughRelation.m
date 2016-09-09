@@ -19,6 +19,8 @@
 #import "GDGDatabaseProvider.h"
 #import "GDGColumn.h"
 
+#define kDEFAULT_ERROR_CODE         -101
+
 @implementation GDGHasManyThroughRelation
 
 - (GDGCondition *)joinConditionFromSource:(id <GDGSource>)source toSource:(id <GDGSource>)joinedSource
@@ -155,23 +157,25 @@
 	}
 }
 
-- (void)save:(GDGEntity *)entity
+- (BOOL)save:(GDGEntity *)entity error:(NSError **)error
 {
-	[self insertOrReplaceOwner:entity.id
-	                forRelated:[[(NSArray *) [entity valueForKey:self.name] select:^BOOL(GDGEntity *related) {
-		                return [related save:nil];
-	                }] map:^NSNumber *(GDGEntity *related) {
-		                return related.id;
-	                }]];
+	NSArray <NSNumber *> *relatedIds = [[(NSArray *) [entity valueForKey:self.name] select:^BOOL(GDGEntity *related) {
+		return [related save:nil];
+	}] map:^NSNumber *(GDGEntity *related) {
+		return related.id;
+	}];
+
+	[self insertOrReplaceOwner:entity.id forRelated:relatedIds error:error];
 }
 
-- (void)insertOrReplaceOwner:(NSNumber *)ownerId forRelated:(NSArray <NSNumber *> *)related
+- (BOOL)insertOrReplaceOwner:(NSNumber *)ownerId forRelated:(NSArray <NSNumber *> *)related error:(NSError **)error
 {
 	NSString *sql = [NSString stringWithFormat:@"REPLACE INTO %@ (%@, %@, rowId) VALUES (?, ?, (SELECT rowId FROM %@ WHERE (%@ = ? AND %@ = ?)))",
 	                                           _relationSource.name, _foreignRelationColumn, _localRelationColumn,
 	                                           _relationSource.name, _foreignRelationColumn, _localRelationColumn];
 
-	CIRStatement *statement = [_relationSource.databaseProvider.database prepareStatement:sql];
+	CIRDatabase *database = _relationSource.databaseProvider.database;
+	CIRStatement *statement = [database prepareStatement:sql];
 
 	for (NSNumber *relatedId in related)
 	{
@@ -180,10 +184,20 @@
 		[statement bindLong:[relatedId longValue] atIndex:3];
 		[statement bindLong:[ownerId longValue] atIndex:4];
 
-		[statement step];
+		if ([statement step] != SQLITE_DONE)
+		{
+			if (error)
+				*error = [NSError errorWithDomain:@"com.CopyIsRight.GoldDigger" code:kDEFAULT_ERROR_CODE
+				                         userInfo:@{NSLocalizedDescriptionKey : database.lastErrorMessage}];
+
+			return NO;
+		}
+
 		[statement clearBindings];
 		[statement reset];
 	}
+
+	return YES;
 }
 
 - (CIRStatement *)insertStatement

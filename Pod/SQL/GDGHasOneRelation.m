@@ -74,12 +74,13 @@
 		[unfilledEntity setValue:nil forKey:self.name];
 }
 
-- (void)save:(GDGEntity *)entity
+- (BOOL)save:(GDGEntity *)entity error:(NSError **)error
 {
 	GDGEntity *related = [entity valueForKey:self.name];
 
 	[related setValue:entity.id forKey:self.foreignProperty];
-	[related save:nil];
+
+	return [related save:error];
 }
 
 @end

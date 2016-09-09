@@ -112,14 +112,16 @@
 			[owned setValue:entity.id forKey:self.foreignProperty];
 }
 
-- (void)save:(GDGEntity *)entity
+- (BOOL)save:(GDGEntity *)entity error:(NSError **)error
 {
 	for (GDGEntity *related in [entity valueForKey:self.name])
 	{
 		[related setValue:entity.id forKey:self.foreignProperty];
-		if (![related save:nil])
-			NSLog(((SQLEntityMap *)self.relatedMap).table.databaseProvider.database.lastErrorMessage, nil);
+		if (![related save:error])
+			return NO;
 	}
+
+	return YES;
 }
 
 @end
