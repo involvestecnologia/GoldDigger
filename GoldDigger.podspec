@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "GoldDigger"
-  s.version          = "0.4.8"
+  s.version          = "0.4.9"
   s.summary          = "Simple ORM"
   s.description      = "Simple ORM for Objective-C"
   s.homepage         = "https://github.com/CopyIsRight/GoldDigger.git"
