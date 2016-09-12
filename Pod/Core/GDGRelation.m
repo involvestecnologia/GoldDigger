@@ -9,7 +9,6 @@
 
 #import "GDGEntityMap.h"
 #import "GDGQuery.h"
-#import "GDGEntity+SQL.h"
 
 @implementation GDGRelationField
 
