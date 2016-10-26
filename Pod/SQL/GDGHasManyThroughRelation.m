@@ -52,7 +52,7 @@
 
 	properties = [[properties relativeComplement:pulledRelations] arrayByAddingObject:self.foreignProperty];
 
-	SQLEntityQuery *query = ((SQLEntityMap *) self.relatedMap).query.select(properties);
+	SQLEntityQuery *query = ((SQLEntityMap *) self.relatedMap).query.select(properties).distinct;
 
 	for (NSDictionary *relation in pulledRelations)
 		query.pull(relation);
@@ -97,6 +97,7 @@
 			.where(^(GDGCondition *cond) {
 				cond.field(_relationSource[_localRelationColumn]).in(ids);
 			})
+			.groupBy(_relationSource[_foreignRelationColumn])
 			.asc(_localRelationColumn)
 			.asc(_foreignRelationColumn);
 
