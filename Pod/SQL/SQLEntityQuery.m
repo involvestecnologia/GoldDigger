@@ -99,7 +99,7 @@
 	for (NSString *relationName in relations.keyEnumerator)
 	{
 		GDGRelation *relation = self.map.fromToDictionary[relationName];
-		if (relation != nil)
+		if (relation.foreignProperty != nil)
 			[self select:@[relation.foreignProperty]];
 	}
 
