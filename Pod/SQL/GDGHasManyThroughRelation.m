@@ -50,7 +50,7 @@
 		return [object isKindOfClass:[NSDictionary class]];
 	}];
 
-	properties = [[properties relativeComplement:pulledRelations] arrayByAddingObject:self.foreignProperty];
+	properties = [properties relativeComplement:pulledRelations];
 
 	SQLEntityQuery *query = ((SQLEntityMap *) self.relatedMap).query.select(properties).distinct;
 
