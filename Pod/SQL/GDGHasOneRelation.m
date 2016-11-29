@@ -24,6 +24,15 @@
 			.equals(GDGRelationField(((GDGColumn *) self.relatedMap[self.foreignProperty]).name, joinedSource));
 }
 
+- (void)setRelatedMap:(GDGEntityMap *)relatedMap
+{
+	[super setRelatedMap:relatedMap];
+
+	NSString *className = [NSStringFromClass(self.map.entityClass) substringFromIndex:3];
+
+	self.foreignProperty = [[className stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:[[className substringToIndex:1] lowercaseString]] stringByAppendingString:@"Id"];
+}
+
 - (void)fill:(NSArray <GDGEntity *> *)entities selecting:(NSArray *)properties
 {
 	NSMutableDictionary *pulling = [NSMutableDictionary dictionary];

@@ -42,15 +42,6 @@
 	return self;
 }
 
-- (void)setRelatedMap:(GDGEntityMap *)relatedMap
-{
-	NSString *className = [NSStringFromClass(relatedMap.entityClass) substringFromIndex:3];
-
-	_relatedMap = relatedMap;
-
-	_foreignProperty = [[className stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:[[className substringToIndex:1] lowercaseString]] stringByAppendingString:@"Id"];
-}
-
 - (void)hasBeenSetOnEntity:(GDGEntity *)entity;
 {
 	// Default implementation does nothing
