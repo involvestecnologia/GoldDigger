@@ -203,6 +203,12 @@
 	GDGColumn *primaryKey = db.fromToDictionary[@"id"];
 	NSMutableArray *relations = @[].mutableCopy;
 
+	if (self.id != nil)
+	{
+		[values addObject:self.id];
+		[columns addObject:@"id"];
+	}
+
 	for (NSString *key in db.fromToDictionary.keyEnumerator)
 	{
 		if (![self.changedProperties containsObject:key])
