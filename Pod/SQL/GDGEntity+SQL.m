@@ -88,7 +88,6 @@
 
 	if (projection.count > 0)
 	{
-
 		SQLEntityQuery *query = self.db.query.clearProjection
 				.select([NSArray arrayWithArray:projection])
 				.where(^(GDGCondition *builder) {
@@ -192,15 +191,34 @@
 {
 	SQLEntityMap *db = [self class].db;
 
-	BOOL saved, exists = db.query.withId(self.id).count > 0;
+	NSMutableDictionary <NSString *, GDGColumn *> *primaryKeys = [NSMutableDictionary dictionary];
+	NSArray *mappedArray = db.fromToDictionary;
+	
+	for (NSString *key in mappedArray)
+	{
+		id value = mappedArray[key];
+		if ([value isKindOfClass:[GDGColumn class]] && ((GDGColumn *)value).primaryKey > 0)
+			primaryKeys[key] = value;
+	}
+	
+	BOOL saved, exists = db.query.where( ^(GDGCondition *condition) {
+		NSArray *primaryKeyPropNames = primaryKeys.allKeys;
+		int count = primaryKeyPropNames.count;
+		for (int i = 0; i < count; ++i)
+		{
+			NSString *key = primaryKeyPropNames[i];
+			condition.field(primaryKeys[key]).equals([self valueForKey:key]);
+			if (i != count - 1)
+				condition.and;
+		}
+	}).count > 0;
 
 	if (exists && self.changedProperties.count == 0)
 		return YES;
 
 	NSMutableArray *values = [[NSMutableArray alloc] initWithCapacity:self.changedProperties.count + 1];
 	NSMutableArray *columns = [[NSMutableArray alloc] initWithCapacity:self.changedProperties.count];
-
-	GDGColumn *primaryKey = db.fromToDictionary[@"id"];
+	
 	NSMutableArray *relations = @[].mutableCopy;
 
 	if (self.id != nil)
@@ -241,7 +259,7 @@
 	else
 		saved = [db.table insert:columns params:values error:error];
 
-	if (!exists && primaryKey.isAutoIncrement)
+	if (saved && !exists && self.id == nil)
 		self.id = [db.table lastInsertedId];
 
 	for (GDGRelation *relation in relations)

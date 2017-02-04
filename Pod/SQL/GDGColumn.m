@@ -48,7 +48,6 @@
 		_type = type;
 		_primaryKey = primaryKey;
 		_notNull = notNull;
-		_autoIncrement = type == GDGColumnTypeInteger && _primaryKey;
 	}
 
 	return self;

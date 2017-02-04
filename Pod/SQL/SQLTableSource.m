@@ -34,7 +34,7 @@
 			NSString *name = [resultSet textAtIndex:1];
 			GDGColumnType type = [GDGColumn columnTypeFromTypeName:[resultSet textAtIndex:2]];
 			BOOL notNull = [resultSet boolAtIndex:3];
-			BOOL primaryKey = [resultSet boolAtIndex:5];
+			int primaryKey = [resultSet intAtIndex:5];
 
 			GDGColumn *column = [[GDGColumn alloc] initWithName:name type:type primaryKey:primaryKey notNull:notNull];
 			column.table = self;
