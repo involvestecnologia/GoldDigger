@@ -62,9 +62,20 @@
 
 + (void)fill:(NSArray <GDGEntity *> *)entities withProperties:(NSArray *)properties
 {
-	NSArray <NSNumber *> *ids = [[entities map:^id(GDGEntity *object) {
-		return object.id;
-	}] sort];
+	NSMutableArray <NSString *> *primaryKeys = [NSMutableArray array];
+	
+	[self.db.fromToDictionary each:^(NSString *key, id value) {
+		if ([value isKindOfClass:[GDGColumn class]] && ((GDGColumn *)value).primaryKey > 0)
+			[primaryKeys addObject:key];
+	}];
+	
+	NSMutableDictionary <NSString *, NSArray *> *primaryKeyValues = [NSMutableDictionary dictionary];
+	
+	[primaryKeys each:^(NSString *key) {
+		primaryKeyValues[key] = [[entities map:^id(GDGEntity *entity) {
+			return [entity valueForKey:key];
+		}] sort];
+	}];
 
 	NSArray *sortedEntities = [entities sortBy:@"id"];
 
@@ -91,7 +102,14 @@
 		SQLEntityQuery *query = self.db.query.clearProjection
 				.select([NSArray arrayWithArray:projection])
 				.where(^(GDGCondition *builder) {
-					builder.prop(@"id").in(ids);
+					int count = primaryKeys.count;
+					for (int i = 0; i < count; ++i)
+					{
+						NSString *key = primaryKeys[i];
+						builder.prop(key).in(primaryKeyValues[key]);
+						if (i != count - 1)
+							builder.and;
+					}
 				}).asc(@"id");
 
 		NSArray <NSDictionary *> *entries = [self.db.table eval:query];
@@ -103,7 +121,7 @@
 					                               @"something that is not a property or something that is not a column."
 			                             userInfo:nil];
 
-		for (unsigned int i = 0; i < ids.count; ++i)
+		for (unsigned int i = 0; i < entities.count; ++i)
 		{
 			NSDictionary *entry = entries[i];
 			GDGEntity *entity = sortedEntities[i];
