@@ -168,15 +168,37 @@
 	NSString *columnsString = [[columns map:^id(NSString *str) {
 		return [str stringByAppendingString:@" = ?"];
 	}] join:@", "];
-
-	[mutableString appendFormat:@"%@ WHERE %@.id = ?", columnsString, self.identifier];
+	
+	[mutableString appendFormat:@"%@ WHERE", columnsString];
+	
+	NSArray *primaryKeys = [[self.columns select:^BOOL(GDGColumn *column) {
+		return column.primaryKey > 0;
+	}] sortBy:@"primaryKey"];
+	
+	for (GDGColumn *primaryKey in primaryKeys) {
+		[mutableString appendFormat:@" %@.%@ = ? AND", self.identifier, primaryKey.name];
+	}
+	
+	[mutableString replaceCharactersInRange:NSMakeRange(mutableString.length - 4, 4) withString:@""];
 
 	return mutableString;
 }
 
 - (NSString *)deleteString
 {
-	return [NSString stringWithFormat:@"DELETE FROM %@ WHERE id = ?", self.identifier];
+	NSMutableString *mutableString = [[NSMutableString alloc] initWithFormat:@"DELETE FROM %@ WHERE", self.identifier];
+	
+	NSArray *primaryKeys = [[self.columns select:^BOOL(GDGColumn *column) {
+		return column.primaryKey > 0;
+	}] sortBy:@"primaryKey"];
+	
+	for (GDGColumn *primaryKey in primaryKeys) {
+		[mutableString appendFormat:@" %@.%@ = ? AND", self.identifier, primaryKey.name];
+	}
+	
+	[mutableString replaceCharactersInRange:NSMakeRange(mutableString.length - 4, 4) withString:@""];
+	
+	return mutableString;
 }
 
 #pragma mark Prepare

@@ -209,23 +209,23 @@
 {
 	SQLEntityMap *db = [self class].db;
 
-	NSMutableDictionary <NSString *, GDGColumn *> *primaryKeys = [NSMutableDictionary dictionary];
+	NSMutableArray <NSString *> *primaryKeys = [NSMutableArray array];
 	NSArray *mappedArray = db.fromToDictionary;
 	
 	for (NSString *key in mappedArray)
 	{
 		id value = mappedArray[key];
 		if ([value isKindOfClass:[GDGColumn class]] && ((GDGColumn *)value).primaryKey > 0)
-			primaryKeys[key] = value;
+			[primaryKeys addObject:key];
 	}
 	
 	BOOL saved, exists = db.query.where( ^(GDGCondition *condition) {
-		NSArray *primaryKeyPropNames = primaryKeys.allKeys;
-		int count = primaryKeyPropNames.count;
+		int count = primaryKeys.count;
 		for (int i = 0; i < count; ++i)
 		{
-			NSString *key = primaryKeyPropNames[i];
-			condition.field(primaryKeys[key]).equals([self valueForKey:key]);
+			NSString *key = primaryKeys[i];
+			condition.prop(key).equals([self valueForKey:key]);
+			
 			if (i != count - 1)
 				condition.and;
 		}
@@ -271,7 +271,9 @@
 
 	if (exists)
 	{
-		[values addObject:self.id];
+		for (NSString *key in primaryKeys)
+			[values addObject:[self valueForKey:key]];
+			
 		saved = [db.table update:columns params:values error:error];
 	}
 	else
