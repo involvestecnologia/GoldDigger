@@ -409,6 +409,22 @@
 
 #pragma mark - Convenience
 
+- (NSString *)debugDescription
+{
+	SQLQuery *evaluationQuery = self.copy;
+	
+	NSMutableString *visit = [[NSMutableString alloc] initWithString:evaluationQuery.visit];
+	NSDictionary *args = evaluationQuery.args;
+	
+	for (NSString *token in args.allKeys)
+	{
+		NSRange fullRange = NSMakeRange(0, visit.length);
+		[visit replaceOccurrencesOfString:[@":" stringByAppendingString:token] withString:[args[token] stringValue] options:NSLiteralSearch range:fullRange];
+	}
+	
+	return [NSString stringWithString:visit];
+}
+
 - (instancetype)clearProjection
 {
 	[_mutableProjection removeAllObjects];
@@ -423,6 +439,7 @@
 - (NSUInteger)count
 {
 	SQLQuery *countQuery = self.copy;
+	
 	countQuery.mutableProjection = [@[NSStringWithFormat(@"COUNT(%@.id)", self.source.identifier)] mutableCopy];
 
 	return [countQuery.pluck[0] unsignedIntegerValue];

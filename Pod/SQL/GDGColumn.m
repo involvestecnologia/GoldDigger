@@ -40,7 +40,7 @@
 	return [self initWithName:name type:type primaryKey:NO notNull:NO];
 }
 
-- (instancetype)initWithName:(NSString *)name type:(GDGColumnType)type primaryKey:(BOOL)primaryKey notNull:(BOOL)notNull
+- (instancetype)initWithName:(NSString *)name type:(GDGColumnType)type primaryKey:(int)primaryKey notNull:(BOOL)notNull
 {
 	if (self = [super init])
 	{
@@ -48,7 +48,6 @@
 		_type = type;
 		_primaryKey = primaryKey;
 		_notNull = notNull;
-		_autoIncrement = type == GDGColumnTypeInteger && _primaryKey;
 	}
 
 	return self;
