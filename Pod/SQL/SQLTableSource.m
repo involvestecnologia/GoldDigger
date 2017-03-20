@@ -80,7 +80,7 @@
 			name = dotIndex != NSNotFound ? [name substringFromIndex:dotIndex + 1] : name;
 			columnIndex = [resultSet columnIndexWithName:name];
 
-			mutableDictionary[name] = resultSet[(NSUInteger) columnIndex];
+			mutableDictionary[name] = resultSet[(NSUInteger) columnIndex] ?: [NSNull null];
 		}
 
 		[mutableArray addObject:[NSDictionary dictionaryWithDictionary:mutableDictionary]];
