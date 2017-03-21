@@ -128,10 +128,15 @@
 
 			for (NSString *key in entry.keyEnumerator)
 			{
+				id value = entry[key];
+
+				if (value == [NSNull null])
+					value = nil;
+
 				NSString *propertyName = [self.db propertyFromColumnName:key];
 
 				NSValueTransformer *transformer = self.db.valueTransformerDictionary[propertyName];
-				id value = transformer ? [transformer transformedValue:entry[key]] : entry[key];
+				value = transformer ? [transformer transformedValue:value] : value;
 
 				[entity setValue:value forKeyPath:propertyName];
 				[entity.changedProperties removeObject:propertyName];
@@ -186,8 +191,13 @@
 		{
 			NSString *propertyName = [self.db propertyFromColumnName:key];
 
+			id value = entry[key];
+
+			if (value == [NSNull null])
+				value = nil;
+
 			NSValueTransformer *transformer = self.db.valueTransformerDictionary[propertyName];
-			id value = transformer ? [transformer transformedValue:entry[key]] : entry[key];
+			value = transformer ? [transformer transformedValue:value] : value;
 
 			[entity setValue:value forKeyPath:propertyName];
 			[entity.changedProperties removeObject:propertyName];
