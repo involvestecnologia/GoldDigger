@@ -273,6 +273,7 @@ static NSMutableDictionary *EntityHandlersDictionary;
 	switch (type)
 	{
 		case '@':
+		case '#':
 		{
 			block = GETTER_IMP_BLOCK(id);
 			break;
