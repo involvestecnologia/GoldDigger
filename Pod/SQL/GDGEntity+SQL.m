@@ -15,7 +15,6 @@
 #import "GDGRelation.h"
 #import "GDGCondition+Entity.h"
 #import "GDGEntity_Package.h"
-//#import "GDGHasManyThroughRelation.h"
 
 @implementation GDGEntity (SQL)
 
@@ -138,7 +137,8 @@
 				NSValueTransformer *transformer = self.db.valueTransformerDictionary[propertyName];
 				value = transformer ? [transformer transformedValue:value] : value;
 
-				if (value == nil && [self typeFromPropertyName:propertyName] != '@')
+				if (value == nil && [self typeFromPropertyName:propertyName] != '@'
+						&& [self typeFromPropertyName:propertyName] != '#')
 					value = @0;
 
 				[entity setValue:value forKeyPath:propertyName];
@@ -202,7 +202,8 @@
 			NSValueTransformer *transformer = self.db.valueTransformerDictionary[propertyName];
 			value = transformer ? [transformer transformedValue:value] : value;
 
-			if (value == nil && [self typeFromPropertyName:propertyName] != '@')
+			if (value == nil && [self typeFromPropertyName:propertyName] != '@'
+					&& [self typeFromPropertyName:propertyName] != '#')
 				value = @0;
 
 			[entity setValue:value forKeyPath:propertyName];
