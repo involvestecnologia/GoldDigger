@@ -11,6 +11,8 @@
 
 @interface NSObject (GDG)
 
++ (char)typeFromPropertyName:(NSString *)propertyName;
+
 + (NSArray <NSValue *> *)gdg_propertyListFromClass:(Class)fromClass until:(Class)toClass;
 
 @end

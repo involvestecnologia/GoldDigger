@@ -42,6 +42,13 @@ static NSMutableDictionary *EntityHandlersDictionary;
 	return [NSArray arrayWithArray:props];
 }
 
++ (char)typeFromPropertyName:(NSString *)propertyName
+{
+	objc_property_t property = class_getProperty(self, propertyName.UTF8String);
+
+	return property_getAttributes(property)[1];
+}
+
 @end
 
 @interface GDGEntityHandler : NSObject
