@@ -176,7 +176,7 @@
 	                                           _relationSource.name, _foreignRelationColumn, _localRelationColumn];
 
 	CIRDatabase *database = _relationSource.databaseProvider.database;
-	CIRStatement *statement = [database prepareStatement:sql];
+	CIRStatement *statement = [database prepareStatement:sql error:nil];
 
 	for (NSNumber *relatedId in related)
 	{
@@ -206,7 +206,7 @@
 	NSString *sql = NSStringWithFormat(@"INSERT INTO %@ (%@, %@) VALUES (?, ?)",
 			_relationSource.name, _foreignRelationColumn, _localRelationColumn);
 
-	return [_relationSource.databaseProvider.database prepareStatement:sql];
+	return [_relationSource.databaseProvider.database prepareStatement:sql error:nil];
 }
 
 @end

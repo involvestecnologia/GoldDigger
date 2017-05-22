@@ -26,10 +26,10 @@
 		_databaseProvider = databaseProvider;
 		_name = tableName;
 
-		CIRResultSet *resultSet = [databaseProvider.database executeQuery:[NSString stringWithFormat:@"PRAGMA table_info(%@)", tableName]];
+		CIRResultSet *resultSet = [databaseProvider.database executeQuery:[NSString stringWithFormat:@"PRAGMA table_info(%@)", tableName] error:nil];
 
 		NSMutableArray <GDGColumn *> *mutableColumns = [NSMutableArray array];
-		while ([resultSet next])
+		while ([resultSet next:nil])
 		{
 			NSString *name = [resultSet textAtIndex:1];
 			GDGColumnType type = [GDGColumn columnTypeFromTypeName:[resultSet textAtIndex:2]];
@@ -64,10 +64,10 @@
 {
 	query = query.copy;
 
-	CIRResultSet *resultSet = [_databaseProvider.database executeQuery:query.visit withNamedParameters:query.args];
+	CIRResultSet *resultSet = [_databaseProvider.database executeQuery:query.visit withNamedParameters:query.args error:nil];
 	NSMutableArray <NSDictionary *> *mutableArray = [NSMutableArray array];
 
-	while ([resultSet next])
+	while ([resultSet next:nil])
 	{
 		NSUInteger dotIndex = 0;
 		NSInteger columnIndex = 0;
@@ -95,9 +95,9 @@
 {
 	NSMutableArray *objects = [NSMutableArray array];
 
-	CIRResultSet *resultSet = [self.databaseProvider.database executeQuery:[query visit] withNamedParameters:query.args];
+	CIRResultSet *resultSet = [self.databaseProvider.database executeQuery:[query visit] withNamedParameters:query.args error:nil];
 
-	while ([resultSet next])
+	while ([resultSet next:nil])
 		[objects addObject:[self rawObjectWithResultSet:resultSet]];
 
 	return [NSArray arrayWithArray:objects];
@@ -128,14 +128,14 @@
 - (NSArray *)evalByColumn:(SQLQuery *)query
 {
 	NSMutableArray *objects = [NSMutableArray array];
-	CIRResultSet *resultSet = [self.databaseProvider.database executeQuery:[query visit] withNamedParameters:query.args];
+	CIRResultSet *resultSet = [self.databaseProvider.database executeQuery:[query visit] withNamedParameters:query.args error:nil];
 
 	const int columnCount = [resultSet columnCount];
 
 	for (NSUInteger i = 0; i < columnCount && columnCount > 1; i++)
 		objects[i] = [NSMutableArray array];
 
-	while ([resultSet next])
+	while ([resultSet next:nil])
 		if (columnCount == 1)
 			[objects addObject:resultSet[0]];
 		else
@@ -205,24 +205,24 @@
 
 - (CIRStatement *)insertStatementForColumns:(NSArray <NSString *> *)columns
 {
-	return [_databaseProvider.database prepareStatement:[self insertStringForColumns:columns]];
+	return [_databaseProvider.database prepareStatement:[self insertStringForColumns:columns] error:nil];
 }
 
 - (CIRStatement *)updateStatementForColumns:(NSArray <NSString *> *)columns
 {
-	return [_databaseProvider.database prepareStatement:[self updateStringForColumns:columns]];
+	return [_databaseProvider.database prepareStatement:[self updateStringForColumns:columns] error:nil];
 }
 
 - (CIRStatement *)deleteStatement
 {
-	return [_databaseProvider.database prepareStatement:[self deleteString]];
+	return [_databaseProvider.database prepareStatement:[self deleteString] error:nil];
 }
 
 #pragma mark Execute
 
 - (BOOL)insert:(NSArray <NSString *> *)columns params:(NSArray *)params error:(NSError **)error
 {
-	BOOL succeeded = [_databaseProvider.database executeUpdate:[self insertStringForColumns:columns] withParameters:params];
+	BOOL succeeded = [_databaseProvider.database executeUpdate:[self insertStringForColumns:columns] withParameters:params error:error];
 	if (!succeeded && error)
 		*error = [NSError errorWithDomain:@"com.CopyIsRight.GoldDigger" code:kDEFAULT_ERROR_CODE
 		                         userInfo:@{NSLocalizedDescriptionKey : _databaseProvider.database.lastErrorMessage}];
@@ -232,7 +232,7 @@
 
 - (BOOL)update:(NSArray <NSString *> *)columns params:(NSArray *)params error:(NSError **)error
 {
-	BOOL succeeded = [_databaseProvider.database executeUpdate:[self updateStringForColumns:columns] withParameters:params];
+	BOOL succeeded = [_databaseProvider.database executeUpdate:[self updateStringForColumns:columns] withParameters:params error:error];
 	if (!succeeded)
 		*error = [NSError errorWithDomain:@"com.CopyIsRight.GoldDigger" code:kDEFAULT_ERROR_CODE
 		                         userInfo:@{NSLocalizedDescriptionKey : _databaseProvider.database.lastErrorMessage}];
@@ -242,7 +242,7 @@
 
 - (BOOL)delete:(id)primaryKey error:(NSError **)error
 {
-	BOOL succeeded = [_databaseProvider.database executeUpdate:[self deleteString] withParameters:@[primaryKey]];
+	BOOL succeeded = [_databaseProvider.database executeUpdate:[self deleteString] withParameters:@[primaryKey] error:error];
 	if (!succeeded)
 		*error = [NSError errorWithDomain:@"com.CopyIsRight.GoldDigger" code:kDEFAULT_ERROR_CODE
 		                         userInfo:@{NSLocalizedDescriptionKey : _databaseProvider.database.lastErrorMessage}];
