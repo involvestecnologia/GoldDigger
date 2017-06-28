@@ -474,6 +474,7 @@
 	copy->_source = [_source copy];
 	copy->_distinct = _distinct;
 	copy->_mutableArgs = [_mutableArgs mutableCopy];
+	copy->_mutableGroups = [_mutableGroups mutableCopy];
 
 	return copy;
 }
