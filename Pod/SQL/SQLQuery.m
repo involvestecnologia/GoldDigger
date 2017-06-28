@@ -442,7 +442,7 @@
 	
 	countQuery.mutableProjection = [@[NSStringWithFormat(@"COUNT(%@.id)", self.source.identifier)] mutableCopy];
 
-	return [countQuery.pluck[0] unsignedIntegerValue];
+	return [countQuery.pluck.firstObject unsignedIntegerValue];
 }
 
 #pragma mark - Proxy
