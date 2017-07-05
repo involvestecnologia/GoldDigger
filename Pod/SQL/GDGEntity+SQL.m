@@ -289,8 +289,10 @@
 	if (exists)
 	{
 		for (NSString *key in primaryKeys)
+		{
+			[columns addObject:[db columnNameForProperty:key]];
 			[values addObject:[self valueForKey:key]];
-			
+		}
 		saved = [db.table update:columns params:values error:error];
 	}
 	else
