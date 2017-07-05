@@ -8,7 +8,7 @@
 #import <ObjectiveSugar/ObjectiveSugar.h>
 #import "GDGBelongsToRelation.h"
 #import "GDGCondition+Entity.h"
-#import "GDGEntity.h"
+#import "GDGEntity+SQL.h"
 #import "GDGColumn.h"
 #import "SQLEntityQuery.h"
 
@@ -102,6 +102,19 @@
 
 	for (GDGEntity *unfilledEntity in unfilledEntities)
 		[unfilledEntity setValue:nil forKey:self.name];
+}
+
+- (BOOL)save:(GDGEntity *)entity error:(NSError **)error
+{
+	GDGEntity *related = [entity valueForKey:self.name];
+
+	if ([related save:error])
+	{
+		[entity setValue:related.id forKey:self.foreignProperty];
+		return YES;
+	}
+
+	return NO;
 }
 
 - (void)hasBeenSetOnEntity:(GDGEntity *)entity
