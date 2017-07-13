@@ -293,9 +293,10 @@
 			NSString *primaryKeyColumn = [db columnNameForProperty:key];
 
 			if (![columns containsObject:primaryKeyColumn])
+			{
 				[columns addObject:primaryKeyColumn];
-
-			[values addObject:[self valueForKey:key]];
+				[values addObject:[self valueForKey:key]];
+			}
 		}
 		saved = [db.table update:columns params:values error:error];
 	}
