@@ -152,8 +152,8 @@
 {
 	NSMutableString *mutableString = [[NSMutableString alloc] initWithFormat:@"INSERT INTO %@ (", self.identifier];
 
-	NSString *valuesString = [[columns map:^id(id obj) {
-		return @"?";
+	NSString *valuesString = [[columns map:^NSString *(NSString *str) {
+		return [NSString stringWithFormat:@":%@", str];
 	}] join:@", "];
 
 	[mutableString appendFormat:@"%@) VALUES (%@)", [columns join:@", "], valuesString];
@@ -166,7 +166,7 @@
 	NSMutableString *mutableString = [[NSMutableString alloc] initWithFormat:@"UPDATE %@ SET ", self.identifier];
 
 	NSString *columnsString = [[columns map:^id(NSString *str) {
-		return [str stringByAppendingString:@" = ?"];
+		return [str stringByAppendingString:[NSString stringWithFormat:@" = :%@", str]];
 	}] join:@", "];
 	
 	[mutableString appendFormat:@"%@ WHERE", columnsString];
@@ -176,7 +176,7 @@
 	}] sortBy:@"primaryKey"];
 	
 	for (GDGColumn *primaryKey in primaryKeys) {
-		[mutableString appendFormat:@" %@.%@ = ? AND", self.identifier, primaryKey.name];
+		[mutableString appendFormat:@" %@.%@ = :%@ AND", self.identifier, primaryKey.name, primaryKey.name];
 	}
 	
 	[mutableString replaceCharactersInRange:NSMakeRange(mutableString.length - 4, 4) withString:@""];
@@ -220,9 +220,10 @@
 
 #pragma mark Execute
 
-- (BOOL)insert:(NSArray <NSString *> *)columns params:(NSArray *)params error:(NSError **)error
+- (BOOL)insert:(NSDictionary <NSString *, id> *)values error:(NSError **)error
 {
-	BOOL succeeded = [_databaseProvider.database executeUpdate:[self insertStringForColumns:columns] withParameters:params error:error];
+	NSString *insertString = [self insertStringForColumns:[values allKeys]];
+	BOOL succeeded = [_databaseProvider.database executeUpdate:insertString withNamedParameters:values error:error];
 	if (!succeeded && error)
 		*error = [NSError errorWithDomain:@"com.CopyIsRight.GoldDigger" code:kDEFAULT_ERROR_CODE
 		                         userInfo:@{NSLocalizedDescriptionKey : _databaseProvider.database.lastErrorMessage}];
@@ -230,12 +231,13 @@
 	return succeeded;
 }
 
-- (BOOL)update:(NSArray <NSString *> *)columns params:(NSArray *)params error:(NSError **)error
+- (BOOL)update:(NSDictionary <NSString *, id> *)values error:(NSError **)error
 {
-	BOOL succeeded = [_databaseProvider.database executeUpdate:[self updateStringForColumns:columns] withParameters:params error:error];
-	if (!succeeded)
+	NSString *updateString = [self updateStringForColumns:[values allKeys]];
+	BOOL succeeded = [_databaseProvider.database executeUpdate:updateString withNamedParameters:values error:error];
+	if (!succeeded && error)
 		*error = [NSError errorWithDomain:@"com.CopyIsRight.GoldDigger" code:kDEFAULT_ERROR_CODE
-		                         userInfo:@{NSLocalizedDescriptionKey : _databaseProvider.database.lastErrorMessage}];
+	                         userInfo:@{NSLocalizedDescriptionKey: _databaseProvider.database.lastErrorMessage}];
 
 	return succeeded;
 }
@@ -243,7 +245,7 @@
 - (BOOL)delete:(id)primaryKey error:(NSError **)error
 {
 	BOOL succeeded = [_databaseProvider.database executeUpdate:[self deleteString] withParameters:@[primaryKey] error:error];
-	if (!succeeded)
+	if (!succeeded && error)
 		*error = [NSError errorWithDomain:@"com.CopyIsRight.GoldDigger" code:kDEFAULT_ERROR_CODE
 		                         userInfo:@{NSLocalizedDescriptionKey : _databaseProvider.database.lastErrorMessage}];
 

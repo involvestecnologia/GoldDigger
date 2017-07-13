@@ -31,9 +31,9 @@
 
 - (CIRStatement *)deleteStatement;
 
-- (BOOL)insert:(NSArray <NSString *> *)columns params:(NSArray *)params error:(NSError **)error;
+- (BOOL)insert:(NSDictionary <NSString *, id> *)values error:(NSError **)error;
 
-- (BOOL)update:(NSArray <NSString *> *)columns params:(NSArray *)params error:(NSError **)error;
+- (BOOL)update:(NSDictionary <NSString *, id> *)values error:(NSError **)error;
 
 - (BOOL)delete:(id)primaryKey error:(NSError **)error;
 

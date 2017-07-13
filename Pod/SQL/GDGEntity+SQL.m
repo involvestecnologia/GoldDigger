@@ -227,7 +227,7 @@
 	SQLEntityMap *db = [self class].db;
 
 	NSMutableArray <NSString *> *primaryKeys = [NSMutableArray array];
-	NSArray *mappedArray = db.fromToDictionary;
+	NSDictionary *mappedArray = db.fromToDictionary;
 	
 	for (NSString *key in mappedArray)
 	{
@@ -238,7 +238,7 @@
 	
 	BOOL saved, exists = db.query.where( ^(GDGCondition *condition) {
 		int count = primaryKeys.count;
-		for (int i = 0; i < count; ++i)
+		for (NSUInteger i = 0; i < count; ++i)
 		{
 			NSString *key = primaryKeys[i];
 			condition.prop(key).equals([self valueForKey:key]);
@@ -251,16 +251,12 @@
 	if (exists && self.changedProperties.count == 0)
 		return YES;
 
-	NSMutableArray *values = [[NSMutableArray alloc] initWithCapacity:self.changedProperties.count + 1];
-	NSMutableArray *columns = [[NSMutableArray alloc] initWithCapacity:self.changedProperties.count];
-	
+	NSMutableDictionary *values = [[NSMutableDictionary alloc] initWithCapacity:self.changedProperties.count + 1];
+
 	NSMutableArray *relations = @[].mutableCopy;
 
 	if (self.id != nil)
-	{
-		[values addObject:self.id];
-		[columns addObject:@"id"];
-	}
+		values[@"id"] = self.id;
 
 	for (NSString *key in db.fromToDictionary.keyEnumerator)
 	{
@@ -277,13 +273,13 @@
 
 		NSString *propertyName = key;
 
-		[columns addObject:[db columnNameForProperty:propertyName]];
+		NSString *columnName = [db columnNameForProperty:propertyName];
 
 		NSValueTransformer *transformer = db.valueTransformerDictionary[propertyName];
 		id value = transformer ? [transformer reverseTransformedValue:[self valueForKeyPath:propertyName]]
 				: [self valueForKeyPath:propertyName];
 
-		[values addObject:value ?: [NSNull null]];
+		values[columnName] = value ?: [NSNull null];
 	}
 
 	if (exists)
@@ -291,17 +287,17 @@
 		for (NSString *key in primaryKeys)
 		{
 			NSString *primaryKeyColumn = [db columnNameForProperty:key];
+			NSValueTransformer *transformer = db.valueTransformerDictionary[primaryKeyColumn];
+			id value = transformer ? [transformer reverseTransformedValue:[self valueForKeyPath:primaryKeyColumn]]
+					: [self valueForKeyPath:primaryKeyColumn];
 
-			if (![columns containsObject:primaryKeyColumn])
-			{
-				[columns addObject:primaryKeyColumn];
-				[values addObject:[self valueForKey:key]];
-			}
+			values[primaryKeyColumn] = value;
 		}
-		saved = [db.table update:columns params:values error:error];
+
+		saved = [db.table update:values error:error];
 	}
 	else
-		saved = [db.table insert:columns params:values error:error];
+		saved = [db.table insert:values error:error];
 
 	if (saved && !exists && self.id == nil)
 		self.id = [db.table lastInsertedId];
