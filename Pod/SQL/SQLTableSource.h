@@ -27,6 +27,8 @@
 
 - (CIRStatement *)insertStatementForColumns:(NSArray <NSString *> *)columns;
 
+- (CIRStatement *)updateStatementForColumns:(NSArray <NSString *> *)columns condition:(NSString *)condition;
+
 - (CIRStatement *)updateStatementForColumns:(NSArray <NSString *> *)columns;
 
 - (CIRStatement *)deleteStatement;

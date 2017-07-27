@@ -161,27 +161,35 @@
 	return mutableString;
 }
 
-- (NSString *)updateStringForColumns:(NSArray <NSString *> *)columns
+- (NSString *)updateStringForColumns:(NSArray <NSString *> *)columns condition:(NSString *)condition
 {
 	NSMutableString *mutableString = [[NSMutableString alloc] initWithFormat:@"UPDATE %@ SET ", self.identifier];
 
 	NSString *columnsString = [[columns map:^id(NSString *str) {
 		return [str stringByAppendingString:[NSString stringWithFormat:@" = :%@", str]];
 	}] join:@", "];
-	
-	[mutableString appendFormat:@"%@ WHERE", columnsString];
-	
+
+	[mutableString appendFormat:@"%@ WHERE ", columnsString];
+
 	NSArray *primaryKeys = [[self.columns select:^BOOL(GDGColumn *column) {
 		return column.primaryKey > 0;
 	}] sortBy:@"primaryKey"];
-	
-	for (GDGColumn *primaryKey in primaryKeys) {
-		[mutableString appendFormat:@" %@.%@ = :%@ AND", self.identifier, primaryKey.name, primaryKey.name];
-	}
-	
-	[mutableString replaceCharactersInRange:NSMakeRange(mutableString.length - 4, 4) withString:@""];
+
+	NSString *primaryKeysCondition = [[primaryKeys map:^NSString *(GDGColumn *primaryKey) {
+		return [NSString stringWithFormat:@"%@.%@ = :%@", self.identifier, primaryKey.name, primaryKey.name];
+	}] join:@" AND "];
+
+	NSString *conditions = condition.length == 0 ? primaryKeysCondition :
+			[NSString stringWithFormat:@"(%@) AND (%@)", primaryKeysCondition, condition];
+
+	[mutableString appendString:conditions];
 
 	return mutableString;
+}
+
+- (NSString *)updateStringForColumns:(NSArray <NSString *> *)columns
+{
+	return [self updateStringForColumns:columns condition:nil];
 }
 
 - (NSString *)deleteString
@@ -208,9 +216,15 @@
 	return [_databaseProvider.database prepareStatement:[self insertStringForColumns:columns] error:nil];
 }
 
+- (CIRStatement *)updateStatementForColumns:(NSArray <NSString *> *)columns condition:(NSString *)condition
+{
+	NSString *updateSQL = [self updateStringForColumns:columns condition:condition];
+	return [_databaseProvider.database prepareStatement:updateSQL error:nil];
+}
+
 - (CIRStatement *)updateStatementForColumns:(NSArray <NSString *> *)columns
 {
-	return [_databaseProvider.database prepareStatement:[self updateStringForColumns:columns] error:nil];
+	return [self updateStatementForColumns:columns condition:nil];
 }
 
 - (CIRStatement *)deleteStatement
