@@ -471,6 +471,7 @@
 	copy->_mutableProjection = [_mutableProjection mutableCopy];
 	copy->_mutableOrderList = [_mutableOrderList mutableCopy];
 	copy->_whereCondition = [_whereCondition copy];
+	copy->_havingCondition = [_havingCondition copy];
 	copy->_source = [_source copy];
 	copy->_distinct = _distinct;
 	copy->_mutableArgs = [_mutableArgs mutableCopy];
