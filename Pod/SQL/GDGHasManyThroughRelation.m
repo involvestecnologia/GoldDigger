@@ -166,7 +166,7 @@
 		return related.id;
 	}];
 
-	[self insertOrReplaceOwner:entity.id forRelated:relatedIds error:error];
+	return [self insertOrReplaceOwner:entity.id forRelated:relatedIds error:error];
 }
 
 - (BOOL)insertOrReplaceOwner:(NSNumber *)ownerId forRelated:(NSArray <NSNumber *> *)related error:(NSError **)error
