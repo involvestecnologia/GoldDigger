@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
   s.description      = "Simple ORM for Objective-C"
   s.homepage         = "https://github.com/CopyIsRight/GoldDigger.git"
   s.license          = 'MIT'
-  s.author           = { "Pietro Caselani" => "pc1992@gmail.com", "Felipe Lobo" => "frlwolf@gmail.com" }
+  s.author           = { "Pietro Caselani" => "pc1992@gmail.com", "Felipe Lobo" => "frlwolf@gmail.com", "Bruno da Luz" => "brunolabx@gmail.com" }
   s.source           = { :git => "https://github.com/CopyIsRight/GoldDigger.git", :tag => s.version.to_s }
   s.platform         = :ios, '7.0'
   s.requires_arc     = true
