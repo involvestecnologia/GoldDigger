@@ -303,7 +303,12 @@
 		self.id = [db.table lastInsertedId];
 
 	for (GDGRelation *relation in relations)
-		[relation save:self error:NULL];
+  {
+    BOOL success = [relation save:self error:error];
+    if (!success || *error) {
+      return NO;
+    }
+  }
 
 	if (saved)
 		[self.changedProperties removeAllObjects];

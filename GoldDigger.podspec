@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.license          = 'MIT'
   s.author           = { "Pietro Caselani" => "pc1992@gmail.com", "Felipe Lobo" => "frlwolf@gmail.com", "Bruno da Luz" => "brunolabx@gmail.com" }
   s.source           = { :git => "https://github.com/CopyIsRight/GoldDigger.git", :tag => s.version.to_s }
-  s.platform         = :ios, '7.0'
+  s.platform         = :ios, '8.0'
   s.requires_arc     = true
   
   s.subspec 'Core' do |core|
@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
     sql.source_files    = 'Pod/SQL/*.{h,m}'
 
     sql.dependency    'GoldDigger/Core'
-    sql.dependency    'SQLAid', '~> 0.2'
+    sql.dependency    'SQLAid', '0.2.0'
   end
 
 end
