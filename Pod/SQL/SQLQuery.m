@@ -286,9 +286,9 @@
 		}
 		else if ([token hasPrefix:@"ARG_"])
 			[mutableCondition appendString:[@":" stringByAppendingString:token]];
-		else if ([token isEqualToString:@"AND"])
+		else if ([token isEqualToString:@"AND"] && [mutableCondition length] > 0)
 			[mutableCondition appendString:@"AND"];
-		else if ([token isEqualToString:@"OR"])
+		else if ([token isEqualToString:@"OR"] && [mutableCondition length] > 0)
 			[mutableCondition appendString:@"OR"];
 		else if ([token isEqualToString:@"NULL"])
 			[mutableCondition appendString:@"IS NULL"];
