@@ -76,8 +76,10 @@
 		};
 
 		_cat = ^GDGCondition *(GDGCondition *builder) {
-			[weakSelf.mutableArgs addEntriesFromDictionary:builder.mutableArgs];
+			[weakSelf.mutableFields addEntriesFromDictionary:builder->_mutableFields];
+			[weakSelf.mutableArgs addEntriesFromDictionary:builder->_mutableArgs];
 			[weakSelf.mutableTokens addObjectsFromArray:builder->_mutableTokens];
+			
 			return weakSelf;
 		};
 	}
