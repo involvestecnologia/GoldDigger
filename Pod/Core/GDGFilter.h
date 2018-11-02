@@ -11,6 +11,6 @@
 
 @protocol GDGFilter <NSObject>
 
-- (void)apply:(__kindof GDGQuery *)query;
+- (BOOL)apply:(__kindof GDGQuery *)query error:(NSError **)error;
 
 @end

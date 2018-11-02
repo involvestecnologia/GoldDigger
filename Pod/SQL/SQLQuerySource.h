@@ -8,13 +8,13 @@
 #import "GDGSource.h"
 #import "SQLSource.h"
 
-@class SQLQuery;
+@class GDGQuery;
 
-@interface SQLQuerySource : NSObject <SQLSource>
+@interface SQLQuerySource : NSObject <GDGSource>
 
-@property (readonly, nonatomic) __kindof SQLQuery *query;
+@property (readonly, nonatomic) __kindof GDGQuery *query;
 @property (strong, nonatomic) NSString *alias;
 
-- (instancetype)initWithQuery:(__kindof SQLQuery *)query;
+- (instancetype)initWithQuery:(__kindof GDGQuery *)query;
 
 @end

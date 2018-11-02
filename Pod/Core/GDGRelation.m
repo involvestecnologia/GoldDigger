@@ -8,7 +8,7 @@
 #import "GDGRelation.h"
 
 #import "GDGEntityMap.h"
-#import "GDGQuery.h"
+#import "_GDGQuery.h"
 
 @implementation GDGRelationField
 
@@ -62,7 +62,7 @@
 	                             userInfo:nil];
 }
 
-- (void)fill:(NSArray<GDGEntity *> *)entities fromQuery:(__kindof GDGQuery *)query
+- (void)fill:(NSArray<GDGEntity *> *)entities fromQuery:(__kindof _GDGQuery *)query
 {
 	@throw [NSException exceptionWithName:@"Abstract Implementation Exception"
 	                               reason:@"[GDGRelation -fill:fromQuery:] throws that child classes must override this method"

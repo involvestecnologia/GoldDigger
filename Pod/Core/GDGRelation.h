@@ -11,7 +11,7 @@
 @class GDGCondition;
 @class GDGEntity;
 @class GDGEntityMap;
-@class GDGQuery;
+@class _GDGQuery;
 @protocol GDGSource;
 
 #define GDGRelationField(name, src)         [GDGRelationField relationFieldWithName:name source:src]
@@ -28,7 +28,7 @@
 
 - (void)fill:(NSArray <GDGEntity *> *)entities selecting:(NSArray *)properties;
 
-- (void)fill:(NSArray <GDGEntity *> *)entities fromQuery:(__kindof GDGQuery *)query;
+- (void)fill:(NSArray <GDGEntity *> *)entities fromQuery:(__kindof _GDGQuery *)query;
 
 - (void)hasBeenSetOnEntity:(GDGEntity *)entity;
 

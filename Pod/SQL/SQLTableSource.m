@@ -12,7 +12,7 @@
 #import "CIRResultSet.h"
 #import "GDGDatabaseProvider.h"
 #import "GDGColumn.h"
-#import "SQLQuery.h"
+#import "GDGQuery.h"
 
 #define kDEFAULT_ERROR_CODE         10
 
@@ -60,7 +60,7 @@
 	return _alias ?: _name;
 }
 
-- (NSArray <NSDictionary *> *)eval:(SQLQuery *)query
+- (NSArray <NSDictionary *> *)eval:(GDGQuery *)query
 {
 	query = query.copy;
 
@@ -91,7 +91,7 @@
 
 #pragma mark Other eval's
 
-- (NSArray *)evalByTuple:(SQLQuery *)query
+- (NSArray *)evalByTuple:(GDGQuery *)query
 {
 	NSMutableArray *objects = [NSMutableArray array];
 
@@ -125,7 +125,7 @@
 	return object;
 }
 
-- (NSArray *)evalByColumn:(SQLQuery *)query
+- (NSArray *)evalByColumn:(GDGQuery *)query
 {
 	NSMutableArray *objects = [NSMutableArray array];
 	CIRResultSet *resultSet = [self.databaseProvider.database executeQuery:[query visit] withNamedParameters:query.args error:nil];

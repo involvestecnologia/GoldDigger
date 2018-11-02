@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class GDGQuery;
+@class _GDGQuery;
 @class GDGColumn;
 
 @protocol GDGConditionField <NSObject>

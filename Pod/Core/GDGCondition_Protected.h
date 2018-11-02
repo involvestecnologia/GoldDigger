@@ -7,7 +7,7 @@
 
 #import "GDGCondition.h"
 
-@class SQLQuery;
+@class GDGQuery;
 
 @interface GDGCondition ()
 

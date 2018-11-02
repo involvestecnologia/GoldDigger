@@ -5,7 +5,7 @@
 //  Created by Pietro Caselani on 2/15/16.
 //
 
-#import "GDGQuery.h"
+#import "_GDGQuery.h"
 
 #import "GDGQuery_Protected.h"
 #import "GDGFilter.h"
@@ -14,7 +14,7 @@
 
 + (instancetype)query
 {
-	return [(GDGQuery *)[self.class alloc] init];
+	return [(_GDGQuery *)[self.class alloc] init];
 }
 
 #pragma mark - Initialization
@@ -25,12 +25,12 @@
 	{
 		__weak typeof(self) weakSelf = self;
 
-		_limit = ^GDGQuery *(int limit) {
+		_limit = ^_GDGQuery *(int limit) {
 			[weakSelf limit:limit];
 			return weakSelf;
 		};
 
-		_filter = ^GDGQuery *(NSArray<id <GDGFilter>> *filters) {
+		_filter = ^_GDGQuery *(NSArray<id <GDGFilter>> *filters) {
 			[weakSelf filter:filters];
 			return weakSelf;
 		};
@@ -64,9 +64,9 @@
 
 #pragma - Copying
 
-- (__kindof GDGQuery *)copyWithZone:(nullable NSZone *)zone
+- (__kindof _GDGQuery *)copyWithZone:(nullable NSZone *)zone
 {
-	GDGQuery *copy = [(GDGQuery *) [[self class] allocWithZone:zone] init];
+	_GDGQuery *copy = [(_GDGQuery *) [[self class] allocWithZone:zone] init];
 	copy->_limitValue = _limitValue;
 
 	return copy;
@@ -81,8 +81,7 @@
 
 - (void)filter:(NSArray <id <GDGFilter>> *)filters
 {
-	for (id <GDGFilter> filter in filters)
-		[filter apply:self];
+
 }
 
 @end

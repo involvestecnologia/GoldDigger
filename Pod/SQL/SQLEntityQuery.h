@@ -10,7 +10,7 @@
 @class GDGEntity;
 @class SQLEntityMap;
 
-@interface SQLEntityQuery : SQLQuery
+@interface SQLEntityQuery : MutableQuery
 
 @property (readonly, nonatomic) SQLEntityMap *map;
 @property (readonly, nonatomic) NSDictionary <NSString *, NSArray *> *pulledRelations;

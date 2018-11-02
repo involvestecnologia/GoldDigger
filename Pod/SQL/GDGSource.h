@@ -8,18 +8,21 @@
 #import "GDGSource.h"
 
 @class GDGColumn;
-@class SQLQuery;
+@class GDGQuery;
 
-@protocol SQLSource <GDGSource>
+@protocol GDGSource
 
+@property (readonly, nonatomic) NSString *identifier;
 @property (readonly, nonatomic) NSArray <GDGColumn *> *columns;
 @property (readonly, nonatomic) NSString *name;
 @property (strong, nonatomic) NSString *alias;
 
+- (NSString *)visit:(GDGQuery *)query;
+
 @optional
 
-- (NSArray *)evalByTuple:(SQLQuery *)query;
+- (NSArray *)evalByTuple:(GDGQuery *)query;
 
-- (NSArray *)evalByColumn:(SQLQuery *)query;
+- (NSArray *)evalByColumn:(GDGQuery *)query;
 
 @end

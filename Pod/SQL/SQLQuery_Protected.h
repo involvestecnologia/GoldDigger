@@ -9,7 +9,7 @@
 
 @class SQLJoin;
 
-@interface SQLQuery ()
+@interface GDGQuery ()
 
 @property (strong, nonatomic) NSMutableArray<NSString *> *mutableProjection;
 @property (strong, nonatomic) NSMutableArray<NSString *> *mutableOrderList;

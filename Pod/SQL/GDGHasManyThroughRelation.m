@@ -89,7 +89,7 @@
 		cond.field(_relationSource[_localRelationColumn]).in(ids);
 	}).join([SQLJoin joinWithKind:SQLJoinKindInner condition:joinCondition source:_relationSource]);
 
-	SQLQuery *relationQuery = [SQLQuery query].from(_relationSource)
+	GDGQuery *relationQuery = [GDGQuery query].from(_relationSource)
 			.select(@[_foreignRelationColumn, _localRelationColumn])
 			.join([SQLJoin joinWithKind:SQLJoinKindInner
 			                  condition:joinCondition

@@ -20,7 +20,7 @@
 
 @interface SQLEntityMap : GDGEntityMap
 
-@property (strong, nonatomic) id <SQLSource> source;
+@property (strong, nonatomic) id <GDGSource> source;
 @property (readonly, nonatomic) SQLTableSource *table;
 @property (readonly, nonatomic) SQLEntityQuery *query;
 

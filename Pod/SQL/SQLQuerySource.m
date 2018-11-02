@@ -7,18 +7,18 @@
 
 #import "SQLQuerySource.h"
 
-#import "SQLQuery.h"
+#import "GDGQuery.h"
 #import "SQLTableSource.h"
 
 @interface SQLQuerySource ()
 
-@property (readwrite, nonatomic) __kindof SQLQuery *query;
+@property (readwrite, nonatomic) __kindof GDGQuery *query;
 
 @end
 
 @implementation SQLQuerySource
 
-- (instancetype)initWithQuery:(__kindof SQLQuery *)query
+- (instancetype)initWithQuery:(__kindof GDGQuery *)query
 {
 	if (self = [super init])
 		_query = query;

@@ -17,13 +17,13 @@ typedef NS_ENUM(NSInteger, SQLJoinKind) {
 @interface SQLJoin : GDGJoin
 
 @property (assign, nonatomic) SQLJoinKind kind;
-@property (strong, nonatomic) NSMutableArray *projection;
-@property (readonly, nonatomic) id <SQLSource> source;
+@property (strong, nonatomic, nonnull) NSMutableArray *projection;
+@property (readonly, nonatomic, nonnull) id <GDGSource> source;
 
 + (instancetype)joinWithKind:(SQLJoinKind)kind
-                   condition:(GDGCondition *)condition
-                      source:(id <SQLSource>)source;
+                   condition:(GDGCondition *__nonnull)condition
+                      source:(id <GDGSource>__nonnull)source;
 
-- (void)select:(NSArray <NSString *> *)projection;
+- (void)select:(NSArray <NSString *> *__nonnull)projection;
 
 @end

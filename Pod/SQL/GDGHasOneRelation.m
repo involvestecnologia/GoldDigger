@@ -8,7 +8,7 @@
 #import <ObjectiveSugar/ObjectiveSugar.h>
 #import "GDGHasOneRelation.h"
 
-#import "SQLQuery.h"
+#import "GDGQuery.h"
 #import "SQLEntityQuery.h"
 #import "GDGCondition+Entity.h"
 #import "GDGEntity.h"
