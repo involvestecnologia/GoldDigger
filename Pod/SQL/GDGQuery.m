@@ -7,12 +7,11 @@
 
 #import <ObjectiveSugar/ObjectiveSugar.h>
 #import "GDGQuery.h"
-
 #import "GDGColumn.h"
-#import "SQLTableSource.h"
 #import "SQLJoin.h"
 #import "GDGFilter.h"
 #import "NSError+GDG.h"
+#import "GDGSource.h"
 
 @interface GDGQuery ()
 
@@ -43,22 +42,6 @@
 	}
 
 	return self;
-}
-
-#pragma mark - Debug
-
-- (NSString *)debugDescription
-{
-	NSMutableString *visit = [[NSMutableString alloc] initWithString:self.visit];
-	NSDictionary *args = self.args;
-	
-	for (NSString *token in args.allKeys)
-	{
-		NSRange fullRange = NSMakeRange(0, visit.length);
-		[visit replaceOccurrencesOfString:[@":" stringByAppendingString:token] withString:[args[token] stringValue] options:NSLiteralSearch range:fullRange];
-	}
-	
-	return [NSString stringWithString:visit];
 }
 
 @end
@@ -123,10 +106,10 @@
 	{
 		if (error)
 		{
-			NSString *localizedDescription = NSStringWithFormat(@"[SQLQuery -join:] throws that access attempt to add multiple joins with the same identifier \"%@\"", join.source.identifier);
-			NSDictionary *errorInfo = @{ NSLocalizedDescriptionKey: localizedDescription };
-
-			*error = [NSError errorWithDomain:GDGErrorDomain code:300 userInfo:errorInfo];
+			NSString *message = NSStringWithFormat(@"[SQLQuery -join:] throws that access attempt to add multiple joins with the same identifier \"%@\"", join.source.identifier);
+			*error = [NSError errorWithCode:GDGQueryDuplicateJoinError
+									message:message
+								 underlying:nil];
 		}
 
 		return NO;

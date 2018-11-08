@@ -7,7 +7,7 @@
 #import "GDGQuery.h"
 #import "GDGCondition.h"
 #import "SQLQuery_Protected.h"
-#import "SQLTableSource.h"
+#import "GDGTable.h"
 #import "SQLQuerySource.h"
 #import "SQLJoin.h"
 #import "GDGColumn.h"
@@ -110,7 +110,7 @@
 	NSMutableString *mutableString = [[NSMutableString alloc] initWithString:@" FROM "];
 	NSMutableArray *args = [[NSMutableArray alloc] init];
 
-	if ([source isKindOfClass:[SQLTableSource class]])
+	if ([source isKindOfClass:[GDGTable class]])
 		[mutableString appendString:source.name];
 	else if ([source isKindOfClass:[SQLQuerySource class]])
 	{
@@ -119,14 +119,13 @@
 
 		if (!sourceParsingResult && underlyingError)
 		{
-			NSString *localizedDescription = @"Error while parsing FROM with source being a query";
-			NSDictionary *errorInfo = @{
-					NSLocalizedDescriptionKey: localizedDescription,
-					NSUnderlyingErrorKey: underlyingError
-			};
-
 			if (error)
-				*error = [NSError errorWithDomain:GDGErrorDomain code:200 userInfo:errorInfo];
+			{
+				NSString *message = @"Error while parsing FROM with source being a query";
+				*error = [NSError errorWithCode:GDGParseQuerySourceError
+										message:message
+									 underlying:underlyingError];
+			}
 
 			return nil;
 		}
@@ -176,14 +175,13 @@
 
 		if (!joinCondition && underlyingError)
 		{
-			NSString *localizedDescription = NSStringWithFormat(@"Error while parsing a join condition, partial: %@", result);
-			NSDictionary *errorInfo = @{
-					NSLocalizedDescriptionKey: localizedDescription,
-					NSUnderlyingErrorKey: underlyingError
-			};
-
 			if (error)
-				*error = [NSError errorWithDomain:GDGErrorDomain code:201 userInfo:errorInfo];
+			{
+				NSString *message = NSStringWithFormat(@"Error while parsing a join condition, partial: %@", result);
+				*error = [NSError errorWithCode:GDGParseJoinConditionError
+				                        message:message
+				                     underlying:underlyingError];
+			}
 
 			return nil;
 		}
@@ -209,14 +207,13 @@
 
 	if (!where && underlyingError)
 	{
-		NSString *localizedDescription = @"Error while parsing where condition";
-		NSDictionary *errorInfo = @{
-				NSLocalizedDescriptionKey: localizedDescription,
-				NSUnderlyingErrorKey: underlyingError
-		};
-
 		if (error)
-			*error = [NSError errorWithDomain:GDGErrorDomain code:202 userInfo:errorInfo];
+		{
+			NSString *message = @"Error while parsing where condition";
+			*error = [NSError errorWithCode:GDGParseWhereConditionError
+									message:message
+								 underlying:underlyingError];
+		}
 
 		return nil;
 	}
@@ -253,14 +250,13 @@
 
 	if (!having && underlyingError)
 	{
-		NSString *localizedDescription = @"Error while parsing having condition";
-		NSDictionary *errorInfo = @{
-				NSLocalizedDescriptionKey: localizedDescription,
-				NSUnderlyingErrorKey: underlyingError
-		};
-
 		if (error)
-			*error = [NSError errorWithDomain:GDGErrorDomain code:203 userInfo:errorInfo];
+		{
+			NSString *message = @"Error while parsing having condition";
+			*error = [NSError errorWithCode:GDGParseHavingConditionError
+									message:message
+								 underlying:underlyingError];
+		}
 
 		return nil;
 	}

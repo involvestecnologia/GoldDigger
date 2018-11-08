@@ -58,14 +58,13 @@
 
 					if (!query && underlyingError)
 					{
-						NSString *localizedDescription = NSStringWithFormat(@"Error while parsing a query condition for arg %@", nextToken);
-						NSDictionary *errorInfo = @{
-								NSLocalizedDescriptionKey: localizedDescription,
-								NSUnderlyingErrorKey: underlyingError
-						};
-
 						if (error)
-							*error = [NSError errorWithDomain:GDGErrorDomain code:101 userInfo:errorInfo];
+						{
+							NSString *message = NSStringWithFormat(@"Error while parsing a query condition for arg %@", nextToken);
+							*error = [NSError errorWithCode:GDGParseArgumentConditionError
+													message:message
+												 underlying:underlyingError];
+						}
 
 						return nil;
 					}
@@ -76,10 +75,11 @@
 				else if (error)
 				{
 					NSString *argClass = NSStringFromClass([arg class]);
-					NSString *localizedDescription = NSStringWithFormat(@"[SQLQuery -visit] thorws that the argument kind \"%@\" can't be interpreted", argClass)
-					NSDictionary *errorInfo = @{NSLocalizedDescriptionKey: localizedDescription};
+					NSString *message = NSStringWithFormat(@"[SQLQuery -visit] thorws that the argument kind \"%@\" can't be interpreted", argClass)
 
-					*error = [[NSError alloc] initWithDomain:GDGErrorDomain code:100 userInfo:errorInfo];
+					*error = [NSError errorWithCode:GDGParseUnknownArgumentKindError
+											message:message
+										 underlying:nil];
 
 					return nil;
 				}

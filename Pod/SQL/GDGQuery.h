@@ -5,9 +5,9 @@
 //  Created by Pietro Caselani on 2/12/16.
 //
 
-@protocol SQLSource;
+@protocol GDGSource;
 @protocol GDGFilter;
-@class SQLTableSource;
+@class GDGTable;
 @class SQLJoin;
 @class GDGColumn;
 @class GDGCondition;

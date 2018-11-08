@@ -23,7 +23,7 @@
 
 @synthesize entityClass = _entityClass;
 
-+ (instancetype)mapWithDictionary:(NSDictionary *)fromToDictionary from:(SQLTableSource *)source to:(Class)class
++ (instancetype)mapWithDictionary:(NSDictionary *)fromToDictionary from:(GDGTable *)source to:(Class)class
 {
 	NSMutableDictionary *mutableFromTo = [NSMutableDictionary dictionaryWithCapacity:source.columns.count];
 	for (GDGColumn *column in source.columns)
@@ -61,7 +61,7 @@
 
 #pragma mark - Quering
 
-- (SQLTableSource *)table
+- (GDGTable *)table
 {
 	return self.source;
 }
@@ -91,7 +91,7 @@
 	tap(relation);
 }
 
-- (void)hasMany:(NSString *)relationName through:(SQLTableSource *)table config:(void (^)(GDGHasManyThroughRelation *))tap
+- (void)hasMany:(NSString *)relationName through:(GDGTable *)table config:(void (^)(GDGHasManyThroughRelation *))tap
 {
 	GDGHasManyThroughRelation *relation = [[GDGHasManyThroughRelation alloc] initWithName:relationName map:self];
 	relation.relationSource = table;

@@ -8,11 +8,11 @@
 #import "GDGRelation.h"
 #import <SQLAid/CIRStatement.h>
 
-@class SQLTableSource;
+@class GDGTable;
 
 @interface GDGHasManyThroughRelation : GDGRelation
 
-@property (strong, nonatomic) SQLTableSource *relationSource;
+@property (strong, nonatomic) GDGTable *relationSource;
 @property (strong, nonatomic) NSString *localRelationColumn;
 @property (strong, nonatomic) NSString *foreignRelationColumn;
 

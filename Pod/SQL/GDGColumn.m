@@ -7,7 +7,7 @@
 
 #import "GDGColumn.h"
 #import "GDGSource.h"
-#import "SQLTableSource.h"
+#import "GDGTable.h"
 
 @implementation GDGColumn
 

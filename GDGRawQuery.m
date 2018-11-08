@@ -6,6 +6,18 @@
 
 @implementation GDGRawQuery
 
+- (NSString *)debugDescription
+{
+	NSMutableString *visit = [[NSMutableString alloc] initWithString:self.visit];
 
+	for (NSString *arg in self.args)
+	{
+		NSRange questionMarkRange = [visit rangeOfString:@"?"];
+
+		[visit replaceCharactersInRange:questionMarkRange withString:arg];
+	}
+
+	return [NSString stringWithString:visit];
+}
 
 @end
