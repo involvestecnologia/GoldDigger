@@ -9,7 +9,7 @@
 
 @interface GDGTable ()
 
-- (instancetype)initWithTableName:(NSString *__nonnull)name
+- (nonnull instancetype)initWithTableName:(NSString *__nonnull)name
 						  columns:(NSArray <GDGColumn *> *__nonnull)columns;
 
 @end

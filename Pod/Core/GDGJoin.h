@@ -10,11 +10,19 @@
 @class GDGCondition;
 @protocol GDGSource;
 
+typedef NS_ENUM(NSInteger, GDGJoinKind) {
+	GDGJoinKindInner,
+	GDGJoinKindLeft
+};
+
 @interface GDGJoin : NSObject <NSCopying>
 
-@property (strong, nonatomic) GDGCondition *condition;
-@property (strong, nonatomic) id <GDGSource> source;
+@property (readonly, nonatomic) GDGJoinKind kind;
+@property (readonly, nonatomic, nonnull) GDGCondition *condition;
+@property (readonly, nonatomic, nonnull) id <GDGSource> source;
 
-- (instancetype)initWithCondition:(GDGCondition *)condition source:(id <GDGSource>)source;
+- (instancetype)initWithKind:(GDGJoinKind)kind
+                   condition:(GDGCondition *__nonnull)condition
+                      source:(id <GDGSource>__nonnull)source;
 
 @end

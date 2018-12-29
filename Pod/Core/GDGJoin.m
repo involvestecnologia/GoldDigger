@@ -6,30 +6,23 @@
 //
 
 #import "GDGJoin.h"
-
 #import "GDGCondition.h"
 #import "GDGSource.h"
 
 @implementation GDGJoin
 
-- (instancetype)initWithCondition:(GDGCondition *)condition source:(id <GDGSource>)source;
+- (instancetype)initWithKind:(GDGJoinKind)kind
+                   condition:(GDGCondition *__nonnull)condition
+                      source:(id <GDGSource>__nonnull)source
 {
 	if (self = [super init])
 	{
+		_kind = kind;
 		_condition = condition;
 		_source = source;
 	}
 
 	return self;
-}
-
-- (GDGJoin *)copyWithZone:(nullable NSZone *)zone
-{
-	GDGJoin *join = [(GDGJoin *) [self.class allocWithZone:zone] init];
-	join.condition = [_condition copyWithZone:zone];
-	join.source = [_source copyWithZone:zone];
-
-	return join;
 }
 
 @end

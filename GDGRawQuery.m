@@ -6,6 +6,18 @@
 
 @implementation GDGRawQuery
 
+- (instancetype)initWithQuery:(NSString *)rawQueryValue args:(NSArray *)args
+{
+	self = [super init];
+	if (self)
+	{
+		_visit = rawQueryValue;
+		_args = args;
+	}
+
+	return self;
+}
+
 - (NSString *)debugDescription
 {
 	NSMutableString *visit = [[NSMutableString alloc] initWithString:self.visit];

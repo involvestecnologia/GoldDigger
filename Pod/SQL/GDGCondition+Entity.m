@@ -36,7 +36,7 @@
 
 - (void)setMap:(SQLEntityMap *)map
 {
-	objc_setAssociatedObject(self, @selector(map), map, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	objc_setAssociatedObject(self, @selector(mapping), map, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 @end

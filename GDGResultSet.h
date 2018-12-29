@@ -12,9 +12,8 @@
 @property (readonly, nonatomic, nonnull) CIRResultSet *resultSet;
 @property (readonly, nonatomic, nonnull) NSArray *projection;
 
-- (instancetype)initWithResultSet:(CIRResultSet *__nonnull)resultSet
-                       projection:(NSArray *__nonnull)projection;
+- (nonnull instancetype)initWithResultSet:(CIRResultSet *__nonnull)resultSet projection:(NSArray *__nonnull)projection;
 
-- (NSDictionary *__nullable)next:(NSError **__nullable)error;
+- (nullable NSDictionary *)next:(NSError **__nullable)error;
 
 @end

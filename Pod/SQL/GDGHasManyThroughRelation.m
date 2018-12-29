@@ -52,7 +52,7 @@
 
 	properties = [properties relativeComplement:pulledRelations];
 
-	SQLEntityQuery *query = ((SQLEntityMap *) self.relatedMap).query.select(properties).distinct;
+	GDGEntityQuery *query = ((GDGMapping *) self.relatedMap).query.select(properties).distinct;
 
 	for (NSDictionary *relation in pulledRelations)
 		query.pull(relation);
@@ -60,7 +60,7 @@
 	[self fill:entities fromQuery:query];
 }
 
-- (void)fill:(NSArray <GDGEntity *> *)entities fromQuery:(SQLEntityQuery *)query
+- (void)fill:(NSArray <GDGEntity *> *)entities fromQuery:(GDGEntityQuery *)query
 {
 	NSArray<NSNumber *> *ids = [entities map:^id(GDGEntity *object) {
 		return object.id;
@@ -87,13 +87,13 @@
 
 	query.where(^(GDGCondition *cond) {
 		cond.field(_relationSource[_localRelationColumn]).in(ids);
-	}).join([SQLJoin joinWithKind:SQLJoinKindInner condition:joinCondition source:_relationSource]);
+	}).join([GDGJoin joinWithKind:SQLJoinKindInner condition:joinCondition source:_relationSource]);
 
 	GDGQuery *relationQuery = [GDGQuery query].from(_relationSource)
 			.select(@[_foreignRelationColumn, _localRelationColumn])
-			.join([SQLJoin joinWithKind:SQLJoinKindInner
+			.join([GDGJoin joinWithKind:SQLJoinKindInner
 			                  condition:joinCondition
-			                     source:((SQLEntityMap *) self.relatedMap).table])
+			                     source:((GDGMapping *) self.relatedMap).table])
 			.where(^(GDGCondition *cond) {
 				cond.field(_relationSource[_localRelationColumn]).in(ids);
 			})

@@ -10,43 +10,28 @@
 
 @class GDGCondition;
 @class GDGEntity;
-@class GDGEntityMap;
-@class _GDGQuery;
+@class GDGQuery;
+@class GDGMapping;
 @protocol GDGSource;
-
-#define GDGRelationField(name, src)         [GDGRelationField relationFieldWithName:name source:src]
 
 @interface GDGRelation : NSObject
 
-@property (readonly, nonatomic) NSString *name;
-@property (readonly, nonatomic) GDGEntityMap *map;
-@property (strong, nonatomic) GDGEntityMap *relatedMap;
-@property (strong, nonatomic) NSString *foreignProperty;
-@property (strong, nonatomic) GDGCondition *condition;
+@property (readonly, nonatomic, nonnull) NSString *name;
+@property (readonly, nonatomic, nonnull) GDGMapping *mapping;
+@property (strong, nonatomic, nullable) GDGMapping *relatedMapping;
+@property (strong, nonatomic, nullable) NSString *foreignProperty;
+@property (strong, nonatomic, nullable) GDGCondition *condition;
 
-- (instancetype)initWithName:(NSString *)name map:(GDGEntityMap *)map;
+- (nonnull instancetype)initWithName:(NSString * __nonnull)name mapping:(GDGMapping * __nonnull)mapping;
 
-- (void)fill:(NSArray <GDGEntity *> *)entities selecting:(NSArray *)properties;
+- (void)hasBeenSetOnEntity:(GDGEntity * __nonnull)entity;
 
-- (void)fill:(NSArray <GDGEntity *> *)entities fromQuery:(__kindof _GDGQuery *)query;
+- (BOOL)save:(GDGEntity * __nonnull)entity error:(NSError ** __nullable)error;
 
-- (void)hasBeenSetOnEntity:(GDGEntity *)entity;
+- (BOOL)fill:(NSArray <GDGEntity *> * __nonnull)entities selecting:(NSArray * __nonnull)properties error:(NSError ** __nullable)error;
 
-- (BOOL)save:(GDGEntity *)entity error:(NSError **)error;
+- (BOOL)fill:(NSArray <GDGEntity *> * __nonnull)entities fromQuery:(GDGQuery * __nonnull)query error:(NSError ** __nullable)error;
 
-- (GDGCondition *)joinCondition;
-
-- (GDGCondition *)joinConditionFromSource:(id <GDGSource>)source toSource:(id <GDGSource>)joinedSource;
-
-@end
-
-@interface GDGRelationField : NSObject <GDGConditionField>
-
-@property (readonly, nonatomic) NSString *name;
-@property (readonly, nonatomic) id <GDGSource> source;
-
-+ (instancetype)relationFieldWithName:(NSString *)name source:(id <GDGSource>)source;
-
-- (NSString *)fullName;
+- (nullable GDGCondition *)joinCondition;
 
 @end

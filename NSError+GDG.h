@@ -20,7 +20,9 @@ FOUNDATION_EXPORT const GDGErrorCode GDGConnectionPrepareInsertError = 520;
 FOUNDATION_EXPORT const GDGErrorCode GDGConnectionPrepareUpdateError = 521;
 FOUNDATION_EXPORT const GDGErrorCode GDGConnectionPrepareDeleteError = 522;
 FOUNDATION_EXPORT const GDGErrorCode GDGConnectionQueryEvaluationError = 530;
+FOUNDATION_EXPORT const GDGErrorCode GDGRelationJoinConditionParseError = 890;
 FOUNDATION_EXPORT const GDGErrorCode GDGQueryDuplicateJoinError = 800;
+FOUNDATION_EXPORT const GDGErrorCode GDGQueryPullWithNoMapError = 801;
 FOUNDATION_EXPORT const GDGErrorCode GDGConnectionPragmaTableInfoError = 900;
 FOUNDATION_EXPORT const GDGErrorCode GDGConnectionColumnIterationError = 901;
 

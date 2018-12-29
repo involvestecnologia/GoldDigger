@@ -3,32 +3,15 @@
 //
 
 #import <ObjectiveSugar/ObjectiveSugar.h>
-#import "GDGQueryParser.h"
-#import "GDGQuery.h"
-#import "GDGCondition.h"
-#import "SQLQuery_Protected.h"
-#import "GDGTable.h"
-#import "SQLQuerySource.h"
-#import "SQLJoin.h"
 #import "GDGColumn.h"
+#import "GDGCondition.h"
 #import "GDGConditionParser.h"
+#import "GDGJoin.h"
+#import "GDGQuery.h"
+#import "GDGQueryParser.h"
+#import "GDGQuerySource.h"
+#import "GDGTable.h"
 #import "NSError+GDG.h"
-
-@implementation GDGRawQuery
-
-- (instancetype)initWithQuery:(NSString *)rawValue args:(NSArray *)args
-{
-	self = [super init];
-	if (self)
-	{
-		_visit = rawValue;
-		_args = args;
-	}
-
-	return self;
-}
-
-@end
 
 @implementation GDGQueryParser
 
@@ -50,7 +33,7 @@
 	[query appendString:fromResult.visit];
 	[args addObjectsFromArray:fromResult.args];
 
-	NSArray <SQLJoin *> *joins = queryObject.joins;
+	NSArray <GDGJoin *> *joins = queryObject.joins;
 	if (joins.count > 0)
 	{
 		GDGParsingResult *parsedJoins = [self parseJoins:joins error:error];
@@ -112,10 +95,10 @@
 
 	if ([source isKindOfClass:[GDGTable class]])
 		[mutableString appendString:source.name];
-	else if ([source isKindOfClass:[SQLQuerySource class]])
+	else if ([source isKindOfClass:[GDGQuerySource class]])
 	{
 		NSError *underlyingError;
-		GDGRawQuery *sourceParsingResult = [self parse:((SQLQuerySource *)source).query error:&underlyingError];
+		GDGRawQuery *sourceParsingResult = [self parse:((GDGQuerySource *)source).query error:&underlyingError];
 
 		if (!sourceParsingResult && underlyingError)
 		{
@@ -147,19 +130,19 @@
 	return result;
 }
 
-- (GDGParsingResult *)parseJoins:(NSArray <SQLJoin *> *)joins error:(NSError **)error
+- (GDGParsingResult *)parseJoins:(NSArray <GDGJoin *> *)joins error:(NSError **)error
 {
 	NSMutableArray *joinsString = [[NSMutableArray alloc] init];
 	NSMutableArray *args = [[NSMutableArray alloc] init];
 
 	for (uint i = 0; i < joins.count; i++)
 	{
-		SQLJoin *join = joins[i];
+		GDGJoin *join = joins[i];
 		NSMutableString *result = [[NSMutableString alloc] init];
 
-		if (join.kind == SQLJoinKindInner)
+		if (join.kind == GDGJoinKindInner)
 			[result appendString:@" INNER "];
-		else if (join.kind == SQLJoinKindLeft)
+		else if (join.kind == GDGJoinKindLeft)
 			[result appendString:@" LEFT "];
 
 		[result appendString:@"JOIN "];

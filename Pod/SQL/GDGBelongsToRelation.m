@@ -17,7 +17,7 @@
 - (GDGCondition *)joinConditionFromSource:(id <GDGSource>)source toSource:(id <GDGSource>)joinedSource
 {
 	return [GDGCondition builder]
-			.field([GDGRelationField relationFieldWithName:((GDGColumn *) self.map[self.foreignProperty]).name source:source])
+			.field([GDGRelationField relationFieldWithName:((GDGColumn *) self.mapping[self.foreignProperty]).name source:source])
 			.equals([GDGRelationField relationFieldWithName:@"id" source:joinedSource]);
 }
 
@@ -41,12 +41,12 @@
 		else
 			[selecting addObject:property];
 
-	SQLEntityQuery *baseQuery = ((SQLEntityMap *)self.relatedMap).query;
+	GDGEntityQuery *baseQuery = ((GDGMapping *)self.relatedMap).query;
 
 	[self fill:entities fromQuery:baseQuery.select(selecting).pull(pulling)];
 }
 
-- (void)fill:(NSArray<GDGEntity *> *)entities fromQuery:(SQLEntityQuery *)query
+- (void)fill:(NSArray<GDGEntity *> *)entities fromQuery:(GDGEntityQuery *)query
 {
 	NSMutableArray *ids = [NSMutableArray arrayWithArray:[entities map:^id(id object) {
 		return [object valueForKey:self.foreignProperty] ?: [NSNull null];

@@ -3,20 +3,12 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "GDGRawQuery.h"
 
 @class GDGQuery;
 
-@interface GDGRawQuery: NSObject
-
-@property (readonly, nonatomic) NSString *visit;
-@property (readonly, nonatomic) NSArray *args;
-
-- (instancetype)initWithQuery:(NSString *)rawValue args:(NSArray *)args;
-
-@end
-
 @interface GDGQueryParser : NSObject
 
-- (GDGRawQuery *)parse:(GDGQuery *)query error:(NSError **)error;
+- (nullable GDGRawQuery *)parse:(GDGQuery * __nonnull)query error:(NSError ** __nullable)error;
 
 @end

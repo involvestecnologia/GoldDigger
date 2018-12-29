@@ -7,36 +7,19 @@
 
 #import "GDGRelation.h"
 
-#import "GDGEntityMap.h"
-#import "_GDGQuery.h"
-
-@implementation GDGRelationField
-
-+ (instancetype)relationFieldWithName:(NSString *)name
-                               source:(id <GDGSource>)source
-{
-	GDGRelationField *conditionField = [[GDGRelationField alloc] init];
-	conditionField->_name = name;
-	conditionField->_source = source;
-
-	return conditionField;
-}
-
-- (NSString *)fullName
-{
-	return [NSString stringWithFormat:@"%@.%@", _source.identifier, _name];
-}
-
-@end
+#import "GDGQuery.h"
+#import "GDGMapping.h"
+#import "GDGSource.h"
+#import "GDGRelationField.h"
 
 @implementation GDGRelation
 
-- (instancetype)initWithName:(NSString *)name map:(GDGEntityMap *)map
+- (instancetype)initWithName:(NSString *)name mapping:(GDGMapping *)mapping
 {
 	if (self = [super init])
 	{
 		_name = name;
-		_map = map;
+		_mapping = mapping;
 	}
 
 	return self;
@@ -44,25 +27,25 @@
 
 - (void)hasBeenSetOnEntity:(GDGEntity *)entity;
 {
-	// Default implementation does nothing
+	NSLog(@"The default implementation of GDGRelation's -hasBeenSetOnEntity: does nothing");
 }
 
 - (BOOL)save:(GDGEntity *)entity error:(NSError **)error
 {
-	// Default implementation does nothing
+	NSLog(@"The default implementation of GDGRelation's -save:error: does nothing and returns true");
 	return YES;
 }
 
 #pragma mark - Abstract
 
-- (void)fill:(NSArray <GDGEntity *> *)entities selecting:(NSArray *)properties
+- (BOOL)fill:(NSArray <GDGEntity *> *)entities selecting:(NSArray *)properties error:(NSError **)error
 {
 	@throw [NSException exceptionWithName:@"Abstract Implementation Exception"
 	                               reason:@"[GDGRelation -fill:selecting:] throws that child classes must override this method"
 	                             userInfo:nil];
 }
 
-- (void)fill:(NSArray<GDGEntity *> *)entities fromQuery:(__kindof _GDGQuery *)query
+- (BOOL)fill:(NSArray<GDGEntity *> *)entities fromQuery:(GDGQuery *)query error:(NSError **)error
 {
 	@throw [NSException exceptionWithName:@"Abstract Implementation Exception"
 	                               reason:@"[GDGRelation -fill:fromQuery:] throws that child classes must override this method"
@@ -71,16 +54,24 @@
 
 #pragma mark - Convenience
 
-- (GDGCondition *)joinConditionFromSource:(id <GDGSource>)source toSource:(id <GDGSource>)joinedSource
-{
-	return [GDGCondition builder]
-			.field(GDGRelationField(@"id", source))
-			.equals(GDGRelationField(self.relatedMap[self.foreignProperty], joinedSource));
-}
-
 - (GDGCondition *)joinCondition
 {
-	return [self joinConditionFromSource:_map.source toSource:_relatedMap.source];
+	NSError *error;
+
+	id <GDGSource> source = _mapping.source;
+	id <GDGSource> joinedSource = _relatedMapping.source;
+	NSString *related = _relatedMapping[_foreignProperty];
+
+	if (!related)
+	{
+		@throw [NSException exceptionWithName:@"Relation Join Condition Exception"
+		                               reason:@"[GDGRelation -joinCondition] throws that a condition coming directly from from a "
+		                             userInfo:nil];
+	}
+
+	return [GDGCondition builder]
+			.field(GDGRelationField(@"id", source))
+			.equals(GDGRelationField(related, joinedSource));
 }
 
 @end

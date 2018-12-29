@@ -5,9 +5,11 @@
 #import <Foundation/Foundation.h>
 #import "GDGParser.h"
 
-@interface GDGRawQuery : NSObject <GDGParsingResult>
+@interface GDGRawQuery: NSObject
 
-@property (readonly, nonatomic) NSString *visit;
-@property (readonly, nonatomic) NSArray *array;
+@property (readonly, nonatomic, nonnull) NSString *visit;
+@property (readonly, nonatomic, nullable) NSArray *args;
+
+- (nonnull instancetype)initWithQuery:(NSString *__nonnull)rawValue args:(NSArray *__nullable)args;
 
 @end

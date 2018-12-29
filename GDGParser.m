@@ -6,4 +6,17 @@
 
 @implementation GDGParsingResult
 
+- (instancetype)initWithVisit:(NSString *)visit args:(NSArray *)args
+{
+	self = [super init];
+	if (self)
+	{
+		_visit = visit;
+		_args = args;
+	}
+
+	return self;
+}
+
+
 @end

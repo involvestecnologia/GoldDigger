@@ -1,17 +1,19 @@
 //
-//  SQLQuery.m
+//  GDGQuery.m
 //  GoldDigger
 //
 //  Created by Pietro Caselani on 2/12/16.
 //
 
 #import <ObjectiveSugar/ObjectiveSugar.h>
-#import "GDGQuery.h"
 #import "GDGColumn.h"
-#import "SQLJoin.h"
 #import "GDGFilter.h"
-#import "NSError+GDG.h"
+#import "GDGJoin.h"
+#import "GDGQuery.h"
+#import "GDGMapping.h"
 #import "GDGSource.h"
+#import "GDGTable.h"
+#import "NSError+GDG.h"
 
 @interface GDGQuery ()
 
@@ -21,9 +23,7 @@
 
 @implementation GDGQuery
 
-#pragma mark - Initialization
-
-- (instancetype)initWithSQLSource:(id <GDGSource>)source
+- (instancetype)initWithSource:(id <GDGSource>)source
 {
 	if (self = [self init])
 		_source = source;
@@ -33,13 +33,23 @@
 
 - (instancetype)initWithQuery:(GDGQuery *)query
 {
-	if (self = [self initWithSQLSource:query.source])
+	if (self = [self initWithSource:query.source])
 	{
 		_projection = [NSArray arrayWithArray:query.projection];
 		_orderList = [NSArray arrayWithArray:query.orderList];
 		_joins = [NSArray arrayWithArray:query.joins];
 		_groups = [NSArray arrayWithArray:query.groups];
 	}
+
+	return self;
+}
+
+- (instancetype)initWithMapping:(GDGMapping *)mapping
+{
+	GDGTable *table = mapping.table;
+
+	if (self = [self initWithSource:table])
+		_mapping = mapping;
 
 	return self;
 }
@@ -53,6 +63,7 @@
 @property (strong, nonatomic) NSMutableArray *mutableJoins;
 @property (strong, nonatomic) NSMutableDictionary <NSString *, id> *mutableArgs;
 @property (strong, nonatomic) NSMutableArray <GDGColumn *> *mutableGroups;
+@property (strong, nonatomic) NSMutableDictionary <NSString *, NSArray *> *mutablePulledRelations;
 
 @end
 
@@ -69,18 +80,19 @@
 		_mutableOrderList = [NSMutableArray arrayWithArray:query.orderList];
 		_mutableJoins = [NSMutableArray arrayWithArray:query.joins];
 		_mutableGroups = [NSMutableArray arrayWithArray:query.groups];
+		_mutablePulledRelations = [NSMutableDictionary dictionaryWithDictionary:query.pulledRelations];
 	}
 
 	return self;
 }
 
-- (instancetype)initWithSQLSource:(id <GDGSource>)source
+- (instancetype)initWithSource:(id <GDGSource>)source
 {
-	GDGQuery *aQuery = [[GDGQuery alloc] initWithSQLSource:source];
+	GDGQuery *aQuery = [[GDGQuery alloc] initWithSource:source];
 	return [self initWithQuery:aQuery];
 }
 
-- (void)select:(NSArray <NSString *> __nonnull *)projection
+- (void)select:(NSArray <NSString *> *)projection
 {
 	NSMutableArray *validProjection = [[NSMutableArray alloc] initWithCapacity:projection.count];
 	for (NSString *key in projection)
@@ -96,7 +108,7 @@
 	[_mutableProjection addObjectsFromArray:validProjection];
 }
 
-- (BOOL)joining:(SQLJoin __nonnull *)join error:(NSError **)error
+- (BOOL)join:(GDGJoin *)join error:(NSError **)error
 {
 	GDGJoin *alreadyAddedJoin = [_mutableJoins find:^BOOL(GDGJoin *object) {
 		return [join.source.identifier isEqualToString:object.source.identifier];
@@ -106,7 +118,7 @@
 	{
 		if (error)
 		{
-			NSString *message = NSStringWithFormat(@"[SQLQuery -join:] throws that access attempt to add multiple joins with the same identifier \"%@\"", join.source.identifier);
+			NSString *message = NSStringWithFormat(@"[GDGQuery -join:] throws that access attempt to add multiple joins with the same identifier \"%@\"", join.source.identifier);
 			*error = [NSError errorWithCode:GDGQueryDuplicateJoinError
 									message:message
 								 underlying:nil];
@@ -115,31 +127,36 @@
 		return NO;
 	}
 
-	NSMutableArray *validProjection = [[NSMutableArray alloc] initWithCapacity:join.projection.count];
-	GDGColumn *column;
-
-	for (NSString *name in join.projection)
-	{
-		column = [join.source.columns find:^BOOL(GDGColumn *object) {
-			return [name isEqualToString:object.name];
-		}]; // TODO error handling?
-
-		if (column)
-			[validProjection addObject:column.fullName];
-	}
-
-	[_mutableProjection addObjectsFromArray:validProjection];
-	[_mutableJoins addObject:join];
-
 	return YES;
 }
 
-- (BOOL)filteredBy:(id <GDGFilter> __nonnull)filter error:(NSError **)error
+- (BOOL)filteredBy:(id <GDGFilter>)filter error:(NSError **)error
 {
 	return [filter apply:self error:error];
 }
 
-- (void)addCondition:(GDGCondition __nonnull *)condition
+- (BOOL)pull:(NSDictionary <NSString *, NSArray *> *)relations error:(NSError **)error
+{
+	if (self.map == nil)
+	{
+		*error = [NSError errorWithCode:GDGQueryPullWithNoMapError
+		                        message:@"[GDGQuery -join:] throws that you tried to pull relations not having an entity map";
+		                     underlying:nil];
+
+		return NO;
+	}
+
+	for (NSString *relationName in relations.keyEnumerator)
+	{
+		GDGRelation *relation = self.map.fromToDictionary[relationName];
+		if (relation.foreignProperty != nil)
+			[self select:@[relation.foreignProperty]];
+	}
+
+	[self.mutablePulledRelations addEntriesFromDictionary:relations];
+}
+
+- (void)addCondition:(GDGCondition *)condition
 {
 	if (!_whereCondition)
 		_whereCondition = [GDGCondition builder];
@@ -147,12 +164,12 @@
 	_whereCondition.and.cat(condition);
 }
 
-- (void)groupBy:(GDGColumn __nonnull *)column
+- (void)groupBy:(GDGColumn *)column
 {
 	[_mutableGroups addObject:column];
 }
 
-- (void)addGroupCondition:(GDGCondition __nonnull *)condition
+- (void)addGroupCondition:(GDGCondition *)condition
 {
 	if (!_havingCondition)
 		_havingCondition = [GDGCondition builder];
@@ -160,7 +177,7 @@
 	_havingCondition.and.cat(condition);
 }
 
-- (void)orderBy:(GDGColumn __nonnull *)column order:(GDGQueryOrder)order
+- (void)orderBy:(GDGColumn *)column order:(GDGQueryOrder)order
 {
 	[_mutableOrderList addObject:column.fullName];
 
@@ -175,14 +192,14 @@
 	[_mutableProjection removeAllObjects];
 }
 
-// region Proxies
+#pragma mark - Proxies
 
 - (NSArray<NSString *> *)projection
 {
 	return [NSArray arrayWithArray:_mutableProjection];
 }
 
-- (NSArray<SQLJoin *> *)joins
+- (NSArray<GDGJoin *> *)joins
 {
 	return [NSArray arrayWithArray:_mutableJoins];
 }
@@ -197,6 +214,9 @@
 	return [NSArray arrayWithArray:_mutableGroups];
 }
 
-// endregion
+- (NSDictionary <NSString *, NSArray *> *)pulledRelations
+{
+	return [NSDictionary dictionaryWithDictionary:_mutablePulledRelations];
+}
 
 @end

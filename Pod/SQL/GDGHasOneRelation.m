@@ -28,7 +28,7 @@
 {
 	[super setRelatedMap:relatedMap];
 
-	NSString *className = [NSStringFromClass(self.map.entityClass) substringFromIndex:3];
+	NSString *className = [NSStringFromClass(self.mapping.entityClass) substringFromIndex:3];
 
 	self.foreignProperty = [[className stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:[[className substringToIndex:1] lowercaseString]] stringByAppendingString:@"Id"];
 }
@@ -44,12 +44,12 @@
 		else
 			[selecting addObject:property];
 
-	SQLEntityQuery *baseQuery = ((SQLEntityMap *)self.relatedMap).query;
+	GDGEntityQuery *baseQuery = ((GDGMapping *)self.relatedMap).query;
 
 	[self fill:entities fromQuery:baseQuery.select(selecting).pull(pulling)];
 }
 
-- (void)fill:(NSArray<GDGEntity *> *)entities fromQuery:(SQLEntityQuery *)query
+- (void)fill:(NSArray<GDGEntity *> *)entities fromQuery:(GDGEntityQuery *)query
 {
 	NSArray<NSNumber *> *ids = [entities map:^id(GDGEntity *entity) {
 		return entity.id;

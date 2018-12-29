@@ -7,7 +7,7 @@
 
 #import "GDGEntity.h"
 
-@class SQLEntityMap;
+@class GDGMapping;
 @class SQLEntityQuery;
 
 @interface GDGEntity (SQL)
@@ -15,11 +15,11 @@
 @property (strong, nonatomic) NSMutableArray *filledProperties;
 @property (strong, nonatomic) NSMutableArray *changedProperties;
 
-+ (SQLEntityMap *)db;
++ (GDGMapping *)db;
 
-+ (instancetype)entityFromQuery:(SQLEntityQuery *)query;
++ (instancetype)entityFromQuery:(GDGEntityQuery *)query;
 
-+ (NSArray <__kindof GDGEntity *> *)entitiesFromQuery:(SQLEntityQuery *)query;
++ (NSArray <__kindof GDGEntity *> *)entitiesFromQuery:(GDGEntityQuery *)query;
 
 + (void)autoFillProperties:(NSArray <NSString *> *)propertyNames;
 

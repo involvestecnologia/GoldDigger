@@ -21,7 +21,9 @@
 
 @interface GDGParsingResult: NSObject <GDGParsingResult>
 
-@property (strong, nonatomic) NSString *visit;
-@property (strong, nonatomic) NSArray *args;
+@property (strong, nonatomic, nonnull) NSString *visit;
+@property (strong, nonatomic, nonnull) NSArray *args;
+
+- (nonnull instancetype)initWithVisit:(NSString * __nonnull)visit args:(NSArray * __nonnull)args;
 
 @end

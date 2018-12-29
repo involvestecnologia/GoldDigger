@@ -18,7 +18,7 @@
 
 @implementation GDGEntity (SQL)
 
-+ (SQLEntityMap *)db
++ (GDGMapping *)db
 {
 	@throw [NSException exceptionWithName:@"Abstract Implementation Required"
 	                               reason:@"[GDGEntity+SQL db] throws that 'db' method should be overrided before using any of the categories methods"
@@ -98,7 +98,7 @@
 
 	if (projection.count > 0)
 	{
-		SQLEntityQuery *query = self.db.query.clearProjection
+		GDGEntityQuery *query = self.db.query.clearProjection
 				.select([NSArray arrayWithArray:projection])
 				.where(^(GDGCondition *builder) {
 					int count = primaryKeys.count;
@@ -174,12 +174,12 @@
 
 #pragma mark - Materialize
 
-+ (instancetype)entityFromQuery:(SQLEntityQuery *)query
++ (instancetype)entityFromQuery:(GDGEntityQuery *)query
 {
 	return [self entitiesFromQuery:query.copy.limit(1)].lastObject;
 }
 
-+ (NSArray <__kindof GDGEntity *> *)entitiesFromQuery:(SQLEntityQuery *)query
++ (NSArray <__kindof GDGEntity *> *)entitiesFromQuery:(GDGEntityQuery *)query
 {
 	NSArray <NSDictionary *> *evaluatedEntries = [self.db.table eval:query];
 	NSMutableArray <GDGEntity *> *mutableEntities = [NSMutableArray array];
@@ -224,7 +224,7 @@
 
 - (BOOL)save:(NSError **)error
 {
-	SQLEntityMap *db = [self class].db;
+	GDGMapping *db = [self class].db;
 
 	NSMutableArray <NSString *> *primaryKeys = [NSMutableArray array];
 	NSDictionary *mappedArray = db.fromToDictionary;

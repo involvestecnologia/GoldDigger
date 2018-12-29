@@ -15,7 +15,7 @@
 @property (readonly, nonatomic) NSString *identifier;
 @property (readonly, nonatomic) NSArray <GDGColumn *> *columns;
 @property (readonly, nonatomic) NSString *name;
-@property (strong, nonatomic) NSString *alias;
+@property (readonly, nonatomic) NSString *alias;
 
 - (NSString *)visit:(GDGQuery *)query;
 
