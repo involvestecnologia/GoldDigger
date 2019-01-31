@@ -1,158 +1,57 @@
 //
-//  GDGEntity.m
+//  GDGRecord.m
 //  GoldDigger
 //
 //  Created by Felipe Lobo on 4/22/16.
 //
 
-#import "GDGEntity.h"
+#import "GDGRecord.h"
+#import "NSObject+GDG.h"
+#import "GDGRecordHandlers.h"
+#import "GDGRecordPropertyHandler.h"
+#import "GDGMapping.h"
+#import "ObjectiveSugar.h"
 #import <objc/runtime.h>
 
 static NSMutableDictionary *EntityHandlersDictionary;
 
 #define GDGEntityHandlerForClass(class)         EntityHandlersDictionary[NSStringFromClass(class)]
 
-@implementation NSObject (GDG)
+#define GDGEntityPropertyHandler(block)     [GDGEntityPropertyHandler handlerWithBlock:block]
 
-+ (NSArray<NSValue *> *)gdg_propertyListFromClass:(Class)fromClass until:(Class)toClass
+@implementation GDGRecord
+
++ (nonnull instancetype)recordClass:(Class)class usingTableMapping:(GDGMapping *(^)(NSArray *))tap
 {
-	NSMutableArray *props = [[NSMutableArray alloc] init];
+	NSArray <NSValue *> *properties = [NSObject gdg_propertyListFromClass:class until:class];
+	NSArray <NSString *> *propertyNames = \
+			[properties map:^NSString *(NSValue *property) {
+				objc_property_t cproperty = property.pointerValue;
+				return [NSString stringWithUTF8String:property_getName(cproperty)];
+			}];
 
-	unsigned int innerCount;
-	Class currentClass = fromClass;
+	GDGMapping *mapping = tap(propertyNames);
 
-	objc_property_t *properties;
-
-	do
-	{
-		properties = class_copyPropertyList(currentClass, &innerCount);
-
-		for (int i = 0; i < innerCount; i++)
-		{
-			objc_property_t prop = properties[i];
-			NSValue *value = [NSValue valueWithPointer:prop];
-			[props addObject:value];
-		}
-
-		free(properties);
-
-		currentClass = [currentClass superclass];
-	} while (currentClass != toClass);
-
-	return [NSArray arrayWithArray:props];
+	return [[self alloc] initWithMapping:mapping];
 }
 
-+ (char)typeFromPropertyName:(NSString *)propertyName
+- (nonnull instancetype)initWithMapping:(GDGMapping *)mapping
 {
-	objc_property_t property = class_getProperty(self, propertyName.UTF8String);
-
-	return property_getAttributes(property)[1];
-}
-
-@end
-
-@interface GDGEntityHandler : NSObject
-
-@property (readonly, nonatomic) NSMutableDictionary *beforeSetHandlers;
-@property (readonly, nonatomic) NSMutableDictionary *afterSetHandlers;
-@property (readonly, nonatomic) NSMutableDictionary *beforeGetHandlers;
-@property (readonly, nonatomic) NSArray<NSString *> *properties;
-
-+ (instancetype)entityHandler;
-
-@end
-
-@implementation GDGEntityHandler
-
-+ (instancetype)entityHandler
-{
-	return [[self alloc] init];
-}
-
-- (instancetype)initWithProperties:(NSArray<NSString *> *)properties
-{
-	if (self = [super init])
-	{
-		_beforeSetHandlers = @{}.mutableCopy;
-		_afterSetHandlers = @{}.mutableCopy;
-		_beforeGetHandlers = @{}.mutableCopy;
-		_properties = properties;
-	}
+	self = [super init];
+	if (self)
+		_mapping = mapping;
 
 	return self;
 }
 
-@end
-
-#define GDGEntityPropertyHandler(block)     [GDGEntityPropertyHandler handlerWithBlock:block]
-
-@interface GDGEntityPropertyHandler : NSObject
-
-@property (copy, nonatomic) void (^block)(GDGEntity *, NSString *);
-
-+ (instancetype)handlerWithBlock:(void (^)(GDGEntity *, NSString *))block;
-
-- (void)invokeWithEntity:(GDGEntity *)entity
-                property:(NSString *)propertyName;
-@end
-
-@implementation GDGEntityPropertyHandler
-
-+ (instancetype)handlerWithBlock:(void (^)(GDGEntity *, NSString *))block
+- (BOOL)fill:(void (^ __nonnull)(GDGRecord *__nullable))fillHandler error:(NSError **__nullable)error
 {
-	GDGEntityPropertyHandler *entityHandler = [[self alloc] init];
-	entityHandler->_block = block;
 
-	return entityHandler;
+
+	return ;
 }
 
-- (void)invokeWithEntity:(GDGEntity *)entity
-                property:(NSString *)propertyName
-{
-	_block(entity, propertyName);
-}
-
-@end
-
-@implementation GDGEntity
-
-+ (void)load
-{
-	EntityHandlersDictionary = @{}.mutableCopy;
-}
-
-+ (void)trackPropertyCalls
-{
-	if ([EntityHandlersDictionary.allKeys containsObject:NSStringFromClass(self)])
-		return;
-
-	NSArray<NSValue *> *properties = [self gdg_propertyListFromClass:self until:[GDGEntity class]];
-
-	NSMutableArray<NSString *> *propertiesName = [[NSMutableArray alloc] initWithCapacity:properties.count];
-
-	for (NSValue *property in properties)
-	{
-		objc_property_t cproperty = property.pointerValue;
-
-		NSString *name = [NSString stringWithUTF8String:property_getName(cproperty)];
-
-		[propertiesName addObject:name];
-
-		[self overrideSetter:cproperty];
-		[self overrideGetter:cproperty];
-	}
-
-	EntityHandlersDictionary[NSStringFromClass(self)] = [[GDGEntityHandler alloc] initWithProperties:[NSArray arrayWithArray:propertiesName]];
-}
-
-#pragma mark - Creation
-
-+ (instancetype)entity
-{
-	return [[self alloc] init];
-}
-
-#pragma mark Property hack
+#pragma mark - Property hacking
 
 + (void)overrideSetter:(objc_property_t)property
 {
@@ -181,9 +80,9 @@ static NSMutableDictionary *EntityHandlersDictionary;
 	const char *str = property_getAttributes(property);
 	const char type = str[1];
 
-#define SETTER_IMP_BLOCK(T)     ^(__kindof GDGEntity *_self, T argument) { \
+#define SETTER_IMP_BLOCK(T)     ^(__kindof GDGRecord *_self, T argument) { \
     \
-    GDGEntityHandler *entityHandler = GDGEntityHandlerForClass(_self.class); \
+    GDGRecordHandlers *entityHandler = GDGEntityHandlerForClass(_self.class); \
     \
     for (GDGEntityPropertyHandler *handler in entityHandler.beforeSetHandlers[propertyName]) \
       [handler invokeWithEntity:_self property:propertyName]; \
@@ -237,7 +136,7 @@ static NSMutableDictionary *EntityHandlersDictionary;
 			break;
 		}
 		default:
-			@throw [NSException exceptionWithName:@"Setter Type Not Handled Exception" reason:[NSString stringWithFormat:@"[GDGEntity -overrideSetter:forClass:] throws that the type %c cannot be handled", type] userInfo:nil];
+			@throw [NSException exceptionWithName:@"Setter Type Not Handled Exception" reason:[NSString stringWithFormat:@"[GDGRecord -overrideSetter:forClass:] throws that the type %c cannot be handled", type] userInfo:nil];
 	}
 
 #undef SETTER_IMP_BLOCK
@@ -266,9 +165,9 @@ static NSMutableDictionary *EntityHandlersDictionary;
 
 	char type = property_getAttributes(property)[1];
 
-#define GETTER_IMP_BLOCK(T) ^(__kindof GDGEntity *_self) { \
+#define GETTER_IMP_BLOCK(T) ^(__kindof GDGRecord *_self) { \
     \
-    GDGEntityHandler *entityHandler = GDGEntityHandlerForClass(_self.class); \
+    GDGRecordHandlers *entityHandler = GDGEntityHandlerForClass(_self.class); \
     \
     for (GDGEntityPropertyHandler *handler in entityHandler.beforeGetHandlers[propertyName]) \
       [handler invokeWithEntity:_self property:propertyName]; \
@@ -320,7 +219,7 @@ static NSMutableDictionary *EntityHandlersDictionary;
 			break;
 		}
 		default:
-			@throw [NSException exceptionWithName:@"Setter Type Not Handled Exception" reason:[NSString stringWithFormat:@"[GDGEntity -overrideSetter:forClass:] throws that the type %c cannot be handled", type] userInfo:nil];
+			@throw [NSException exceptionWithName:@"Setter Type Not Handled Exception" reason:[NSString stringWithFormat:@"[GDGRecord -overrideSetter:forClass:] throws that the type %c cannot be handled", type] userInfo:nil];
 	}
 
 #undef GETTER_IMP_BLOCK
@@ -331,12 +230,14 @@ static NSMutableDictionary *EntityHandlersDictionary;
 	free(cstrSignature);
 }
 
-+ (void)addBeforeSetHandler:(void (^)(GDGEntity *, NSString *))hasFilledHandler
+#pragma mark - Add static handlers
+
++ (void)addBeforeSetHandler:(void (^)(GDGRecord *, NSString *))hasFilledHandler
                 forProperty:(NSString *)propertyName
 {
-	[self trackPropertyCalls];
+	[self trackProperties];
 
-	GDGEntityHandler *handler = GDGEntityHandlerForClass(self);
+	GDGRecordHandlers *handler = GDGEntityHandlerForClass(self);
 
 	NSMutableArray *beforeSetHandlers = handler.beforeSetHandlers[propertyName];
 	if (beforeSetHandlers == nil)
@@ -345,12 +246,12 @@ static NSMutableDictionary *EntityHandlersDictionary;
 	[beforeSetHandlers addObject:GDGEntityPropertyHandler(hasFilledHandler)];
 }
 
-+ (void)addAfterSetHandler:(void (^)(GDGEntity *, NSString *))hasFilledHandler
++ (void)addAfterSetHandler:(void (^)(GDGRecord *, NSString *))hasFilledHandler
                forProperty:(NSString *)propertyName
 {
-	[self trackPropertyCalls];
+	[self trackProperties];
 
-	GDGEntityHandler *handler = GDGEntityHandlerForClass(self);
+	GDGRecordHandlers *handler = GDGEntityHandlerForClass(self);
 
 	NSMutableArray *afterSetHandlers = handler.afterSetHandlers[propertyName];
 	if (afterSetHandlers == nil)
@@ -359,12 +260,12 @@ static NSMutableDictionary *EntityHandlersDictionary;
 	[afterSetHandlers addObject:GDGEntityPropertyHandler(hasFilledHandler)];
 }
 
-+ (void)addBeforeGetHandler:(void (^)(GDGEntity *, NSString *))hasFilledHandler
++ (void)addBeforeGetHandler:(void (^)(GDGRecord *, NSString *))hasFilledHandler
                 forProperty:(NSString *)propertyName
 {
-	[self trackPropertyCalls];
+	[self trackProperties];
 
-	GDGEntityHandler *handler = GDGEntityHandlerForClass(self);
+	GDGRecordHandlers *handler = GDGEntityHandlerForClass(self);
 
 	NSMutableArray *beforeGetHandlers = handler.beforeGetHandlers[propertyName];
 	if (beforeGetHandlers == nil)
@@ -372,6 +273,8 @@ static NSMutableDictionary *EntityHandlersDictionary;
 
 	[beforeGetHandlers addObject:GDGEntityPropertyHandler(hasFilledHandler)];
 }
+
+#pragma mark - Equality
 
 - (BOOL)isEqual:(id)object
 {
@@ -381,15 +284,15 @@ static NSMutableDictionary *EntityHandlersDictionary;
 	if (![object isKindOfClass:[self class]])
 		return NO;
 
-	return [self isEqualToEntity:object];
+	return [self isEqualToRecord:object];
 }
 
-- (BOOL)isEqualToEntity:(GDGEntity *)entity
+- (BOOL)isEqualToRecord:(GDGRecord *)record
 {
-	return [entity isKindOfClass:[self class]]
+	return [record isKindOfClass:[self class]]
 			&& self.id != nil
-			&& entity.id != nil
-			&& [self.id isEqual:entity.id];
+			&& record.id != nil
+			&& [self.id isEqual:record.id];
 }
 
 - (NSUInteger)hash

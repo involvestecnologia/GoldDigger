@@ -13,7 +13,7 @@
 #import "GDGCondition+Entity.h"
 #import "GDGEntity.h"
 #import "GDGColumn.h"
-#import "GDGEntity+SQL.h"
+#import "GDGRecord+SQL.h"
 
 @implementation GDGHasOneRelation
 
@@ -33,7 +33,7 @@
 	self.foreignProperty = [[className stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:[[className substringToIndex:1] lowercaseString]] stringByAppendingString:@"Id"];
 }
 
-- (void)fill:(NSArray <GDGEntity *> *)entities selecting:(NSArray *)properties
+- (void)fill:(NSArray <GDGRecord *> *)entities selecting:(NSArray *)properties
 {
 	NSMutableDictionary *pulling = [NSMutableDictionary dictionary];
 	NSMutableArray *selecting = [NSMutableArray array];
@@ -49,13 +49,13 @@
 	[self fill:entities fromQuery:baseQuery.select(selecting).pull(pulling)];
 }
 
-- (void)fill:(NSArray<GDGEntity *> *)entities fromQuery:(GDGEntityQuery *)query
+- (void)fill:(NSArray<GDGRecord *> *)entities fromQuery:(GDGEntityQuery *)query
 {
-	NSArray<NSNumber *> *ids = [entities map:^id(GDGEntity *entity) {
+	NSArray<NSNumber *> *ids = [entities map:^id(GDGRecord *entity) {
 		return entity.id;
 	}];
 
-	NSDictionary<NSNumber *, GDGEntity *> *idEntitiesDictionary = [NSDictionary dictionaryWithObjects:entities forKeys:ids];
+	NSDictionary<NSNumber *, GDGRecord *> *idEntitiesDictionary = [NSDictionary dictionaryWithObjects:entities forKeys:ids];
 
 	query.where(^(GDGCondition *builder) {
 		builder.prop(self.foreignProperty).in(ids);
@@ -70,22 +70,22 @@
 
 	NSMutableArray *unfilledEntities = [entities mutableCopy];
 
-	for (GDGEntity *relatedEntity in query.array)
+	for (GDGRecord *relatedEntity in query.array)
 	{
-		GDGEntity *entity = idEntitiesDictionary[[relatedEntity valueForKey:self.foreignProperty]];
+		GDGRecord *entity = idEntitiesDictionary[[relatedEntity valueForKey:self.foreignProperty]];
 
 		[relatedEntity setValue:entity.id forKey:self.foreignProperty];
 		[entity setValue:relatedEntity forKey:self.name];
 		[unfilledEntities removeObject:entity];
 	}
 
-	for (GDGEntity *unfilledEntity in unfilledEntities)
+	for (GDGRecord *unfilledEntity in unfilledEntities)
 		[unfilledEntity setValue:nil forKey:self.name];
 }
 
-- (BOOL)save:(GDGEntity *)entity error:(NSError **)error
+- (BOOL)save:(GDGRecord *)entity error:(NSError **)error
 {
-	GDGEntity *related = [entity valueForKey:self.name];
+	GDGRecord *related = [entity valueForKey:self.name];
 
 	[related setValue:entity.id forKey:self.foreignProperty];
 

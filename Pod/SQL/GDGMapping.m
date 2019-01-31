@@ -14,7 +14,7 @@
 #import "GDGHasManyRelation.h"
 #import "GDGHasOneRelation.h"
 #import "GDGEntity.h"
-#import "GDGEntity_Package.h"
+#import "GDGRecord_Package.h"
 #import "GDGHasManyThroughRelation.h"
 #import "GDGTable.h"
 #import "GDGValueTransformer.h"
@@ -124,7 +124,7 @@
 {
 	[self addFromToMappings:@{ relation.name : relation }];
 
-	[self->_entityClass addAfterSetHandler:^(GDGEntity *entity, NSString *string) {
+	[self->_entityClass addAfterSetHandler:^(GDGRecord *entity, NSString *string) {
 		// TODO handle relation after setting
 	} forProperty:relation.name];
 }

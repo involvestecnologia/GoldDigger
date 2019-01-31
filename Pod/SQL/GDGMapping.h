@@ -9,7 +9,7 @@
 @class GDGHasManyRelation;
 @class GDGBelongsToRelation;
 @class GDGColumn;
-@class GDGEntity;
+@class GDGRecord;
 @class GDGRelation;
 @class GDGTable;
 @class GDGHasManyThroughRelation;

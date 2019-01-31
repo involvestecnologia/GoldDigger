@@ -25,12 +25,12 @@
 	return self;
 }
 
-- (void)hasBeenSetOnEntity:(GDGEntity *)entity;
+- (void)hasBeenSetOnEntity:(GDGRecord *)entity;
 {
 	NSLog(@"The default implementation of GDGRelation's -hasBeenSetOnEntity: does nothing");
 }
 
-- (BOOL)save:(GDGEntity *)entity error:(NSError **)error
+- (BOOL)save:(GDGRecord *)entity error:(NSError **)error
 {
 	NSLog(@"The default implementation of GDGRelation's -save:error: does nothing and returns true");
 	return YES;
@@ -38,14 +38,14 @@
 
 #pragma mark - Abstract
 
-- (BOOL)fill:(NSArray <GDGEntity *> *)entities selecting:(NSArray *)properties error:(NSError **)error
+- (BOOL)fill:(NSArray <GDGRecord *> *)entities selecting:(NSArray *)properties error:(NSError **)error
 {
 	@throw [NSException exceptionWithName:@"Abstract Implementation Exception"
 	                               reason:@"[GDGRelation -fill:selecting:] throws that child classes must override this method"
 	                             userInfo:nil];
 }
 
-- (BOOL)fill:(NSArray<GDGEntity *> *)entities fromQuery:(GDGQuery *)query error:(NSError **)error
+- (BOOL)fill:(NSArray<GDGRecord *> *)entities fromQuery:(GDGQuery *)query error:(NSError **)error
 {
 	@throw [NSException exceptionWithName:@"Abstract Implementation Exception"
 	                               reason:@"[GDGRelation -fill:fromQuery:] throws that child classes must override this method"

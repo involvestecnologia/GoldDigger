@@ -9,7 +9,7 @@
 #import "GDGCondition.h"
 
 @class GDGCondition;
-@class GDGEntity;
+@class GDGRecord;
 @class GDGQuery;
 @class GDGMapping;
 @protocol GDGSource;
@@ -24,13 +24,13 @@
 
 - (nonnull instancetype)initWithName:(NSString * __nonnull)name mapping:(GDGMapping * __nonnull)mapping;
 
-- (void)hasBeenSetOnEntity:(GDGEntity * __nonnull)entity;
+- (void)hasBeenSetOnEntity:(GDGRecord * __nonnull)entity;
 
-- (BOOL)save:(GDGEntity * __nonnull)entity error:(NSError ** __nullable)error;
+- (BOOL)save:(GDGRecord * __nonnull)entity error:(NSError ** __nullable)error;
 
-- (BOOL)fill:(NSArray <GDGEntity *> * __nonnull)entities selecting:(NSArray * __nonnull)properties error:(NSError ** __nullable)error;
+- (BOOL)fill:(NSArray <GDGRecord *> * __nonnull)entities selecting:(NSArray * __nonnull)properties error:(NSError ** __nullable)error;
 
-- (BOOL)fill:(NSArray <GDGEntity *> * __nonnull)entities fromQuery:(GDGQuery * __nonnull)query error:(NSError ** __nullable)error;
+- (BOOL)fill:(NSArray <GDGRecord *> * __nonnull)entities fromQuery:(GDGQuery * __nonnull)query error:(NSError ** __nullable)error;
 
 - (nullable GDGCondition *)joinCondition;
 

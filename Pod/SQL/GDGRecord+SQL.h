@@ -1,5 +1,5 @@
 //
-//  GDGEntity+SQL.h
+//  GDGRecord+SQL.h
 //  GoldDigger
 //
 //  Created by Felipe Lobo on 5/4/16.
@@ -10,7 +10,7 @@
 @class GDGMapping;
 @class SQLEntityQuery;
 
-@interface GDGEntity (SQL)
+@interface GDGRecord (SQL)
 
 @property (strong, nonatomic) NSMutableArray *filledProperties;
 @property (strong, nonatomic) NSMutableArray *changedProperties;
@@ -19,11 +19,11 @@
 
 + (instancetype)entityFromQuery:(GDGEntityQuery *)query;
 
-+ (NSArray <__kindof GDGEntity *> *)entitiesFromQuery:(GDGEntityQuery *)query;
++ (NSArray <__kindof GDGRecord *> *)entitiesFromQuery:(GDGEntityQuery *)query;
 
 + (void)autoFillProperties:(NSArray <NSString *> *)propertyNames;
 
-+ (void)fill:(NSArray <GDGEntity *> *)entities withProperties:(NSArray *)properties;
++ (void)fill:(NSArray <GDGRecord *> *)entities withProperties:(NSArray *)properties;
 
 - (void)fillProperties:(NSArray *)properties;
 

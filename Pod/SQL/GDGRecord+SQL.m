@@ -1,5 +1,5 @@
 //
-//  GDGEntity+SQL.m
+//  GDGRecord+SQL.m
 //  GoldDigger
 //
 //  Created by Felipe Lobo on 5/4/16.
@@ -16,18 +16,18 @@
 #import "GDGCondition+Entity.h"
 #import "GDGEntity_Package.h"
 
-@implementation GDGEntity (SQL)
+@implementation GDGRecord (SQL)
 
 + (GDGMapping *)db
 {
 	@throw [NSException exceptionWithName:@"Abstract Implementation Required"
-	                               reason:@"[GDGEntity+SQL db] throws that 'db' method should be overrided before using any of the categories methods"
+	                               reason:@"[GDGRecord+SQL db] throws that 'db' method should be overrided before using any of the categories methods"
 	                             userInfo:nil];
 }
 
 + (void)autoFillProperties:(NSArray <NSString *> *)propertyNames
 {
-	void (^getHandler)(GDGEntity *, NSString *) = ^(GDGEntity *entity, NSString *propertyName) {
+	void (^getHandler)(GDGRecord *, NSString *) = ^(GDGRecord *entity, NSString *propertyName) {
 		if ([entity.id compare:@0] == NSOrderedDescending && ![entity.filledProperties containsObject:propertyName] && ![entity.changedProperties containsObject:propertyName])
 		{
 			[entity fillProperties:@[propertyName]];
@@ -35,7 +35,7 @@
 		}
 	};
 
-	void (^setHandler)(GDGEntity *, NSString *) = ^(GDGEntity *entity, NSString *propertyName) {
+	void (^setHandler)(GDGRecord *, NSString *) = ^(GDGRecord *entity, NSString *propertyName) {
 		if (![entity.filledProperties containsObject:propertyName])
 			[entity.filledProperties addObject:propertyName];
 
@@ -43,7 +43,7 @@
 			[entity.changedProperties addObject:propertyName];
 	};
 
-	void (^afterSetHandler)(GDGEntity *, NSString *) = ^(GDGEntity *entity, NSString *propertyName) {
+	void (^afterSetHandler)(GDGRecord *, NSString *) = ^(GDGRecord *entity, NSString *propertyName) {
 		[[entity.class db][propertyName] hasBeenSetOnEntity:entity];
 	};
 
@@ -59,7 +59,7 @@
 
 #pragma mark - Fill
 
-+ (void)fill:(NSArray <GDGEntity *> *)entities withProperties:(NSArray *)properties
++ (void)fill:(NSArray <GDGRecord *> *)entities withProperties:(NSArray *)properties
 {
 	NSMutableArray <NSString *> *primaryKeys = [NSMutableArray array];
 	
@@ -71,7 +71,7 @@
 	NSMutableDictionary <NSString *, NSArray *> *primaryKeyValues = [NSMutableDictionary dictionary];
 	
 	[primaryKeys each:^(NSString *key) {
-		primaryKeyValues[key] = [[entities map:^id(GDGEntity *entity) {
+		primaryKeyValues[key] = [[entities map:^id(GDGRecord *entity) {
 			return [entity valueForKey:key];
 		}] sort];
 	}];
@@ -115,7 +115,7 @@
 
 		if (entries.count == 0)
 			@throw [NSException exceptionWithName:@"Query Evaluation Inconsistency"
-			                               reason:@"[GDGEntity+SQL -fill:withProperties:] throws that properties query "
+			                               reason:@"[GDGRecord+SQL -fill:withProperties:] throws that properties query "
 					                               @"evaluation should never get nil evalutation. You may have mapped "
 					                               @"something that is not a property or something that is not a column."
 			                             userInfo:nil];
@@ -123,7 +123,7 @@
 		for (unsigned int i = 0; i < entities.count; ++i)
 		{
 			NSDictionary *entry = entries[i];
-			GDGEntity *entity = sortedEntities[i];
+			GDGRecord *entity = sortedEntities[i];
 
 			for (NSString *key in entry.keyEnumerator)
 			{
@@ -179,12 +179,12 @@
 	return [self entitiesFromQuery:query.copy.limit(1)].lastObject;
 }
 
-+ (NSArray <__kindof GDGEntity *> *)entitiesFromQuery:(GDGEntityQuery *)query
++ (NSArray <__kindof GDGRecord *> *)entitiesFromQuery:(GDGEntityQuery *)query
 {
 	NSArray <NSDictionary *> *evaluatedEntries = [self.db.table eval:query];
-	NSMutableArray <GDGEntity *> *mutableEntities = [NSMutableArray array];
+	NSMutableArray <GDGRecord *> *mutableEntities = [NSMutableArray array];
 
-	GDGEntity *entity = nil;
+	GDGRecord *entity = nil;
 
 	for (NSDictionary *entry in evaluatedEntries)
 	{

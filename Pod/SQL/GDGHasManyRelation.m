@@ -12,7 +12,7 @@
 #import "SQLEntityQuery.h"
 #import "GDGEntity.h"
 #import "GDGColumn.h"
-#import "GDGEntity+SQL.h"
+#import "GDGRecord+SQL.h"
 #import "SQLTableSource.h"
 #import "GDGDatabaseProvider.h"
 #import <SQLAid/CIRDatabase.h>
@@ -35,7 +35,7 @@
 	self.foreignProperty = [[className stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:[[className substringToIndex:1] lowercaseString]] stringByAppendingString:@"Id"];
 }
 
-- (void)fill:(NSArray <GDGEntity *> *)entities selecting:(NSArray *)properties
+- (void)fill:(NSArray <GDGRecord *> *)entities selecting:(NSArray *)properties
 {
 	NSMutableDictionary *pulling = [NSMutableDictionary dictionary];
 	NSMutableArray *selecting = [NSMutableArray array];
@@ -51,20 +51,20 @@
 	[self fill:entities fromQuery:baseQuery.select(selecting).pull(pulling)];
 }
 
-- (void)fill:(NSArray<GDGEntity *> *)entities fromQuery:(GDGEntityQuery *)query
+- (void)fill:(NSArray<GDGRecord *> *)entities fromQuery:(GDGEntityQuery *)query
 {
-	NSArray<NSNumber *> *ids = [entities map:^id(GDGEntity *entity) {
+	NSArray<NSNumber *> *ids = [entities map:^id(GDGRecord *entity) {
 		return entity.id;
 	}];
 
-	NSMutableDictionary<id, NSMutableArray<GDGEntity *> *> *relationEntitiesDictionary = [NSMutableDictionary dictionaryWithCapacity:entities.count];
+	NSMutableDictionary<id, NSMutableArray<GDGRecord *> *> *relationEntitiesDictionary = [NSMutableDictionary dictionaryWithCapacity:entities.count];
 
 	for (NSUInteger i = 0; i < entities.count; i++)
 	{
-		GDGEntity *entity = entities[i];
+		GDGRecord *entity = entities[i];
 		id foreignId = ids[i];
 
-		NSMutableArray<GDGEntity *> *mutableEntities = relationEntitiesDictionary[foreignId];
+		NSMutableArray<GDGRecord *> *mutableEntities = relationEntitiesDictionary[foreignId];
 		if (mutableEntities == nil)
 		{
 			mutableEntities = [NSMutableArray array];
@@ -87,11 +87,11 @@
 
 	NSMutableDictionary<id, NSMutableArray *> *idRelationDictionary = [NSMutableDictionary dictionary];
 
-	for (GDGEntity *relatedEntity in query.array)
+	for (GDGRecord *relatedEntity in query.array)
 	{
 		NSMutableArray *mutableEntities = relationEntitiesDictionary[[relatedEntity valueForKey:self.foreignProperty]];
 
-		for (GDGEntity *entity in mutableEntities)
+		for (GDGRecord *entity in mutableEntities)
 		{
 			NSMutableArray *relations = idRelationDictionary[entity.id];
 			if (relations == nil)
@@ -106,7 +106,7 @@
 		}
 	}
 
-	for (GDGEntity *entity in entities)
+	for (GDGRecord *entity in entities)
 	{
 		NSMutableArray *relatedEntities = idRelationDictionary[[entity id]];
 
@@ -114,16 +114,16 @@
 	}
 }
 
-- (void)hasBeenSetOnEntity:(GDGEntity *)entity
+- (void)hasBeenSetOnEntity:(GDGRecord *)entity
 {
 	if (entity.id != nil)
-		for (GDGEntity *owned in [entity valueForKey:self.name])
+		for (GDGRecord *owned in [entity valueForKey:self.name])
 			[owned setValue:entity.id forKey:self.foreignProperty];
 }
 
-- (BOOL)save:(GDGEntity *)entity error:(NSError **)error
+- (BOOL)save:(GDGRecord *)entity error:(NSError **)error
 {
-	for (GDGEntity *related in [entity valueForKey:self.name])
+	for (GDGRecord *related in [entity valueForKey:self.name])
 	{
 		[related setValue:entity.id forKey:self.foreignProperty];
 		if (![related save:error])

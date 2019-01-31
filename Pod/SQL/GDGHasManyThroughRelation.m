@@ -12,7 +12,7 @@
 #import <ObjectiveSugar/ObjectiveSugar.h>
 #import "SQLTableSource.h"
 #import "GDGEntityMap.h"
-#import "GDGEntity+SQL.h"
+#import "GDGRecord+SQL.h"
 #import "SQLEntityQuery.h"
 #import "SQLEntityMap.h"
 #import "SQLJoin.h"
@@ -44,7 +44,7 @@
 	return self;
 }
 
-- (void)fill:(NSArray <GDGEntity *> *)entities selecting:(NSArray *)properties
+- (void)fill:(NSArray <GDGRecord *> *)entities selecting:(NSArray *)properties
 {
 	NSArray <NSDictionary *> *pulledRelations = [properties select:^BOOL(id object) {
 		return [object isKindOfClass:[NSDictionary class]];
@@ -60,20 +60,20 @@
 	[self fill:entities fromQuery:query];
 }
 
-- (void)fill:(NSArray <GDGEntity *> *)entities fromQuery:(GDGEntityQuery *)query
+- (void)fill:(NSArray <GDGRecord *> *)entities fromQuery:(GDGEntityQuery *)query
 {
-	NSArray<NSNumber *> *ids = [entities map:^id(GDGEntity *object) {
+	NSArray<NSNumber *> *ids = [entities map:^id(GDGRecord *object) {
 		return object.id;
 	}];
 
-	NSMutableDictionary<NSNumber *, NSMutableArray<GDGEntity *> *> *relationEntitiesDictionary = [[NSMutableDictionary alloc] initWithCapacity:entities.count];
+	NSMutableDictionary<NSNumber *, NSMutableArray<GDGRecord *> *> *relationEntitiesDictionary = [[NSMutableDictionary alloc] initWithCapacity:entities.count];
 
 	for (NSUInteger i = 0; i < entities.count; i++)
 	{
-		GDGEntity *entity = entities[i];
+		GDGRecord *entity = entities[i];
 		NSNumber *foreignId = ids[i];
 
-		NSMutableArray<GDGEntity *> *mutableEntities = relationEntitiesDictionary[foreignId];
+		NSMutableArray<GDGRecord *> *mutableEntities = relationEntitiesDictionary[foreignId];
 		if (mutableEntities == nil)
 		{
 			mutableEntities = [NSMutableArray array];
@@ -134,9 +134,9 @@
 	}
 
 	NSMutableDictionary<NSNumber *, NSMutableArray *> *idRelationDictionary = [[NSMutableDictionary alloc] initWithCapacity:count];
-	NSMutableDictionary<NSNumber *, GDGEntity *> *relationIdDictionary = [[NSMutableDictionary alloc] initWithCapacity:count];
+	NSMutableDictionary<NSNumber *, GDGRecord *> *relationIdDictionary = [[NSMutableDictionary alloc] initWithCapacity:count];
 
-	for (GDGEntity *relatedEntity in query.array)
+	for (GDGRecord *relatedEntity in query.array)
 		relationIdDictionary[relatedEntity.id] = relatedEntity;
 
 	for (NSNumber *ownerId in relationIds.allKeys)
@@ -150,7 +150,7 @@
 		idRelationDictionary[ownerId] = relations;
 	}
 
-	for (GDGEntity *entity in entities)
+	for (GDGRecord *entity in entities)
 	{
 		NSMutableArray *relatedEntities = idRelationDictionary[entity.id];
 
@@ -158,11 +158,11 @@
 	}
 }
 
-- (BOOL)save:(GDGEntity *)entity error:(NSError **)error
+- (BOOL)save:(GDGRecord *)entity error:(NSError **)error
 {
-	NSArray <NSNumber *> *relatedIds = [[(NSArray *) [entity valueForKey:self.name] select:^BOOL(GDGEntity *related) {
+	NSArray <NSNumber *> *relatedIds = [[(NSArray *) [entity valueForKey:self.name] select:^BOOL(GDGRecord *related) {
 		return [related save:nil];
-	}] map:^NSNumber *(GDGEntity *related) {
+	}] map:^NSNumber *(GDGRecord *related) {
 		return related.id;
 	}];
 
