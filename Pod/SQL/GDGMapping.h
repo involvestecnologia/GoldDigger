@@ -23,8 +23,8 @@
 @property (strong, nonatomic, nonnull) NSDictionary <NSString *, GDGValueTransformer *> *valueTransformerDictionary;
 
 - (nonnull instancetype)initWithDictionary:(NSDictionary <NSString *, NSString *> *__nonnull)fromToDictionary
-                              from:(GDGTable *__nonnull)table
-                                to:(Class)class;
+                                      from:(GDGTable *__nonnull)table
+                                        to:(Class)class;
 
 #pragma mark - Relation mapping
 

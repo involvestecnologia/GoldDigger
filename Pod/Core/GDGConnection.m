@@ -12,6 +12,9 @@
 #import "GDGQueryParser.h"
 #import "GDGColumn.h"
 #import "GDGTable_Package.h"
+#import "GDGActiveRecord.h"
+#import "GDGRecord.h"
+#import "GDGActiveRecord_Package.h"
 #import <ObjectiveSugar/NSString+ObjectiveSugar.h>
 #import <SQLAid/CIRStatement.h>
 

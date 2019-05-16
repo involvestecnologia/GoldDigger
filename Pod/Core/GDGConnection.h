@@ -4,12 +4,14 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol GDGDatabaseProvider;
-@class GDGTable;
+@class CIRStatement;
+@class GDGActiveRecord;
 @class GDGQuery;
 @class GDGResultSet;
-@class GDGRawQuery;
-@class CIRStatement;
+@class GDGTable;
+@protocol GDGDatabaseProvider;
+@protocol GDGRecordable;
+@class GDGRecord;
 
 @interface GDGConnection : NSObject
 

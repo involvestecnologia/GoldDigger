@@ -6,17 +6,31 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "GDGActiveRecord.h"
 
+@class GDGRecord;
 @class GDGMapping;
+@class GDGQuery;
+@class GDGConnection;
 
-@interface GDGRecord : NSObject
+@protocol GDGRecordable <NSObject>
 
-@property (strong, nonatomic, nonnull) GDGMapping *mapping;
++ (GDGRecord *)record;
 
-+ (nonnull instancetype)recordClass:(Class)class usingTableMapping:(GDGMapping *(^)(NSArray *))tap;
+@end
 
-- (BOOL)fill:(void (^ __nonnull)(GDGRecord * __nullable))fillHandler error:(NSError ** __nullable)error;
+@interface GDGRecord <ObjectType> : NSObject
 
-- (BOOL)isEqualToRecord:(GDGRecord * __nonnull)entity;
+@property (readonly, nonatomic, nonnull) GDGMapping *mapping;
+
++ (nullable instancetype)recordClass:(Class)class mapping:(GDGMapping *(^ __nonnull)(NSArray *__nonnull))tap;
+
+- (nullable NSArray <ObjectType> *)findAllConnecting:(GDGConnection *)connection error:(NSError **)error;
+
+- (nullable NSArray <ObjectType> *)findById:(id)id connecting:(GDGConnection *)connection error:(NSError **)error;
+
+- (nullable NSArray <ObjectType> *)findByQuery:(GDGQuery *)query
+                                    connecting:(GDGConnection *)connection
+                                         error:(NSError **)error;
 
 @end

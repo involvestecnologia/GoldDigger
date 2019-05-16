@@ -37,52 +37,11 @@
 		{
 			[condition appendString:@" IN ("];
 
-			NSString *__const nextToken = tokens[++i];
-
-			if ([nextToken hasPrefix:@"ARG_"])
+			if ([tokens[++i] hasPrefix:@"ARG_"])
 			{
-				id arg = conditionArgs[nextToken];
-
-				if ([arg isKindOfClass:[NSString class]])
-					[condition appendString:arg];
-				else if ([arg isKindOfClass:[NSArray class]])
-					[condition appendString:[[(NSArray *) arg map:^id(id object) {
-						return NSStringWithFormat(@"%@", object);
-					}] join:@", "]];
-				else if ([arg isKindOfClass:[GDGQuery class]])
-				{
-					GDGQueryParser *qParser = [[GDGQueryParser alloc] init];
-
-					NSError *underlyingError;
-					GDGRawQuery *query = [qParser parse:arg error:&underlyingError];
-
-					if (!query && underlyingError)
-					{
-						if (error)
-						{
-							NSString *message = NSStringWithFormat(@"Error while parsing a query condition for arg %@", nextToken);
-							*error = [NSError errorWithCode:GDGParseArgumentConditionError
-													message:message
-												 underlying:underlyingError];
-						}
-
-						return nil;
-					}
-
-					[condition appendString:query.visit];
-					[args addObjectsFromArray:query.args];
-				}
-				else if (error)
-				{
-					NSString *argClass = NSStringFromClass([arg class]);
-					NSString *message = NSStringWithFormat(@"[SQLQuery -visit] thorws that the argument kind \"%@\" can't be interpreted", argClass)
-
-					*error = [NSError errorWithCode:GDGParseUnknownArgumentKindError
-											message:message
-										 underlying:nil];
-
+				id arg = conditionArgs[token];
+				if (![self parseInArg:arg token:token condition:condition args:args error:error])
 					return nil;
-				}
 			}
 
 			[condition appendString:@")"];
@@ -112,6 +71,54 @@
 	result.args = [NSArray arrayWithArray:args];
 
 	return result;
+}
+
+- (BOOL)parseInArg:(id)arg token:(NSString *)token
+         condition:(NSMutableString *)condition args:(NSMutableArray *)args
+             error:(NSError **)error
+{
+	if ([arg isKindOfClass:[NSString class]])
+		[condition appendString:arg];
+	else if ([arg isKindOfClass:[NSArray class]])
+		[condition appendString:[[(NSArray *) arg map:^id(id object) {
+			return NSStringWithFormat(@"%@", object);
+		}] join:@", "]];
+	else if ([arg isKindOfClass:[GDGQuery class]])
+	{
+		GDGQueryParser *qParser = [[GDGQueryParser alloc] init];
+
+		NSError *underlyingError;
+		GDGRawQuery *query = [qParser parse:arg error:&underlyingError];
+
+		if (!query && underlyingError)
+		{
+			if (error)
+			{
+				NSString *message = NSStringWithFormat(@"Error while parsing a query condition for arg %@", token);
+				*error = [NSError errorWithCode:GDGParseArgumentConditionError
+				                        message:message
+				                     underlying:underlyingError];
+			}
+
+			return NO;
+		}
+
+		[condition appendString:query.visit];
+		[args addObjectsFromArray:query.args];
+	}
+	else if (error)
+	{
+		NSString *argClass = NSStringFromClass([arg class]);
+		NSString *message = NSStringWithFormat(@"[SQLQuery -visit] thorws that the argument kind \"%@\" can't be interpreted", argClass);
+
+		*error = [NSError errorWithCode:GDGParseUnknownArgumentKindError
+                                message:message
+                             underlying:nil];
+
+		return NO;
+	}
+
+	return YES;
 }
 
 @end
