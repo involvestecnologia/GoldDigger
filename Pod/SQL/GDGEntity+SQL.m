@@ -297,18 +297,19 @@
 		saved = [db.table update:values error:error];
 	}
 	else
-		saved = [db.table insert:values error:error];
-
-	if (saved && !exists && self.id == nil)
-		self.id = [db.table lastInsertedId];
+	{
+		int insertId = [db.table insert:values error:error];
+		self.id = [NSNumber numberWithInt:insertId];
+		saved = self.id != nil ? true : false;
+	}
 
 	for (GDGRelation *relation in relations)
-  {
-    BOOL success = [relation save:self error:error];
-    if (!success || *error) {
-      return NO;
-    }
-  }
+	{
+		BOOL success = [relation save:self error:error];
+		if (!success || error != nil) {
+			return NO;
+		}
+	}
 
 	if (saved)
 		[self.changedProperties removeAllObjects];
