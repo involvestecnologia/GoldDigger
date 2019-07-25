@@ -33,7 +33,7 @@
 
 - (CIRStatement *)deleteStatement;
 
-- (BOOL)insert:(NSDictionary <NSString *, id> *)values error:(NSError **)error;
+- (int)insert:(NSDictionary <NSString *, id> *)values error:(NSError **)error;
 
 - (BOOL)update:(NSDictionary <NSString *, id> *)values error:(NSError **)error;
 
