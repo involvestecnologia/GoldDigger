@@ -282,7 +282,7 @@
 		values[columnName] = value ?: [NSNull null];
 	}
 
-	if (exists)
+	if (exists || self.id)
 	{
 		for (NSString *key in primaryKeys)
 		{
@@ -298,18 +298,13 @@
 	}
 	else
 	{
-		int insertId = [db.table insert:values error:error];
+		int insertId = [db.table insert:values];
 		self.id = [NSNumber numberWithInt:insertId];
 		saved = self.id != nil ? true : false;
 	}
 
 	for (GDGRelation *relation in relations)
-	{
-		BOOL success = [relation save:self error:error];
-		if (!success) {
-			return NO;
-		}
-	}
+		[relation save:self error:NULL];
 
 	if (saved)
 		[self.changedProperties removeAllObjects];

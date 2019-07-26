@@ -238,7 +238,7 @@
 
 #pragma mark Execute
 
-- (int)insert:(NSDictionary <NSString *, id> *)values error:(NSError **)error
+- (int)insert:(NSDictionary <NSString *, id> *)values
 {
 	NSNumber *i;
 	sqlite3 *handler = _databaseProvider.database.handler;
@@ -250,10 +250,13 @@
 	code = sqlite3_exec(handler, [[NSString stringWithFormat:@"CREATE TEMP TRIGGER _trigger AFTER INSERT ON main.%@ BEGIN INSERT INTO _temp SELECT NEW.id; END", _name, _name] UTF8String], 0, 0, &errMessage);
 
 	NSString *insertString = [self insertStringForColumns:[values allKeys]];
-	BOOL succeeded = [_databaseProvider.database executeUpdate:insertString withNamedParameters:values error:error];
-	if (!succeeded && error)
-		*error = [NSError errorWithDomain:@"com.CopyIsRight.GoldDigger" code:kDEFAULT_ERROR_CODE
-								 userInfo:@{NSLocalizedDescriptionKey : _databaseProvider.database.lastErrorMessage}];
+	BOOL succeeded = [_databaseProvider.database executeUpdate:insertString withNamedParameters:values error:nil];
+	if (!succeeded)
+	{
+		NSLog(@"🧀 %@", _databaseProvider.database.lastErrorMessage);
+		return 0;
+	}
+
 
 	code = sqlite3_exec(handler, [@"DROP TRIGGER _trigger;" UTF8String], 0, 0, &errMessage);
 
@@ -268,6 +271,7 @@
 
 	code = sqlite3_exec(handler, [@"DELETE FROM temp._temp" UTF8String], 0, 0, &errMessage);
 
+	NSLog(@"🧀 %@", _databaseProvider.database.lastErrorMessage);
 	return i.intValue;
 }
 
