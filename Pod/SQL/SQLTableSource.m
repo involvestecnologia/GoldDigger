@@ -252,10 +252,7 @@
 	NSString *insertString = [self insertStringForColumns:[values allKeys]];
 	BOOL succeeded = [_databaseProvider.database executeUpdate:insertString withNamedParameters:values error:nil];
 	if (!succeeded)
-	{
-		NSLog(@"🧀 %@", _databaseProvider.database.lastErrorMessage);
 		return 0;
-	}
 
 
 	code = sqlite3_exec(handler, [@"DROP TRIGGER _trigger;" UTF8String], 0, 0, &errMessage);
@@ -271,7 +268,6 @@
 
 	code = sqlite3_exec(handler, [@"DELETE FROM temp._temp" UTF8String], 0, 0, &errMessage);
 
-	NSLog(@"🧀 %@", _databaseProvider.database.lastErrorMessage);
 	return i.intValue;
 }
 

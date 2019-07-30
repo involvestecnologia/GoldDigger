@@ -298,8 +298,13 @@
 	}
 	else
 	{
-		int insertId = [db.table insert:values];
-		self.id = [NSNumber numberWithInt:insertId];
+		NSString *insertId = [db.table insert:values];
+
+		NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+		formatter.numberStyle = NSNumberFormatterDecimalStyle;
+		NSNumber *num = [f numberFromString:insertId];
+
+		self.id = num;
 		saved = self.id != nil ? true : false;
 	}
 
