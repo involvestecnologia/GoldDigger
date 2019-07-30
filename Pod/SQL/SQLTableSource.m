@@ -238,13 +238,14 @@
 
 #pragma mark Execute
 
-- (int)insert:(NSDictionary <NSString *, id> *)values
+- (NSString *)insert:(NSDictionary <NSString *, id> *)values
 {
-	NSNumber *i;
+	NSString *stringBuff = [NSString new];
 	sqlite3 *handler = _databaseProvider.database.handler;
 	int code = 0;
 	const char *errMessage;
 
+	code = sqlite3_exec(handler, [@"BEGIN TRANSACTION" UTF8String], 0, 0, &errMessage);
 	code = sqlite3_exec(handler, [@"DROP TABLE IF EXISTS temp._temp" UTF8String], 0, 0, &errMessage);
 	code = sqlite3_exec(handler, [@"CREATE TEMP TABLE IF NOT EXISTS _temp (id INTEGER NOT NULL PRIMARY KEY)" UTF8String], 0, 0, &errMessage);
 	code = sqlite3_exec(handler, [[NSString stringWithFormat:@"CREATE TEMP TRIGGER _trigger AFTER INSERT ON main.%@ BEGIN INSERT INTO _temp SELECT NEW.id; END", _name, _name] UTF8String], 0, 0, &errMessage);
@@ -254,21 +255,39 @@
 	if (!succeeded)
 		return 0;
 
-
 	code = sqlite3_exec(handler, [@"DROP TRIGGER _trigger;" UTF8String], 0, 0, &errMessage);
 
 	sqlite3_stmt *stmt;
-	code = sqlite3_prepare_v2(handler, [@"SELECT id FROM temp._temp ORDER BY id DESC" UTF8String], -1, &stmt, 0);
+	code = sqlite3_prepare_v2(handler, [@"SELECT id FROM temp._temp ORDER BY id DESC" UTF8String], -1, &stmt, NULL);
 
-	if (sqlite3_step(stmt) == SQLITE_ROW)
-		i = [NSNumber numberWithInt:sqlite3_column_int(stmt, 0)];
+
+//	if (sqlite3_step(stmt) == SQLITE_ROW)
+//		i = sqlite3_column_int(stmt, 0);
+
+	while ( (code = sqlite3_step(stmt)) == SQLITE_ROW) {
+		char *buff = sqlite3_column_text(stmt, 0);
+		stringBuff = [NSString stringWithUTF8String:buff];
+	}
 
 	sqlite3_reset(stmt);
 	sqlite3_finalize(stmt);
 
-	code = sqlite3_exec(handler, [@"DELETE FROM temp._temp" UTF8String], 0, 0, &errMessage);
+	if (![self.name isEqualToString:@"Coleta"])
+		code = sqlite3_exec(handler, [@"DELETE FROM temp._temp" UTF8String], 0, 0, &errMessage);
 
-	return i.intValue;
+
+
+	code = sqlite3_exec(handler, [@"COMMIT TRANSACTION" UTF8String], 0, 0, &errMessage);
+
+	if (code != 0)
+	{
+		@throw [NSException exceptionWithName:@"Insert error"
+									   reason:_databaseProvider.database.lastErrorMessage
+									 userInfo:nil];
+
+	}
+
+	return stringBuff;
 }
 
 - (BOOL)update:(NSDictionary <NSString *, id> *)values error:(NSError **)error

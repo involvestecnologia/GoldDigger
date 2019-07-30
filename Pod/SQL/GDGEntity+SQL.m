@@ -300,11 +300,11 @@
 	{
 		NSString *insertId = [db.table insert:values];
 
-		NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
-		formatter.numberStyle = NSNumberFormatterDecimalStyle;
-		NSNumber *num = [f numberFromString:insertId];
+		NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
+		f.numberStyle = NSNumberFormatterDecimalStyle;
+		NSNumber *myNumber = [f numberFromString:insertId];
 
-		self.id = num;
+		self.id = myNumber;
 		saved = self.id != nil ? true : false;
 	}
 
