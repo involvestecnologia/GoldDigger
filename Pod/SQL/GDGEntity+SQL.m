@@ -282,7 +282,7 @@
 		values[columnName] = value ?: [NSNull null];
 	}
 
-	if (exists || self.id)
+	if (exists && self.id)
 	{
 		for (NSString *key in primaryKeys)
 		{

@@ -260,10 +260,6 @@
 	sqlite3_stmt *stmt;
 	code = sqlite3_prepare_v2(handler, [@"SELECT id FROM temp._temp ORDER BY id DESC" UTF8String], -1, &stmt, NULL);
 
-
-//	if (sqlite3_step(stmt) == SQLITE_ROW)
-//		i = sqlite3_column_int(stmt, 0);
-
 	while ( (code = sqlite3_step(stmt)) == SQLITE_ROW) {
 		char *buff = sqlite3_column_text(stmt, 0);
 		stringBuff = [NSString stringWithUTF8String:buff];
@@ -272,11 +268,7 @@
 	sqlite3_reset(stmt);
 	sqlite3_finalize(stmt);
 
-	if (![self.name isEqualToString:@"Coleta"])
-		code = sqlite3_exec(handler, [@"DELETE FROM temp._temp" UTF8String], 0, 0, &errMessage);
-
-
-
+    code = sqlite3_exec(handler, [@"DELETE FROM temp._temp" UTF8String], 0, 0, &errMessage);
 	code = sqlite3_exec(handler, [@"COMMIT TRANSACTION" UTF8String], 0, 0, &errMessage);
 
 	if (code != 0)
