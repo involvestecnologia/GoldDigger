@@ -245,11 +245,11 @@
 	int code = 0;
 	const char *errMessage;
 
-	code = sqlite3_exec(handler, [@"BEGIN TRANSACTION" UTF8String], 0, 0, &errMessage);
-	if (code != 0)
-		@throw [NSException exceptionWithName:@"Insert transaction error"
-									   reason:_databaseProvider.database.lastErrorMessage
-									 userInfo:nil];
+	int transaction = sqlite3_get_autocommit(handler);
+	if (transaction == 0)
+		code = sqlite3_exec(handler, [@"SAVEPOINT insertBegin" UTF8String], 0, 0, &errMessage);
+	else
+		code = sqlite3_exec(handler, [@"BEGIN TRANSACTION" UTF8String], 0, 0, &errMessage);
 
 	code = sqlite3_exec(handler, [@"DROP TABLE IF EXISTS temp._temp" UTF8String], 0, 0, &errMessage);
 	code = sqlite3_exec(handler, [@"CREATE TEMP TABLE IF NOT EXISTS _temp (id INTEGER NOT NULL PRIMARY KEY)" UTF8String], 0, 0, &errMessage);
@@ -274,7 +274,10 @@
 	sqlite3_finalize(stmt);
 
 	code = sqlite3_exec(handler, [@"DELETE FROM temp._temp" UTF8String], 0, 0, &errMessage);
-	code = sqlite3_exec(handler, [@"COMMIT TRANSACTION" UTF8String], 0, 0, &errMessage);
+	if (transaction == 0)
+		code = sqlite3_exec(handler, [@"RELEASE insertBegin" UTF8String], 0, 0, &errMessage);
+	else
+		code = sqlite3_exec(handler, [@"COMMIT TRANSACTION" UTF8String], 0, 0, &errMessage);
 
 	if (code != 0)
 		@throw [NSException exceptionWithName:@"Insert error"
