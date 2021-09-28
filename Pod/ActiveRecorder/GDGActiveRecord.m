@@ -6,10 +6,11 @@
 #import "GDGRecord.h"
 #import "GDGConnection.h"
 #import "GDGRelation.h"
+#import "GDGObjectFiller.h"
 
 @interface GDGActiveRecord ()
 
-@property (nonatomic, weak) id recordableObject;
+@property (nonatomic, weak) id<GDGRecordable> recordableObject;
 @property (nonatomic, weak) GDGConnection *connection;
 @property (readonly, nonatomic, nonnull) GDGRecord *innerRecord;
 
@@ -17,7 +18,7 @@
 
 @implementation GDGActiveRecord
 
-+ (instancetype)activeRecordConnecting:(GDGConnection *)connection onRecordable:(id __nonnull)object
++ (instancetype)activeRecordConnecting:(GDGConnection *)connection onRecordable:(id)object
 {
 	return [[self alloc] initWithRecordable:object connection:connection];
 }
@@ -46,25 +47,22 @@
 
 #pragma mark - Active record methods
 
-- (BOOL)fill:(NSArray *)properties error:(NSError **)error
+- (BOOL)fill:(NSError **)error
+{
+    GDGObjectFiller *filler = [[GDGObjectFiller alloc] initWithConnection:_connection];
+    GDGRecord *record = [_recordableObject record];
+    
+	return [filler fill:_recordableObject withMapping:record.mapping error:error];
+}
+
+- (BOOL)save:(NSError **)error
 {
 	return NO;
 }
 
-- (BOOL)fill:(NSArray *)properties relations:(NSArray *(^)(GDGRelation *))relationPropertiesHandler error:(NSError **)error
+- (BOOL)delete:(NSError **)error
 {
 	return NO;
 }
-
-- (BOOL)save:(NSError *)error
-{
-	return NO;
-}
-
-- (BOOL)delete:(NSError *)error
-{
-	return NO;
-}
-
 
 @end

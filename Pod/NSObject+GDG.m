@@ -7,7 +7,7 @@
 
 @implementation NSObject (GDG)
 
-+ (NSArray<NSValue *> *)gdg_propertyListFromClass:(Class)fromClass until:(Class)toClass
++ (NSArray <NSValue *> *)gdg_propertyListFromClass:(Class)fromClass until:(Class)toClass
 {
 	NSMutableArray *props = [[NSMutableArray alloc] init];
 

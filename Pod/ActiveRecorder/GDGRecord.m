@@ -9,6 +9,7 @@
 #import "NSObject+GDG.h"
 #import "GDGMapping.h"
 #import "GDGRecordSwizzler.h"
+#import "GDGConnection.h"
 #import <ObjectiveSugar/NSArray+ObjectiveSugar.h>
 #import <objc/runtime.h>
 
@@ -51,23 +52,6 @@
 		_mapping = mapping;
 
 	return self;
-}
-
-// #########
-
-- (nullable NSArray <ObjectType> *)findAllConnecting:(GDGConnection *)connection error:(NSError **)error
-{
-	return nil;
-}
-
-- (nullable NSArray <ObjectType> *)findById:(id)id1 connecting:(GDGConnection *)connection error:(NSError **)error
-{
-	return nil;
-}
-
-- (nullable NSArray <ObjectType> *)findByQuery:(GDGQuery *)query connecting:(GDGConnection *)connection error:(NSError **)error
-{
-	return nil;
 }
 
 @end

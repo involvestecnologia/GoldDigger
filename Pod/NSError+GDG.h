@@ -25,6 +25,9 @@ FOUNDATION_EXPORT const GDGErrorCode GDGQueryDuplicateJoinError = 800;
 FOUNDATION_EXPORT const GDGErrorCode GDGQueryPullWithNoMapError = 801;
 FOUNDATION_EXPORT const GDGErrorCode GDGConnectionPragmaTableInfoError = 900;
 FOUNDATION_EXPORT const GDGErrorCode GDGConnectionColumnIterationError = 901;
+FOUNDATION_EXPORT const GDGErrorCode GDGRecordableObjectFillError = 1001;
+FOUNDATION_EXPORT const GDGErrorCode GDGRecordableObjectSaveError = 1011;
+FOUNDATION_EXPORT const GDGErrorCode GDGRecordableObjectDeleteError = 1021;
 
 FOUNDATION_EXPORT NSErrorDomain const GDGErrorDomain;
 

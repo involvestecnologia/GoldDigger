@@ -25,12 +25,4 @@
 
 + (nullable instancetype)recordClass:(Class)class mapping:(GDGMapping *(^ __nonnull)(NSArray *__nonnull))tap;
 
-- (nullable NSArray <ObjectType> *)findAllConnecting:(GDGConnection *)connection error:(NSError **)error;
-
-- (nullable NSArray <ObjectType> *)findById:(id)id connecting:(GDGConnection *)connection error:(NSError **)error;
-
-- (nullable NSArray <ObjectType> *)findByQuery:(GDGQuery *)query
-                                    connecting:(GDGConnection *)connection
-                                         error:(NSError **)error;
-
 @end

@@ -10,18 +10,26 @@ Pod::Spec.new do |s|
   s.source           = { :git => "https://github.com/CopyIsRight/GoldDigger.git", :tag => s.version.to_s }
   s.platform         = :ios, '8.0'
   s.requires_arc     = true
-  
-  s.subspec 'Core' do |core|
-    core.source_files   = 'Pod/Core/*.{h,m}'
+  s.source_files     = 'Pod/*.{h,m}'
 
-    core.dependency   'ObjectiveSugar', '1.1.0'
+  s.dependency    'SQLAid', '0.2.0'
+
+  s.subspec 'Parser' do |psr|
+    psr.source_files   = 'Pod/Parser/*.{h,m}'
+
+    psr.dependency   'ObjectiveSugar', '1.1.0'
   end
 
-  s.subspec 'SQL' do |sql|
-    sql.source_files    = 'Pod/SQL/*.{h,m}'
+  s.subspec 'Mapper' do |mpr|
+    mpr.source_files    = 'Pod/Mapper/*.{h,m}'
 
-    sql.dependency    'GoldDigger/Core'
-    sql.dependency    'SQLAid', '0.2.0'
+    mpr.dependency    'GoldDigger/Parser'
+  end
+
+  s.subspec 'ActiveRecorder' do |adr|
+    adr.source_files    = 'Pod/ActiveRecorder/*.{h,m}'
+
+    adr.dependency    'GoldDigger/Mapper'
   end
 
 end

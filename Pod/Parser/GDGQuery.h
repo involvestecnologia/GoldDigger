@@ -13,6 +13,8 @@
 @class GDGMapping;
 @class GDGTable;
 
+NS_ASSUME_NONNULL_BEGIN
+
 typedef NS_ENUM(uint8_t, GDGQueryOrder) {
 	GDGQueryOrderAsc,
 	GDGQueryOrderDesc
@@ -45,7 +47,7 @@ typedef NS_ENUM(uint8_t, GDGQueryOrder) {
 
 - (void)select:(NSArray <NSString *> * __nonnull)projection;
 
-- (BOOL)join(GDGJoin * __nonnull)join error:(NSError **__nullable)error;
+- (BOOL)join:(GDGJoin * __nonnull)join error:(NSError **__nullable)error;
 
 - (BOOL)pull:(NSDictionary <NSString *, NSArray *> *__nonnull)relations error:(NSError **__nullable)error;
 
@@ -62,3 +64,5 @@ typedef NS_ENUM(uint8_t, GDGQueryOrder) {
 - (void)clearProjection;
 
 @end
+
+NS_ASSUME_NONNULL_END
