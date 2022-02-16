@@ -3,7 +3,7 @@ use_frameworks!
 
 
 target 'GoldDigger_Tests' do
-  pod 'GoldDigger', :path => '../'
+  pod 'GoldDigger', :git => "https://github.com/eduardomendoncaSnow/GoldDigger"
 
   pod 'Kiwi'
 end
