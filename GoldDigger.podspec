@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
     sql.source_files    = 'Pod/SQL/*.{h,m}'
 
     sql.dependency    'GoldDigger/Core'
-    sql.dependency    'SQLAid', '0.2.0'
+    sql.dependency    'SQLAids', '0.2.1'
   end
 
 end
