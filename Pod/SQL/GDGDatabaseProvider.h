@@ -6,7 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <SQLAid/CIRDatabase.h>
+#import <SQLAids/CIRDatabase.h>
 
 @protocol GDGDatabaseProvider <NSObject>
 
