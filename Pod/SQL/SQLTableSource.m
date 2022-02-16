@@ -8,7 +8,7 @@
 #import <SQLAids/CIRDatabase.h>
 #import <SQLAids/CIRStatement.h>
 
-#import <sqlite3/sqlite3.h> // TODO
+#import <SQLite/SQLite.h> // TODO
 
 #import <ObjectiveSugar/NSArray+ObjectiveSugar.h>
 #import "SQLTableSource.h"
