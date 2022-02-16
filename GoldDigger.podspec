@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.license          = 'MIT'
   s.author           = { "Pietro Caselani" => "pc1992@gmail.com", "Felipe Lobo" => "frlwolf@gmail.com", "Bruno da Luz" => "brunolabx@gmail.com" }
   s.source           = { :git => "https://github.com/CopyIsRight/GoldDigger.git", :tag => s.version.to_s }
-  s.platform         = :ios, '8.0'
+  s.platform         = :ios, '10.0'
   s.requires_arc     = true
   
   s.subspec 'Core' do |core|
