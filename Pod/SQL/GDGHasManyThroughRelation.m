@@ -7,8 +7,8 @@
 
 #import "GDGHasManyThroughRelation.h"
 
-#import <SQLAids/CIRStatement.h>
-#import <SQLAids/CIRDatabase.h>
+#import <SQLAid/CIRStatement.h>
+#import <SQLAid/CIRDatabase.h>
 #import <ObjectiveSugar/ObjectiveSugar.h>
 #import "SQLTableSource.h"
 #import "GDGEntityMap.h"
