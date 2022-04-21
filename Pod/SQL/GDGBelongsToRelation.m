@@ -76,8 +76,6 @@
 		return object != [NSNull null];
 	}];
 
-	if (ids.count == 0) return;
-
 	query.where(^(GDGCondition *builder) {
 		builder.prop(@"id").in(ids);
 	});

@@ -63,7 +63,8 @@
 
 - (SQLTableSource *)table
 {
-	return self.source;
+	SQLTableSource *table = self.source;
+	return [table copy];
 }
 
 - (SQLEntityQuery *)query

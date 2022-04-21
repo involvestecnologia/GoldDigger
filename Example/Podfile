@@ -2,7 +2,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
 
 
-target 'GoldDigger_Tests' do
+target 'GoldDigger_Tests', :exclusive => true do
   pod 'GoldDigger', :path => '../'
 
   pod 'Kiwi'

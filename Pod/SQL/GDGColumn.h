@@ -25,7 +25,7 @@ typedef NS_ENUM(NSUInteger, GDGColumnType)
 @interface GDGColumn : NSObject <NSCopying, GDGConditionField>
 
 @property (strong, nonatomic) NSString *name;
-@property (weak, nonatomic) SQLTableSource *table;
+@property (strong, nonatomic) SQLTableSource *table;
 @property (assign, nonatomic) GDGColumnType type;
 @property (assign, nonatomic) int primaryKey;
 @property (assign, nonatomic, getter=isNotNull) BOOL notNull;

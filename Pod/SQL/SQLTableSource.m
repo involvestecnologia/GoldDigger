@@ -8,7 +8,7 @@
 #import <SQLAid/CIRDatabase.h>
 #import <SQLAid/CIRStatement.h>
 
-#import <sqlite3/sqlite3.h> // TODO
+#import <sqlite3/sqlite3.h>
 
 #import <ObjectiveSugar/NSArray+ObjectiveSugar.h>
 #import "SQLTableSource.h"
@@ -23,7 +23,7 @@
 @implementation SQLTableSource
 
 - (instancetype)initWithTableName:(NSString *)tableName
-                 databaseProvider:(id <GDGDatabaseProvider>)databaseProvider;
+				 databaseProvider:(id <GDGDatabaseProvider>)databaseProvider;
 {
 	if (self = [super init])
 	{
@@ -184,7 +184,7 @@
 	}] join:@" AND "];
 
 	NSString *conditions = condition.length == 0 ? primaryKeysCondition :
-			[NSString stringWithFormat:@"(%@) AND (%@)", primaryKeysCondition, condition];
+	[NSString stringWithFormat:@"(%@) AND (%@)", primaryKeysCondition, condition];
 
 	[mutableString appendString:conditions];
 
@@ -199,17 +199,17 @@
 - (NSString *)deleteString
 {
 	NSMutableString *mutableString = [[NSMutableString alloc] initWithFormat:@"DELETE FROM %@ WHERE", self.identifier];
-	
+
 	NSArray *primaryKeys = [[self.columns select:^BOOL(GDGColumn *column) {
 		return column.primaryKey > 0;
 	}] sortBy:@"primaryKey"];
-	
+
 	for (GDGColumn *primaryKey in primaryKeys) {
 		[mutableString appendFormat:@" %@.%@ = ? AND", self.identifier, primaryKey.name];
 	}
-	
+
 	[mutableString replaceCharactersInRange:NSMakeRange(mutableString.length - 4, 4) withString:@""];
-	
+
 	return mutableString;
 }
 
@@ -238,37 +238,46 @@
 
 #pragma mark Execute
 
-- (int)insert:(NSDictionary <NSString *, id> *)values error:(NSError **)error
+- (NSString *)insert:(NSDictionary <NSString *, id> *)values
 {
-	NSNumber *i;
+	NSString *stringBuff = [NSString new];
 	sqlite3 *handler = _databaseProvider.database.handler;
 	int code = 0;
 	const char *errMessage;
+
+	code = sqlite3_exec(handler, [@"SAVEPOINT insertBegin" UTF8String], 0, 0, &errMessage);
 
 	code = sqlite3_exec(handler, [@"DROP TABLE IF EXISTS temp._temp" UTF8String], 0, 0, &errMessage);
 	code = sqlite3_exec(handler, [@"CREATE TEMP TABLE IF NOT EXISTS _temp (id INTEGER NOT NULL PRIMARY KEY)" UTF8String], 0, 0, &errMessage);
 	code = sqlite3_exec(handler, [[NSString stringWithFormat:@"CREATE TEMP TRIGGER _trigger AFTER INSERT ON main.%@ BEGIN INSERT INTO _temp SELECT NEW.id; END", _name, _name] UTF8String], 0, 0, &errMessage);
 
 	NSString *insertString = [self insertStringForColumns:[values allKeys]];
-	BOOL succeeded = [_databaseProvider.database executeUpdate:insertString withNamedParameters:values error:error];
-	if (!succeeded && error)
-		*error = [NSError errorWithDomain:@"com.CopyIsRight.GoldDigger" code:kDEFAULT_ERROR_CODE
-								 userInfo:@{NSLocalizedDescriptionKey : _databaseProvider.database.lastErrorMessage}];
+	BOOL succeeded = [_databaseProvider.database executeUpdate:insertString withNamedParameters:values error:nil];
+	if (!succeeded)
+		return [NSString new];
 
 	code = sqlite3_exec(handler, [@"DROP TRIGGER _trigger;" UTF8String], 0, 0, &errMessage);
 
 	sqlite3_stmt *stmt;
-	code = sqlite3_prepare_v2(handler, [@"SELECT id FROM temp._temp ORDER BY id DESC" UTF8String], -1, &stmt, 0);
+	code = sqlite3_prepare_v2(handler, [@"SELECT id FROM temp._temp ORDER BY id DESC" UTF8String], -1, &stmt, NULL);
 
-	if (sqlite3_step(stmt) == SQLITE_ROW)
-		i = [NSNumber numberWithInt:sqlite3_column_int(stmt, 0)];
+	while ( (code = sqlite3_step(stmt)) == SQLITE_ROW) {
+		char *buff = sqlite3_column_text(stmt, 0);
+		stringBuff = [NSString stringWithUTF8String:buff];
+	}
 
 	sqlite3_reset(stmt);
 	sqlite3_finalize(stmt);
 
 	code = sqlite3_exec(handler, [@"DELETE FROM temp._temp" UTF8String], 0, 0, &errMessage);
+	code = sqlite3_exec(handler, [@"RELEASE insertBegin" UTF8String], 0, 0, &errMessage);
 
-	return i.intValue;
+	if (code != 0)
+		@throw [NSException exceptionWithName:@"Insert error"
+									   reason:_databaseProvider.database.lastErrorMessage
+									 userInfo:nil];
+
+	return stringBuff;
 }
 
 - (BOOL)update:(NSDictionary <NSString *, id> *)values error:(NSError **)error
@@ -277,7 +286,7 @@
 	BOOL succeeded = [_databaseProvider.database executeUpdate:updateString withNamedParameters:values error:error];
 	if (!succeeded && error)
 		*error = [NSError errorWithDomain:@"com.CopyIsRight.GoldDigger" code:kDEFAULT_ERROR_CODE
-	                         userInfo:@{NSLocalizedDescriptionKey: _databaseProvider.database.lastErrorMessage}];
+								 userInfo:@{NSLocalizedDescriptionKey: _databaseProvider.database.lastErrorMessage}];
 
 	return succeeded;
 }
@@ -287,7 +296,7 @@
 	BOOL succeeded = [_databaseProvider.database executeUpdate:[self deleteString] withParameters:@[primaryKey] error:error];
 	if (!succeeded && error)
 		*error = [NSError errorWithDomain:@"com.CopyIsRight.GoldDigger" code:kDEFAULT_ERROR_CODE
-		                         userInfo:@{NSLocalizedDescriptionKey : _databaseProvider.database.lastErrorMessage}];
+								 userInfo:@{NSLocalizedDescriptionKey : _databaseProvider.database.lastErrorMessage}];
 
 	return succeeded;
 }
