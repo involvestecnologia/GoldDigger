@@ -5,10 +5,10 @@
 //  Created by Pietro Caselani on 2/12/16.
 //
 
-#import <SQLAid/CIRDatabase.h>
-#import <SQLAid/CIRStatement.h>
+#import <SQLAids/CIRDatabase.h>
+#import <SQLAids/CIRStatement.h>
 
-#import <sqlite3/sqlite3.h>
+#import <SQLite/SQLite.h> // TODO
 
 #import <ObjectiveSugar/NSArray+ObjectiveSugar.h>
 #import "SQLTableSource.h"
