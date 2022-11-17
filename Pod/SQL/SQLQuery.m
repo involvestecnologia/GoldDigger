@@ -298,9 +298,7 @@
 		[mutableCondition appendString:@" "];
 	}
 
-	[mutableCondition replaceCharactersInRange:NSMakeRange(mutableCondition.length - 1, 1) withString:@""];
-
-	return [NSString stringWithString:mutableCondition];
+    return [NSString stringWithString:mutableCondition];
 }
 
 - (NSString *)visitJoin:(SQLJoin *)join disambiguate:(NSString *(^)(SQLQuery *))disambiguationHandler

@@ -6,7 +6,7 @@
 //
 
 #import "GDGRelation.h"
-#import <SQLAid/CIRStatement.h>
+#import <SQLAids/CIRStatement.h>
 
 @class SQLTableSource;
 

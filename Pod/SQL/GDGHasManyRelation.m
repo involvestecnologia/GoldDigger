@@ -15,7 +15,7 @@
 #import "GDGEntity+SQL.h"
 #import "SQLTableSource.h"
 #import "GDGDatabaseProvider.h"
-#import <SQLAid/CIRDatabase.h>
+#import <SQLAids/CIRDatabase.h>
 
 @implementation GDGHasManyRelation
 
