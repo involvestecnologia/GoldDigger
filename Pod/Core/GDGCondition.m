@@ -36,8 +36,9 @@
 				                               reason:@"[GDGCondition -appendField] throws that you must provide a nonnull valid field"
 				                             userInfo:nil];
 
-			[weakSelf appendField:field];
-
+			if (field && weakSelf) {
+				[weakSelf appendField:field];
+			}
 			weakSelf.context = field.fullName;
 
 			return weakSelf;
@@ -131,7 +132,9 @@
 	[_mutableTokens addObject:operator];
 
 	if ([value conformsToProtocol:@protocol(GDGConditionField)])
-		[self appendField:value];
+		if (value) {
+			[self appendField:value];
+		}
 	else
 	{
 		NSString *argName = NSStringWithFormat(@"ARG_%u", _mutableArgs.count);
